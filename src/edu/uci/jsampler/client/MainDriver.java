@@ -1,6 +1,6 @@
 package edu.uci.jsampler.client;
 
-import edu.uci.jsampler.instrument.PInstrumenter;
+import edu.uci.jsampler.instrument.PInstrumentor;
 import soot.PackManager;
 import soot.Transform;
 
@@ -12,7 +12,7 @@ public class MainDriver {
 			System.exit(0);
 		}
 		
-		PackManager.v().getPack("jtp").add(new Transform("jtp.instrumenter", new PInstrumenter()));
+		PackManager.v().getPack("jtp").add(new Transform("jtp.instrumenter", new PInstrumentor()));
 		
 		soot.Main.main(args);
 	}

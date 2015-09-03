@@ -9,7 +9,7 @@ import soot.SootMethod;
 import soot.jimple.Stmt;
 import soot.util.Chain;
 
-public class PInstrumenter extends BodyTransformer {
+public class PInstrumentor extends BodyTransformer {
 
 	
 	
