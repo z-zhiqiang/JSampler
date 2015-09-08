@@ -19,9 +19,9 @@ import soot.PrimType;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Unit;
 import soot.Value;
 import soot.jimple.AssignStmt;
-import soot.jimple.DefinitionStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
@@ -40,7 +40,7 @@ public class PInstrumentor extends BodyTransformer {
 		checkerClass = Scene.v().loadClassAndSupport("StaticChecker");
 		checkReturns = checkerClass.getMethod("void checkReturns(Object,int)");
 		checkBranches = checkerClass.getMethod("void checkBranches(boolean,int)");
-		checkScalarPairs = checkerClass.getMethod("void checkScalarPairs(Object,List,int)");
+		checkScalarPairs = checkerClass.getMethod("void checkScalarPairs(Object,Object,int)");
 		checkMethodEntries = checkerClass.getMethod("void checkMethodEntries(int)");
 	}
 
@@ -130,17 +130,24 @@ public class PInstrumentor extends BodyTransformer {
 		Chain<Local> locals = body.getLocals();
 
 		// get body's units
-		Chain units = body.getUnits();
+		Chain<Unit> units = body.getUnits();
 		Iterator stmtIt = units.snapshotIterator();
 		int cfg_number = 0;
 
+		Stmt stmt = null;
+		int line_number;
+		
+		// for method-entries
+		stmt = (Stmt) units.getFirst();
+		line_number = stmt.getJavaSourceStartLineNumber();
+		instrumentMethodEntries(file_name, method_name, line_number, cfg_number, units, stmt);
+		
+		
 		while (stmtIt.hasNext()) {
 			// cast back to a statement
-			Stmt stmt = (Stmt) stmtIt.next();
-			int line_number = stmt.getJavaSourceStartLineNumber();
-
-			// for method-entries
-			
+			stmt = (Stmt) stmtIt.next();
+			cfg_number++;
+			line_number = stmt.getJavaSourceStartLineNumber();
 
 			// for branches
 			if (stmt instanceof IfStmt) {
@@ -156,13 +163,11 @@ public class PInstrumentor extends BodyTransformer {
 				}
 				//for scalar-pairs
 				else{
-					List<Value> variables = new ArrayList<Value>();
 					for(Local local: locals){
 						if(local.getType() == def.getType()){
-							variables.add(local);
+							instrumentScalarPairs(file_name, method_name, line_number, cfg_number, units, stmt, def, local);
 						}
 					}
-					instrumentScalarPairs(file_name, method_name, line_number, cfg_number, units, stmt, def, variables);
 				}
 
 			}
@@ -174,25 +179,78 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 
-	private void instrumentScalarPairs(String file_name, String method_name, int line_number, int cfg_number,
-			Chain units, Stmt stmt, Value def, List<Value> variables) {
-		//
-		String left = ((AssignStmt) stmt).getLeftOp().toString();
-		assert(left.equals(def.toString()));
-		String right = ((AssignStmt) stmt).getRightOp().toString();
-		
-		
-		//static site information for scalar-pair
-		
+	private void instrumentMethodEntries(String file_name, String method_name, int line_number, int cfg_number,
+			Chain<Unit> units, Stmt stmt) {
+		//static instrumentation site for method entry
+		MethodEntrySite site = new MethodEntrySite(file_name, line_number, method_name, cfg_number); 
+		this.methodEntry_staticInfo.add(site);
 		
 		//insert checking code
-//		InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), def, variables, IntConstant.v(this.scalarPair_staticInfo.size() - 1))
-		
+		InvokeExpr checkMethodEntry = Jimple.v().newStaticInvokeExpr(checkMethodEntries.makeRef(), IntConstant.v(this.methodEntry_staticInfo.size() - 1));
+		Stmt checkMethodEntryStmt = Jimple.v().newInvokeStmt(checkMethodEntry);
+		units.insertBefore(checkMethodEntryStmt, stmt);
 	}
 
 
+	/**
+	 * @param file_name
+	 * @param method_name
+	 * @param line_number
+	 * @param cfg_number
+	 * @param units
+	 * @param stmt
+	 * @param def
+	 * @param local
+	 */
+	private void instrumentScalarPairs(String file_name, String method_name, int line_number, int cfg_number,
+			Chain<Unit> units, Stmt stmt, Value def, Value local) {
+		/* static site information for scalar-pair */
+		//left info
+		Value leftOp = ((AssignStmt) stmt).getLeftOp();
+		String left = leftOp.toString();
+		assert(left.equals(def.toString()));
+		String scope_type_assign = null, container_type = null, scope_type_compare = null;
+		if(leftOp instanceof soot.Local){
+			scope_type_assign = "local";
+			container_type = "direct";
+		}
+		else if(leftOp instanceof soot.jimple.InstanceFieldRef){
+			scope_type_assign = "local";
+			container_type = "field";
+		}
+		else if (leftOp instanceof soot.jimple.StaticFieldRef){
+			scope_type_assign = "global";
+			container_type = "field";
+		}
+		else if(leftOp instanceof soot.jimple.ArrayRef){
+			scope_type_assign = "mem";
+			container_type = "index";
+		}
+		//right and compared variable info
+		String right = ((AssignStmt) stmt).getRightOp().toString();
+		scope_type_compare = "local";
+		
+		ScalarPairSite site = new ScalarPairSite(file_name, line_number, method_name, cfg_number, left, scope_type_assign, container_type, right, scope_type_compare);
+		this.scalarPair_staticInfo.add(site);
+		
+		//insert checking code
+		InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), def, local, IntConstant.v(this.scalarPair_staticInfo.size() - 1));
+		Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
+		units.insertAfter(checkScalarPairStmt, stmt);
+	}
+
+
+	/**
+	 * @param file_name
+	 * @param method_name
+	 * @param line_number
+	 * @param cfg_number
+	 * @param units
+	 * @param stmt
+	 * @param condition
+	 */
 	private void instrumentBranches(String file_name, String method_name, int line_number, int cfg_number, 
-			Chain units, Stmt stmt, Value condition) {
+			Chain<Unit> units, Stmt stmt, Value condition) {
 		//condition predicate
 		String predicate = condition.toString();
 		
@@ -207,8 +265,17 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 
+	/**
+	 * @param file_name
+	 * @param method_name
+	 * @param line_number
+	 * @param cfg_number
+	 * @param units
+	 * @param stmt
+	 * @param def
+	 */
 	private void instrumentReturns(String file_name, String method_name, int line_number, int cfg_number, 
-			Chain units, Stmt stmt, Value def) {
+			Chain<Unit> units, Stmt stmt, Value def) {
 		//callee
 		String callee = null;
 		if(!(stmt.getInvokeExpr() instanceof StaticInvokeExpr)){

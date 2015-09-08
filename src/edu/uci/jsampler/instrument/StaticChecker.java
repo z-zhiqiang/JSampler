@@ -18,7 +18,7 @@ public class StaticChecker {
 	
 	private static Map<Integer, byte[]> methodEntry_reports = new HashMap<Integer, byte[]>();
 	
-	
+
 	
 	/**checking code for returns
 	 * @param returned
@@ -75,7 +75,24 @@ public class StaticChecker {
 	}
 	
 	
-	public static synchronized void checkScalarPairs(Object assigned, List locals, int index){
+	public static synchronized void checkScalarPairs(Object assigned, Object local, int index){
+		assert(assigned.getClass() == local.getClass());
+		double assigned_value = (double) assigned;
+		double local_value = (double) local;
+		if(!scalarPair_reports.containsKey(index)){
+			scalarPair_reports.put(index, new byte[3]);
+		}
+		//counts = {<, ==, >}
+		byte[] counts = scalarPair_reports.get(index);
+		if(assigned_value < local_value){
+			increaseCount(counts, 0);
+		}
+		else if(assigned_value == local_value){
+			increaseCount(counts, 1);
+		}
+		else{
+			increaseCount(counts, 2);
+		}
 		
 	}
 	
