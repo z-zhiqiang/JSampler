@@ -21,13 +21,16 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.ValueBox;
 import soot.jimple.AssignStmt;
+import soot.jimple.IdentityStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Jimple;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
+import soot.tagkit.*;
 import soot.util.Chain;
 
 public class PInstrumentor extends BodyTransformer {
@@ -37,10 +40,10 @@ public class PInstrumentor extends BodyTransformer {
 	static SootMethod checkReturns, checkBranches, checkScalarPairs, checkMethodEntries;
 	
 	static{
-		checkerClass = Scene.v().loadClassAndSupport("StaticChecker");
-		checkReturns = checkerClass.getMethod("void checkReturns(Object,int)");
+		checkerClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.instrument.StaticChecker");
+		checkReturns = checkerClass.getMethod("void checkReturns(java.lang.Object,int)");
 		checkBranches = checkerClass.getMethod("void checkBranches(boolean,int)");
-		checkScalarPairs = checkerClass.getMethod("void checkScalarPairs(Object,Object,int)");
+		checkScalarPairs = checkerClass.getMethod("void checkScalarPairs(java.lang.Object,java.lang.Object,int)");
 		checkMethodEntries = checkerClass.getMethod("void checkMethodEntries(int)");
 	}
 
@@ -119,7 +122,12 @@ public class PInstrumentor extends BodyTransformer {
 	protected void internalTransform(Body body, String phase, Map options) {
 		// need to get file name
 		// to-do
-		String file_name = null;
+		String file_name = "";
+//		stmt = units.getFirst();
+//		String file_name = ((SourceFileTag) stmt.getTag("SourceFileTag")).getAbsolutePath();
+//		file_name = ((SourceFileTag) body.getMethod().getDeclaringClass().getTag("SourceFileTag")).getAbsolutePath();
+		file_name = body.getMethod().getDeclaringClass().getName();
+		System.out.println(file_name);
 		
 		// body's method
 		SootMethod method = body.getMethod();
@@ -128,44 +136,50 @@ public class PInstrumentor extends BodyTransformer {
 		
 		// locals
 		Chain<Local> locals = body.getLocals();
+		List<Local> original_locals = new ArrayList<Local>();
+		for(Local local: locals){
+			original_locals.add(local);
+		}
 
 		// get body's units
 		Chain<Unit> units = body.getUnits();
-		Iterator stmtIt = units.snapshotIterator();
+		Iterator<Unit> stmtIt = units.snapshotIterator();
 		int cfg_number = 0;
 
-		Stmt stmt = null;
-		int line_number;
-		
-		// for method-entries
-		stmt = (Stmt) units.getFirst();
-		line_number = stmt.getJavaSourceStartLineNumber();
-		instrumentMethodEntries(file_name, method_name, line_number, cfg_number, units, stmt);
-		
+		Unit stmt = null;
+		int line_number = 0;
+		boolean instrumentEntry_flag = true;
+		Value def = null;
 		
 		while (stmtIt.hasNext()) {
 			// cast back to a statement
-			stmt = (Stmt) stmtIt.next();
+			stmt = stmtIt.next();
+			System.out.println(stmt.toString());
 			cfg_number++;
-			line_number = stmt.getJavaSourceStartLineNumber();
-
+			line_number = getSourceLineNumber(stmt);
+			
+			// for method-entries
+			if(instrumentEntry_flag && !(stmt instanceof IdentityStmt)){
+				instrumentMethodEntries(file_name, method_name, line_number, cfg_number, body, units, stmt);
+				instrumentEntry_flag = false;
+			}	
+			
 			// for branches
 			if (stmt instanceof IfStmt) {
 				Value conditional = ((IfStmt) stmt).getCondition();
-				instrumentBranches(file_name, method_name, line_number, cfg_number, units, stmt, conditional);
+//				instrumentBranches(file_name, method_name, line_number, cfg_number, units, stmt, conditional);
 			}
 			// for returns and scalar-pairs
-			Value def = null;
 			if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType && !(def.getType() instanceof BooleanType)) {
 				//for returns
-				if(stmt.containsInvokeExpr()){
-					instrumentReturns(file_name, method_name, line_number, cfg_number, units, stmt, def);
+				if(((Stmt) stmt).containsInvokeExpr()){
+					instrumentReturns(file_name, method_name, line_number, cfg_number, body, units, stmt, def);
 				}
 				//for scalar-pairs
 				else{
-					for(Local local: locals){
+					for(Local local: original_locals){
 						if(local.getType() == def.getType()){
-							instrumentScalarPairs(file_name, method_name, line_number, cfg_number, units, stmt, def, local);
+							instrumentScalarPairs(file_name, method_name, line_number, cfg_number, body, units, stmt, def, local);
 						}
 					}
 				}
@@ -175,12 +189,17 @@ public class PInstrumentor extends BodyTransformer {
 			//trace cfg_number
 			cfg_number++;
 		}
+	}
 
+
+	private int getSourceLineNumber(Unit stmt) {
+		// TODO Auto-generated method stub
+		return ((LineNumberTag) stmt.getTag("LineNumberTag")).getLineNumber();
 	}
 
 
 	private void instrumentMethodEntries(String file_name, String method_name, int line_number, int cfg_number,
-			Chain<Unit> units, Stmt stmt) {
+			Body body, Chain<Unit> units, Unit stmt) {
 		//static instrumentation site for method entry
 		MethodEntrySite site = new MethodEntrySite(file_name, line_number, method_name, cfg_number); 
 		this.methodEntry_staticInfo.add(site);
@@ -197,13 +216,14 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param method_name
 	 * @param line_number
 	 * @param cfg_number
+	 * @param body 
 	 * @param units
 	 * @param stmt
 	 * @param def
 	 * @param local
 	 */
 	private void instrumentScalarPairs(String file_name, String method_name, int line_number, int cfg_number,
-			Chain<Unit> units, Stmt stmt, Value def, Value local) {
+			Body body, Chain<Unit> units, Unit stmt, Value def, Value local) {
 		/* static site information for scalar-pair */
 		//left info
 		Value leftOp = ((AssignStmt) stmt).getLeftOp();
@@ -234,7 +254,11 @@ public class PInstrumentor extends BodyTransformer {
 		this.scalarPair_staticInfo.add(site);
 		
 		//insert checking code
-		InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), def, local, IntConstant.v(this.scalarPair_staticInfo.size() - 1));
+		Local tmp = Jimple.v().newLocal("tmp" + cfg_number, def.getType());
+		body.getLocals().add(tmp);
+		Stmt assign = Jimple.v().newAssignStmt(tmp, def);
+		units.insertAfter(assign, stmt);
+		InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), tmp, local, IntConstant.v(this.scalarPair_staticInfo.size() - 1));
 		Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
 		units.insertAfter(checkScalarPairStmt, stmt);
 	}
@@ -250,7 +274,7 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param condition
 	 */
 	private void instrumentBranches(String file_name, String method_name, int line_number, int cfg_number, 
-			Chain<Unit> units, Stmt stmt, Value condition) {
+			Chain<Unit> units, Unit stmt, Value condition) {
 		//condition predicate
 		String predicate = condition.toString();
 		
@@ -270,16 +294,17 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param method_name
 	 * @param line_number
 	 * @param cfg_number
+	 * @param body 
 	 * @param units
 	 * @param stmt
 	 * @param def
 	 */
 	private void instrumentReturns(String file_name, String method_name, int line_number, int cfg_number, 
-			Chain<Unit> units, Stmt stmt, Value def) {
+			Body body, Chain<Unit> units, Unit stmt, Value def) {
 		//callee
-		String callee = null;
-		if(!(stmt.getInvokeExpr() instanceof StaticInvokeExpr)){
-			callee = stmt.getInvokeExpr().getUseBoxes().get(0).getValue().toString();
+		String callee = "static";
+		if(!(((Stmt) stmt).getInvokeExpr() instanceof StaticInvokeExpr)){
+			callee = ((ValueBox) ((Stmt) stmt).getInvokeExpr().getUseBoxes().get(0)).getValue().toString();
 		}
 		
 		//create static instrumentation site information for return

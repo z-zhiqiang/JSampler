@@ -24,6 +24,7 @@ public class JSampler {
 
 		Options.v().setPhaseOption("jb", "use-original-names:true");
 		Options.v().set_keep_line_number(true);
+		Options.v().set_prepend_classpath(true);
 
 		soot.Main.main(soot_parameters.toArray(new String[soot_parameters.size()]));
 	}
