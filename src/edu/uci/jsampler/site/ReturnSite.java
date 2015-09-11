@@ -20,15 +20,16 @@ public class ReturnSite extends AbstractSite{
 		builder.append("{callee=").append(callee).append('}');
 	}
 
-	@Override
-	public SiteCategory getCategory() {
-		// TODO Auto-generated method stub
-		return SiteCategory.RETURN;
-	}
 
 	public String printToString(){
 		StringBuilder builder = new StringBuilder();
 		builder.append(super.printToString()).append("\t").append(this.callee);
 		return builder.toString();
+	}
+
+	@Override
+	public String getSchemeName() {
+		// TODO Auto-generated method stub
+		return "returns";
 	}
 }

@@ -28,17 +28,18 @@ public class ScalarPairSite extends AbstractSite {
 				.append("]").append(", ").append(this.right).append("[").append(rightType).append("]").append("}");
 	}
 
-	@Override
-	public SiteCategory getCategory() {
-		// TODO Auto-generated method stub
-		return SiteCategory.SCALAR_PAIR;
-	}
-
+	
 	public String printToString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(super.printToString()).append("\t").append(this.left).append("\t").append(this.leftType)
 				.append("\t").append(this.containerType).append("\t").append(this.right).append("\t")
 				.append(this.rightType);
 		return builder.toString();
+	}
+
+	@Override
+	public String getSchemeName() {
+		// TODO Auto-generated method stub
+		return "scalar-pairs";
 	}
 }

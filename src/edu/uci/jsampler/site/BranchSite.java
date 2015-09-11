@@ -18,16 +18,17 @@ public class BranchSite extends AbstractSite {
 		builder.append("{predicate=").append(predicate).append('}');
 	}
 
-	@Override
-	public SiteCategory getCategory() {
-		// TODO Auto-generated method stub
-		return SiteCategory.BRANCH;
-	}
 	
 	public String printToString(){
 		StringBuilder builder = new StringBuilder();
 		builder.append(super.printToString()).append("\t").append(this.predicate);
 		return builder.toString();
+	}
+
+	@Override
+	public String getSchemeName() {
+		// TODO Auto-generated method stub
+		return "branches";
 	}
 
 }

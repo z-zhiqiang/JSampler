@@ -1,10 +1,6 @@
 package edu.uci.jsampler.site;
 
 public abstract class AbstractSite {
-	public static enum SiteCategory {
-		BRANCH, RETURN, SCALAR_PAIR, METHOD_ENTRY
-	}
-
 	final private String fileName;
 	final private int lineNumber;
 	final private String methodName;
@@ -61,11 +57,11 @@ public abstract class AbstractSite {
 
 	protected abstract void toString(StringBuilder builder);
 	
-	protected String printToString(){
+	public String printToString(){
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.fileName).append("\t").append(this.lineNumber).append("\t").append(this.methodName).append("\t").append(this.cfgNumber);
 		return builder.toString();
 	}
 
-	public abstract SiteCategory getCategory();
+	public abstract String getSchemeName();
 }

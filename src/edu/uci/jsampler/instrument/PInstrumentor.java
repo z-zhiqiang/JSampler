@@ -1,5 +1,6 @@
 package edu.uci.jsampler.instrument;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,11 +75,14 @@ public class PInstrumentor extends BodyTransformer {
 	public static final List<MethodEntrySite> methodEntry_staticInfo = new ArrayList<MethodEntrySite>();
 	
 	
+	public static String unit_signature;//compilation unit signature: a 128-bit as 32 hexadecimal digits
+	
 	
 	/**constructor mainly for sampler options parsing
 	 * @param sampler_options
 	 */
 	public PInstrumentor(List<String> sampler_options) {
+		System.out.println("constructor.........................");
 		this.methods_instrument = new HashSet<String>();
 		// parse the parameters to initialize flag fields
 		for (String option : sampler_options) {
@@ -109,9 +113,25 @@ public class PInstrumentor extends BodyTransformer {
 			default:
 				System.err.println("wrong options!");
 			}
-
 		}
 
+		//initialize 128-bit compilation unit id
+		this.unit_signature = generateUnitSignature();
+		
+	}
+
+
+	private String generateUnitSignature() {
+		byte[] unitID = new byte[16];
+		SecureRandom random = new SecureRandom();
+		random.nextBytes(unitID);
+		
+		StringBuilder builder = new StringBuilder();
+		for(byte b: unitID){
+			builder.append(String.format("%02X", b));
+		}
+		System.out.println(builder.toString());
+		return builder.toString();
 	}
 
 	
@@ -163,15 +183,7 @@ public class PInstrumentor extends BodyTransformer {
 			
 			// for branches
 			if (stmt instanceof IfStmt) {
-				Value conditional = ((IfStmt) stmt).getCondition();
-				System.out.println(conditional.getType().toString());
-				
-				Local tmp = Jimple.v().newLocal("tmp" + cfg_number, conditional.getType());
-				body.getLocals().add(tmp);
-				Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, conditional);
-				units.insertBefore(inserted_assign, stmt);
-				
-				instrumentBranches(file_name, method_name, line_number, cfg_number, units, stmt, tmp);
+				instrumentBranches(file_name, method_name, line_number, cfg_number, body, units, stmt);
 			}
 			// for returns and scalar-pairs
 			if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType && !(def.getType() instanceof BooleanType)) {
@@ -181,22 +193,7 @@ public class PInstrumentor extends BodyTransformer {
 				}
 				//for scalar-pairs
 				else{
-					if(!(((AssignStmt) stmt).getLeftOp() instanceof soot.Local)){ 
-						//insert checking code
-						Local tmp = Jimple.v().newLocal("tmp" + cfg_number, def.getType());
-						body.getLocals().add(tmp);
-						Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, def);
-						units.insertAfter(inserted_assign, stmt);
-						
-						stmt = inserted_assign;
-						def = tmp;
-					}
-					
-					for(Local local: original_locals){
-						if(local.getType() == def.getType()){
-							instrumentScalarPairs(file_name, method_name, line_number, cfg_number, body, units, stmt, def, local);
-						}
-					}
+					instrumentScalarPairs(file_name, method_name, line_number, cfg_number, body, units, stmt, def, original_locals);
 				}
 
 			}
@@ -204,6 +201,78 @@ public class PInstrumentor extends BodyTransformer {
 			//trace cfg_number
 			cfg_number++;
 		}
+	}
+
+
+	private void instrumentScalarPairs(String file_name, String method_name, int line_number, int cfg_number, 
+			Body body, Chain<Unit> units, Stmt stmt, Value def, List<Local> original_locals) {
+		/* static site information for scalar-pair */
+		//left info
+		String left = def.toString();
+		String scope_type_assign = null, container_type = null;
+		if(def instanceof soot.Local){
+			scope_type_assign = "local";
+			container_type = "direct";
+		}
+		else if(def instanceof soot.jimple.InstanceFieldRef){
+			scope_type_assign = "local";
+			container_type = "field";
+		}
+		else if (def instanceof soot.jimple.StaticFieldRef){
+			scope_type_assign = "global";
+			container_type = "field";
+		}
+		else if(def instanceof soot.jimple.ArrayRef){
+			scope_type_assign = "mem";
+			container_type = "index";
+		}
+		//right and compared variable info
+		String right = ((AssignStmt) stmt).getRightOp().toString();
+		
+		if(!(def instanceof soot.Local)){ 
+			//insert checking code
+			Local tmp = Jimple.v().newLocal("tmp" + cfg_number, def.getType());
+			body.getLocals().add(tmp);
+			Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, def);
+			units.insertAfter(inserted_assign, stmt);
+			
+			def = tmp;
+			stmt = inserted_assign;
+		}
+		
+		for(Local local: original_locals){
+			if(local.getType() == def.getType()){
+				//create static instrumentation site for scalar-pairs
+				ScalarPairSite site = new ScalarPairSite(file_name, line_number, method_name, cfg_number, left, scope_type_assign, container_type, right, local.toString());
+				this.scalarPair_staticInfo.add(site);
+				
+				//insert checking code 
+				InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), def, local, IntConstant.v(this.scalarPair_staticInfo.size() - 1));
+				Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
+				units.insertAfter(checkScalarPairStmt, stmt);
+			}
+		}
+	}
+
+
+	private void instrumentBranches(String file_name, String method_name, int line_number, int cfg_number,
+			Body body, Chain<Unit> units, Stmt stmt) {
+		Value conditional = ((IfStmt) stmt).getCondition();
+		System.out.println(conditional.getType().toString());
+		
+		Local tmp = Jimple.v().newLocal("tmp" + cfg_number, conditional.getType());
+		body.getLocals().add(tmp);
+		Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, conditional);
+		units.insertBefore(inserted_assign, stmt);
+		
+		//create static instrumentation site for branch
+		BranchSite site = new BranchSite(file_name, line_number, method_name, cfg_number, conditional.toString());
+		this.branch_staticInfo.add(site);
+		
+		//insert checking code 
+		InvokeExpr checkBranch = Jimple.v().newStaticInvokeExpr(checkBranches.makeRef(), tmp, IntConstant.v(this.branch_staticInfo.size() - 1));
+		Stmt checkBranchStmt = Jimple.v().newInvokeStmt(checkBranch);
+		units.insertBefore(checkBranchStmt, stmt);
 	}
 
 
@@ -225,78 +294,6 @@ public class PInstrumentor extends BodyTransformer {
 		units.insertBefore(checkMethodEntryStmt, stmt);
 	}
 
-
-	/**
-	 * @param file_name
-	 * @param method_name
-	 * @param line_number
-	 * @param cfg_number
-	 * @param body 
-	 * @param units
-	 * @param stmt
-	 * @param def
-	 * @param local
-	 */
-	private void instrumentScalarPairs(String file_name, String method_name, int line_number, int cfg_number,
-			Body body, Chain<Unit> units, Unit stmt, Value def, Value local) {
-		/* static site information for scalar-pair */
-		//left info
-		Value leftOp = ((AssignStmt) stmt).getLeftOp();
-		String left = leftOp.toString();
-		assert(left.equals(def.toString()));
-		String scope_type_assign = null, container_type = null, scope_type_compare = null;
-		if(leftOp instanceof soot.Local){
-			scope_type_assign = "local";
-			container_type = "direct";
-		}
-		else if(leftOp instanceof soot.jimple.InstanceFieldRef){
-			scope_type_assign = "local";
-			container_type = "field";
-		}
-		else if (leftOp instanceof soot.jimple.StaticFieldRef){
-			scope_type_assign = "global";
-			container_type = "field";
-		}
-		else if(leftOp instanceof soot.jimple.ArrayRef){
-			scope_type_assign = "mem";
-			container_type = "index";
-		}
-		//right and compared variable info
-		String right = ((AssignStmt) stmt).getRightOp().toString();
-		scope_type_compare = "local";
-		
-		ScalarPairSite site = new ScalarPairSite(file_name, line_number, method_name, cfg_number, left, scope_type_assign, container_type, right, scope_type_compare);
-		this.scalarPair_staticInfo.add(site);
-		
-		InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), def, local, IntConstant.v(this.scalarPair_staticInfo.size() - 1));
-		Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
-		units.insertAfter(checkScalarPairStmt, stmt);
-	}
-
-
-	/**
-	 * @param file_name
-	 * @param method_name
-	 * @param line_number
-	 * @param cfg_number
-	 * @param units
-	 * @param stmt
-	 * @param condition
-	 */
-	private void instrumentBranches(String file_name, String method_name, int line_number, int cfg_number, 
-			Chain<Unit> units, Unit stmt, Value condition) {
-		//condition predicate
-		String predicate = condition.toString();
-		
-		//create static instrumentation site for branch
-		BranchSite site = new BranchSite(file_name, line_number, method_name, cfg_number, predicate);
-		this.branch_staticInfo.add(site);
-		
-		//insert checking code 
-		InvokeExpr checkBranch = Jimple.v().newStaticInvokeExpr(checkBranches.makeRef(), condition, IntConstant.v(this.branch_staticInfo.size() - 1));
-		Stmt checkBranchStmt = Jimple.v().newInvokeStmt(checkBranch);
-		units.insertBefore(checkBranchStmt, stmt);
-	}
 
 
 	/**

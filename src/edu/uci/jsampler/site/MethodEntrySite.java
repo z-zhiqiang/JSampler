@@ -11,13 +11,14 @@ public class MethodEntrySite extends AbstractSite {
 		// TODO Auto-generated method stub
 	}
 
-	@Override
-	public SiteCategory getCategory() {
-		// TODO Auto-generated method stub
-		return SiteCategory.METHOD_ENTRY;
-	}
 
 	public String printToString(){
 		return super.printToString();
+	}
+
+	@Override
+	public String getSchemeName() {
+		// TODO Auto-generated method stub
+		return "function-entries";
 	}
 }

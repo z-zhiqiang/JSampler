@@ -1,0 +1,51 @@
+<sites unit="5E9F964EDBE1201154ED2708087913E4" scheme="branches">
+HelloWorld	13	<HelloWorld: void invoke(int)>	5	i != 1
+</sites>
+<sites unit="5E9F964EDBE1201154ED2708087913E4" scheme="returns">
+InterTest	9	<InterTest: void invoke1(int,int)>	13	this
+InterTest	31	<InterTest: int[] invoke4(int,HelloWorld)>	9	h
+InterTest	44	<InterTest: void main(java.lang.String[])>	11	static
+</sites>
+<sites unit="5E9F964EDBE1201154ED2708087913E4" scheme="scalar-pairs">
+InterTest	6	<InterTest: void invoke1(int,int)>	7	amount	local	direct	0	amount
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	a
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	b
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	c
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	i
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	$i0
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	$i1
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	a
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	b
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	c
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	i
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	$i0
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	$i1
+InterTest	11	<InterTest: void invoke1(int,int)>	17	$i1	local	direct	(int) csquare	a
+InterTest	11	<InterTest: void invoke1(int,int)>	17	$i1	local	direct	(int) csquare	b
+InterTest	11	<InterTest: void invoke1(int,int)>	17	$i1	local	direct	(int) csquare	c
+InterTest	11	<InterTest: void invoke1(int,int)>	17	$i1	local	direct	(int) csquare	i
+InterTest	11	<InterTest: void invoke1(int,int)>	17	$i1	local	direct	(int) csquare	$i0
+InterTest	11	<InterTest: void invoke1(int,int)>	17	$i1	local	direct	(int) csquare	$i1
+InterTest	14	<InterTest: void invoke1(int,int)>	25	$f0	local	direct	2.0F * csquare	csquare
+InterTest	14	<InterTest: void invoke1(int,int)>	25	$f0	local	direct	2.0F * csquare	$f0
+InterTest	19	<InterTest: void invoke1(int,int)>	35	i	local	direct	array[0]	a
+InterTest	19	<InterTest: void invoke1(int,int)>	35	i	local	direct	array[0]	b
+InterTest	19	<InterTest: void invoke1(int,int)>	35	i	local	direct	array[0]	c
+InterTest	19	<InterTest: void invoke1(int,int)>	35	i	local	direct	array[0]	i
+InterTest	19	<InterTest: void invoke1(int,int)>	35	i	local	direct	array[0]	$i0
+InterTest	19	<InterTest: void invoke1(int,int)>	35	i	local	direct	array[0]	$i1
+InterTest	26	<InterTest: HelloWorld getClass(float)>	7	$i0	local	direct	(int) f	$i0
+InterTest	32	<InterTest: int[] invoke4(int,HelloWorld)>	11	array[0]	mem	index	v	i
+InterTest	32	<InterTest: int[] invoke4(int,HelloWorld)>	11	array[0]	mem	index	v	v
+InterTest	33	<InterTest: int[] invoke4(int,HelloWorld)>	13	array[1]	mem	index	i	i
+InterTest	33	<InterTest: int[] invoke4(int,HelloWorld)>	13	array[1]	mem	index	i	v
+InterTest	34	<InterTest: int[] invoke4(int,HelloWorld)>	15	array[2]	mem	index	0	i
+InterTest	34	<InterTest: int[] invoke4(int,HelloWorld)>	15	array[2]	mem	index	0	v
+InterTest	39	<InterTest: float invoke2(int)>	5	$i0	local	direct	c * c	c
+InterTest	39	<InterTest: float invoke2(int)>	5	$i0	local	direct	c * c	$i0
+InterTest	39	<InterTest: float invoke2(int)>	7	$f0	local	direct	(float) $i0	$f0
+HelloWorld	9	<HelloWorld: void <init>(int)>	7	this.<HelloWorld: int field>	local	field	i	i
+HelloWorld	21	<HelloWorld: void invoke3()>	5	$i0	local	direct	this.<HelloWorld: int field>	$i0
+HelloWorld	33	<HelloWorld: int getField()>	3	$i0	local	direct	this.<HelloWorld: int field>	$i0
+HelloWorld	36	<HelloWorld: void setField(int)>	5	this.<HelloWorld: int field>	local	field	field	field
+</sites>

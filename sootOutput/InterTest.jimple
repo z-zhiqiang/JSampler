@@ -1,0 +1,159 @@
+public class InterTest extends java.lang.Object
+{
+
+    public void <init>()
+    {
+        InterTest this;
+
+        this := @this: InterTest;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkMethodEntries(int)>(0);
+        specialinvoke this.<java.lang.Object: void <init>()>();
+        return;
+    }
+
+    public void invoke1(int, int)
+    {
+        InterTest this;
+        int a, b, c, i, $i0, $i1;
+        byte amount;
+        float csquare, $f0;
+        HelloWorld hello, h, $r0;
+        int[] array;
+        java.io.PrintStream $r1;
+
+        this := @this: InterTest;
+        a := @parameter0: int;
+        b := @parameter1: int;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkMethodEntries(int)>(1);
+        amount = 0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(amount, amount, 0);
+        $i0 = a + b;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i1, 6);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i0, 5);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, i, 4);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, c, 3);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, b, 2);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, a, 1);
+        c = $i0 + amount;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(c, $i1, 12);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(c, $i0, 11);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(c, i, 10);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(c, c, 9);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(c, b, 8);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(c, a, 7);
+        csquare = virtualinvoke this.<InterTest: float invoke2(int)>(c);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkReturns(java.lang.Object,int)>(csquare, 0);
+        $r0 = new HelloWorld;
+        $i1 = (int) csquare;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, $i1, 18);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, $i0, 17);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, i, 16);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, c, 15);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, b, 14);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, a, 13);
+        specialinvoke $r0.<HelloWorld: void <init>(int)>($i1);
+        hello = $r0;
+        virtualinvoke hello.<HelloWorld: void invoke3()>();
+        $f0 = 2.0F * csquare;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($f0, $f0, 20);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($f0, csquare, 19);
+        h = specialinvoke this.<InterTest: HelloWorld getClass(float)>($f0);
+        virtualinvoke h.<HelloWorld: void invoke(int)>(c);
+        virtualinvoke h.<HelloWorld: void invoke3()>();
+        array = specialinvoke this.<InterTest: int[] invoke4(int,HelloWorld)>(2, h);
+        i = array[0];
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, $i1, 26);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, $i0, 25);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, i, 24);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, c, 23);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, b, 22);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, a, 21);
+        $r1 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r1.<java.io.PrintStream: void println(java.lang.Object)>(array);
+        $r1 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r1.<java.io.PrintStream: void println(int)>(i);
+        return;
+    }
+
+    private HelloWorld getClass(float)
+    {
+        InterTest this;
+        float f;
+        HelloWorld $r0;
+        int $i0;
+
+        this := @this: InterTest;
+        f := @parameter0: float;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkMethodEntries(int)>(2);
+        $r0 = new HelloWorld;
+        $i0 = (int) f;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i0, 27);
+        specialinvoke $r0.<HelloWorld: void <init>(int)>($i0);
+        return $r0;
+    }
+
+    private int[] invoke4(int, HelloWorld)
+    {
+        InterTest this;
+        int i, v, tmp11, tmp13, tmp15;
+        HelloWorld h;
+        int[] array;
+
+        this := @this: InterTest;
+        i := @parameter0: int;
+        h := @parameter1: HelloWorld;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkMethodEntries(int)>(3);
+        array = newarray (int)[3];
+        v = virtualinvoke h.<HelloWorld: int getField()>();
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkReturns(java.lang.Object,int)>(v, 1);
+        array[0] = v;
+        tmp11 = array[0];
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp11, v, 29);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp11, i, 28);
+        array[1] = i;
+        tmp13 = array[1];
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp13, v, 31);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp13, i, 30);
+        array[2] = 0;
+        tmp15 = array[2];
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp15, v, 33);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp15, i, 32);
+        return array;
+    }
+
+    public float invoke2(int)
+    {
+        InterTest this;
+        int c, $i0;
+        float $f0;
+
+        this := @this: InterTest;
+        c := @parameter0: int;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkMethodEntries(int)>(4);
+        $i0 = c * c;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i0, 35);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, c, 34);
+        $f0 = (float) $i0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($f0, $f0, 36);
+        return $f0;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] args;
+        InterTest $r0, t;
+        java.lang.String $r1;
+        int $i0;
+
+        args := @parameter0: java.lang.String[];
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkMethodEntries(int)>(5);
+        $r0 = new InterTest;
+        specialinvoke $r0.<InterTest: void <init>()>();
+        t = $r0;
+        $r1 = args[0];
+        $i0 = staticinvoke <java.lang.Integer: int parseInt(java.lang.String)>($r1);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkReturns(java.lang.Object,int)>($i0, 2);
+        virtualinvoke t.<InterTest: void invoke1(int,int)>($i0, 2);
+        return;
+    }
+}
