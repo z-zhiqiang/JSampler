@@ -23,10 +23,14 @@ public class JSampler {
 		PackManager.v().getPack("jtp").add(new Transform("jtp.instrumenter", new PInstrumentor(sampler_options)));
 
 		Options.v().setPhaseOption("jb", "use-original-names:true");
+		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_keep_line_number(true);
 		Options.v().set_prepend_classpath(true);
 
 		soot.Main.main(soot_parameters.toArray(new String[soot_parameters.size()]));
+		
+		//export static instrumentation information into files
+		
 	}
 
 	/**

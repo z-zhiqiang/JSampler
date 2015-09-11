@@ -123,9 +123,6 @@ public class PInstrumentor extends BodyTransformer {
 		// need to get file name
 		// to-do
 		String file_name = "";
-//		stmt = units.getFirst();
-//		String file_name = ((SourceFileTag) stmt.getTag("SourceFileTag")).getAbsolutePath();
-//		file_name = ((SourceFileTag) body.getMethod().getDeclaringClass().getTag("SourceFileTag")).getAbsolutePath();
 		file_name = body.getMethod().getDeclaringClass().getName();
 		System.out.println(file_name);
 		
@@ -146,15 +143,15 @@ public class PInstrumentor extends BodyTransformer {
 		Iterator<Unit> stmtIt = units.snapshotIterator();
 		int cfg_number = 0;
 
-		Unit stmt = null;
 		int line_number = 0;
 		boolean instrumentEntry_flag = true;
 		Value def = null;
 		
 		while (stmtIt.hasNext()) {
 			// cast back to a statement
-			stmt = stmtIt.next();
+			Stmt stmt = (Stmt) stmtIt.next();
 			System.out.println(stmt.toString());
+			
 			cfg_number++;
 			line_number = getSourceLineNumber(stmt);
 			
@@ -167,7 +164,14 @@ public class PInstrumentor extends BodyTransformer {
 			// for branches
 			if (stmt instanceof IfStmt) {
 				Value conditional = ((IfStmt) stmt).getCondition();
-//				instrumentBranches(file_name, method_name, line_number, cfg_number, units, stmt, conditional);
+				System.out.println(conditional.getType().toString());
+				
+				Local tmp = Jimple.v().newLocal("tmp" + cfg_number, conditional.getType());
+				body.getLocals().add(tmp);
+				Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, conditional);
+				units.insertBefore(inserted_assign, stmt);
+				
+				instrumentBranches(file_name, method_name, line_number, cfg_number, units, stmt, tmp);
 			}
 			// for returns and scalar-pairs
 			if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType && !(def.getType() instanceof BooleanType)) {
@@ -177,6 +181,17 @@ public class PInstrumentor extends BodyTransformer {
 				}
 				//for scalar-pairs
 				else{
+					if(!(((AssignStmt) stmt).getLeftOp() instanceof soot.Local)){ 
+						//insert checking code
+						Local tmp = Jimple.v().newLocal("tmp" + cfg_number, def.getType());
+						body.getLocals().add(tmp);
+						Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, def);
+						units.insertAfter(inserted_assign, stmt);
+						
+						stmt = inserted_assign;
+						def = tmp;
+					}
+					
 					for(Local local: original_locals){
 						if(local.getType() == def.getType()){
 							instrumentScalarPairs(file_name, method_name, line_number, cfg_number, body, units, stmt, def, local);
@@ -192,7 +207,7 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 
-	private int getSourceLineNumber(Unit stmt) {
+	private int getSourceLineNumber(Stmt stmt) {
 		// TODO Auto-generated method stub
 		return ((LineNumberTag) stmt.getTag("LineNumberTag")).getLineNumber();
 	}
@@ -253,12 +268,7 @@ public class PInstrumentor extends BodyTransformer {
 		ScalarPairSite site = new ScalarPairSite(file_name, line_number, method_name, cfg_number, left, scope_type_assign, container_type, right, scope_type_compare);
 		this.scalarPair_staticInfo.add(site);
 		
-		//insert checking code
-		Local tmp = Jimple.v().newLocal("tmp" + cfg_number, def.getType());
-		body.getLocals().add(tmp);
-		Stmt assign = Jimple.v().newAssignStmt(tmp, def);
-		units.insertAfter(assign, stmt);
-		InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), tmp, local, IntConstant.v(this.scalarPair_staticInfo.size() - 1));
+		InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), def, local, IntConstant.v(this.scalarPair_staticInfo.size() - 1));
 		Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
 		units.insertAfter(checkScalarPairStmt, stmt);
 	}
@@ -285,7 +295,7 @@ public class PInstrumentor extends BodyTransformer {
 		//insert checking code 
 		InvokeExpr checkBranch = Jimple.v().newStaticInvokeExpr(checkBranches.makeRef(), condition, IntConstant.v(this.branch_staticInfo.size() - 1));
 		Stmt checkBranchStmt = Jimple.v().newInvokeStmt(checkBranch);
-		units.insertAfter(checkBranchStmt, stmt);
+		units.insertBefore(checkBranchStmt, stmt);
 	}
 
 

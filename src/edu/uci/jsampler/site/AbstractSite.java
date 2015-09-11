@@ -60,6 +60,12 @@ public abstract class AbstractSite {
 	}
 
 	protected abstract void toString(StringBuilder builder);
+	
+	protected String printToString(){
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.fileName).append("\t").append(this.lineNumber).append("\t").append(this.methodName).append("\t").append(this.cfgNumber);
+		return builder.toString();
+	}
 
 	public abstract SiteCategory getCategory();
 }

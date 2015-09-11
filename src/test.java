@@ -37,6 +37,13 @@ public class test {
 		case 3: j = i+1; break;
 		case 2: two = i+1; break;
 		}
+		
+		boolean bb = true;
+		if(bb){
+			bb = false;
+		}
+		
+		int aa = (int) Math.pow(4, 2);
 	}
 
 }

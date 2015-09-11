@@ -1,6 +1,5 @@
 package edu.uci.jsampler.site;
 
-
 public class ScalarPairSite extends AbstractSite {
 	// 5
 	private final String left;
@@ -13,16 +12,15 @@ public class ScalarPairSite extends AbstractSite {
 	// 9
 	private final String rightType;
 
-	public ScalarPairSite(String fileName, int lineNumber, String methodName,
-					int cfgNumber, String left, String leftType, String containerType,
-					String right, String rightType) {
-				super(fileName, lineNumber, methodName, cfgNumber);
-				this.left = left.intern();
-				this.leftType = leftType.intern();
-				this.containerType = containerType.intern();
-				this.right = right.intern();
-				this.rightType = rightType.intern();
-			}
+	public ScalarPairSite(String fileName, int lineNumber, String methodName, int cfgNumber, String left,
+			String leftType, String containerType, String right, String rightType) {
+		super(fileName, lineNumber, methodName, cfgNumber);
+		this.left = left.intern();
+		this.leftType = leftType.intern();
+		this.containerType = containerType.intern();
+		this.right = right.intern();
+		this.rightType = rightType.intern();
+	}
 
 	@Override
 	protected void toString(StringBuilder builder) {
@@ -34,5 +32,13 @@ public class ScalarPairSite extends AbstractSite {
 	public SiteCategory getCategory() {
 		// TODO Auto-generated method stub
 		return SiteCategory.SCALAR_PAIR;
+	}
+
+	public String printToString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(super.printToString()).append("\t").append(this.left).append("\t").append(this.leftType)
+				.append("\t").append(this.containerType).append("\t").append(this.right).append("\t")
+				.append(this.rightType);
+		return builder.toString();
 	}
 }

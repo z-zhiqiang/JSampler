@@ -23,5 +23,11 @@ public class BranchSite extends AbstractSite {
 		// TODO Auto-generated method stub
 		return SiteCategory.BRANCH;
 	}
+	
+	public String printToString(){
+		StringBuilder builder = new StringBuilder();
+		builder.append(super.printToString()).append("\t").append(this.predicate);
+		return builder.toString();
+	}
 
 }

@@ -17,4 +17,7 @@ public class MethodEntrySite extends AbstractSite {
 		return SiteCategory.METHOD_ENTRY;
 	}
 
+	public String printToString(){
+		return super.printToString();
+	}
 }

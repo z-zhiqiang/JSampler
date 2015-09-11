@@ -1,0 +1,250 @@
+public class test extends java.lang.Object
+{
+    private int field;
+
+    public void <init>()
+    {
+        test this;
+
+        this := @this: test;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkMethodEntries(int)>(0);
+        specialinvoke this.<java.lang.Object: void <init>()>();
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] args;
+        int i, j, two, aa, $i0, $i1, $i2, tmp17, tmp21, tmp33, tmp43, tmp53, tmp55, tmp77;
+        byte z1;
+        test t, $r1;
+        int[] array;
+        boolean bb;
+        java.lang.String $r0;
+        java.io.PrintStream $r2;
+        double $d0;
+
+        args := @parameter0: java.lang.String[];
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkMethodEntries(int)>(1);
+        $r0 = args[0];
+        i = staticinvoke <java.lang.Integer: int parseInt(java.lang.String)>($r0);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkReturns(java.lang.Object,int)>(i, 0);
+        j = 10;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i2, 6);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i1, 5);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i0, 4);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, aa, 3);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, two, 2);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, j, 1);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, i, 0);
+        two = 2;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i2, 13);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i1, 12);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i0, 11);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, aa, 10);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, two, 9);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, j, 8);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, i, 7);
+        goto label3;
+
+     label0:
+        j = i - 1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i2, 20);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i1, 19);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i0, 18);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, aa, 17);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, two, 16);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, j, 15);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, i, 14);
+        $i0 = i % 2;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i2, 27);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i1, 26);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i0, 25);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, aa, 24);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, two, 23);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, j, 22);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, i, 21);
+        tmp17 = $i0 != 0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkBranches(boolean,int)>(tmp17, 0);
+        if $i0 != 0 goto label3;
+
+        z1 = 0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(z1, z1, 28);
+        tmp21 = z1 <= 0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkBranches(boolean,int)>(tmp21, 1);
+        if z1 <= 0 goto label1;
+
+        two = two + 1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i2, 35);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i1, 34);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i0, 33);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, aa, 32);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, two, 31);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, j, 30);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, i, 29);
+        goto label2;
+
+     label1:
+        two = two + -1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i2, 42);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i1, 41);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i0, 40);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, aa, 39);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, two, 38);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, j, 37);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, i, 36);
+
+     label2:
+        i = 1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, $i2, 49);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, $i1, 48);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, $i0, 47);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, aa, 46);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, two, 45);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, j, 44);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, i, 43);
+        j = i + two;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i2, 56);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i1, 55);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i0, 54);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, aa, 53);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, two, 52);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, j, 51);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, i, 50);
+
+     label3:
+        tmp33 = j > 0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkBranches(boolean,int)>(tmp33, 2);
+        if j > 0 goto label0;
+
+        $r1 = new test;
+        specialinvoke $r1.<test: void <init>()>();
+        t = $r1;
+        $i1 = i + 4;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, $i2, 63);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, $i1, 62);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, $i0, 61);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, aa, 60);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, two, 59);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, j, 58);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i1, i, 57);
+        t.<test: int field> = $i1;
+        tmp43 = t.<test: int field>;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp43, $i2, 70);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp43, $i1, 69);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp43, $i0, 68);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp43, aa, 67);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp43, two, 66);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp43, j, 65);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp43, i, 64);
+        $i0 = t.<test: int field>;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i2, 77);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i1, 76);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i0, 75);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, aa, 74);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, two, 73);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, j, 72);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, i, 71);
+        j = $i0 - two;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i2, 84);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i1, 83);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i0, 82);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, aa, 81);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, two, 80);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, j, 79);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, i, 78);
+        array = newarray (int)[2];
+        $i2 = t.<test: int field>;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i2, $i2, 91);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i2, $i1, 90);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i2, $i0, 89);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i2, aa, 88);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i2, two, 87);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i2, j, 86);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i2, i, 85);
+        array[0] = $i2;
+        tmp53 = array[0];
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp53, $i2, 98);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp53, $i1, 97);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp53, $i0, 96);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp53, aa, 95);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp53, two, 94);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp53, j, 93);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp53, i, 92);
+        array[1] = j;
+        tmp55 = array[1];
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp55, $i2, 105);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp55, $i1, 104);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp55, $i0, 103);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp55, aa, 102);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp55, two, 101);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp55, j, 100);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp55, i, 99);
+        $r2 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r2.<java.io.PrintStream: void println(java.lang.Object)>(array);
+        tableswitch(i)
+        {
+            case 0: goto label4;
+            case 1: goto label5;
+            case 2: goto label7;
+            case 3: goto label6;
+            default: goto label8;
+        };
+
+     label4:
+        goto label8;
+
+     label5:
+        i = i + 1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, $i2, 112);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, $i1, 111);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, $i0, 110);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, aa, 109);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, two, 108);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, j, 107);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(i, i, 106);
+        goto label8;
+
+     label6:
+        j = i + 1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i2, 119);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i1, 118);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, $i0, 117);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, aa, 116);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, two, 115);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, j, 114);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(j, i, 113);
+        goto label8;
+
+     label7:
+        two = i + 1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i2, 126);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i1, 125);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, $i0, 124);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, aa, 123);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, two, 122);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, j, 121);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(two, i, 120);
+
+     label8:
+        bb = 1;
+        tmp77 = bb == 0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkBranches(boolean,int)>(tmp77, 3);
+        if bb == 0 goto label9;
+
+        bb = 0;
+
+     label9:
+        $d0 = staticinvoke <java.lang.Math: double pow(double,double)>(4.0, 2.0);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkReturns(java.lang.Object,int)>($d0, 1);
+        aa = (int) $d0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(aa, $i2, 133);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(aa, $i1, 132);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(aa, $i0, 131);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(aa, aa, 130);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(aa, two, 129);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(aa, j, 128);
+        staticinvoke <edu.uci.jsampler.instrument.StaticChecker: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(aa, i, 127);
+        return;
+    }
+}

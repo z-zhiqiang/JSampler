@@ -26,4 +26,9 @@ public class ReturnSite extends AbstractSite{
 		return SiteCategory.RETURN;
 	}
 
+	public String printToString(){
+		StringBuilder builder = new StringBuilder();
+		builder.append(super.printToString()).append("\t").append(this.callee);
+		return builder.toString();
+	}
 }

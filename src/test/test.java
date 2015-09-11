@@ -24,6 +24,11 @@ public class test {
 			by++;
 		}
 		System.out.println(by);
+		
+		
+		boolean bb = false;
+		bb = 1<2;
+		System.out.println(bb);
 	}
 	
 }
