@@ -12,6 +12,7 @@ import edu.uci.jsampler.site.BranchSite;
 import edu.uci.jsampler.site.MethodEntrySite;
 import edu.uci.jsampler.site.ReturnSite;
 import edu.uci.jsampler.site.ScalarPairSite;
+import edu.uci.jsampler.util.Translator;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.BooleanType;
@@ -131,14 +132,14 @@ public class PInstrumentor extends BodyTransformer {
 	protected void internalTransform(Body body, String phase, Map options) {
 		// need to get file name
 		// to-do
-		String file_name = "";
-		file_name = body.getMethod().getDeclaringClass().getName();
+		String file_name = body.getMethod().getDeclaringClass().getName();
 		System.out.println(file_name);
+		int file_name_translated = Translator.getInstance().getInteger(file_name);
 		
 		// body's method
-		SootMethod method = body.getMethod();
-		String method_name = method.getSignature();
+		String method_name = body.getMethod().getSignature();
 		System.out.println(method_name);
+		int method_name_tranlated = Translator.getInstance().getInteger(method_name);
 		
 		// locals
 		Chain<Local> locals = body.getLocals();
@@ -166,23 +167,23 @@ public class PInstrumentor extends BodyTransformer {
 			
 			// for method-entries
 			if(instrumentEntry_flag && !(stmt instanceof IdentityStmt)){
-				instrumentMethodEntries(file_name, method_name, line_number, cfg_number, body, units, stmt);
+				instrumentMethodEntries(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
 				instrumentEntry_flag = false;
 			}	
 			
 			// for branches
 			if (stmt instanceof IfStmt) {
-				instrumentBranches(file_name, method_name, line_number, cfg_number, body, units, stmt);
+				instrumentBranches(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
 			}
 			// for returns and scalar-pairs
 			if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType && !(def.getType() instanceof BooleanType)) {
 				//for returns
 				if(((Stmt) stmt).containsInvokeExpr()){
-					instrumentReturns(file_name, method_name, line_number, cfg_number, body, units, stmt, def);
+					instrumentReturns(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def);
 				}
 				//for scalar-pairs
 				else{
-					instrumentScalarPairs(file_name, method_name, line_number, cfg_number, body, units, stmt, def, original_locals);
+					instrumentScalarPairs(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def, original_locals);
 				}
 
 			}
@@ -193,7 +194,7 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 
-	private void instrumentScalarPairs(String file_name, String method_name, int line_number, int cfg_number, 
+	private void instrumentScalarPairs(int file_name, int method_name, int line_number, int cfg_number, 
 			Body body, Chain<Unit> units, Stmt stmt, Value def, List<Local> original_locals) {
 		/* static site information for scalar-pair */
 		//left info
@@ -244,7 +245,7 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 
-	private void instrumentBranches(String file_name, String method_name, int line_number, int cfg_number,
+	private void instrumentBranches(int file_name, int method_name, int line_number, int cfg_number,
 			Body body, Chain<Unit> units, Stmt stmt) {
 		Value conditional = ((IfStmt) stmt).getCondition();
 		System.out.println(conditional.getType().toString());
@@ -271,7 +272,7 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 
-	private void instrumentMethodEntries(String file_name, String method_name, int line_number, int cfg_number,
+	private void instrumentMethodEntries(int file_name, int method_name, int line_number, int cfg_number,
 			Body body, Chain<Unit> units, Unit stmt) {
 		//static instrumentation site for method entry
 		MethodEntrySite site = new MethodEntrySite(file_name, line_number, method_name, cfg_number); 
@@ -295,7 +296,7 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param stmt
 	 * @param def
 	 */
-	private void instrumentReturns(String file_name, String method_name, int line_number, int cfg_number, 
+	private void instrumentReturns(int file_name, int method_name, int line_number, int cfg_number, 
 			Body body, Chain<Unit> units, Unit stmt, Value def) {
 		//callee
 		String callee = "static";

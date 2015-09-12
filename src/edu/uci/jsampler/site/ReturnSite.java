@@ -5,7 +5,7 @@ public class ReturnSite extends AbstractSite{
 
 	private final String callee;
 
-	public ReturnSite(String fileName, int lineNumber, String methodName,
+	public ReturnSite(int fileName, int lineNumber, int methodName,
 			int cfgNumber, String callee) {
 		super(fileName, lineNumber, methodName, cfgNumber);
 		this.callee = callee.intern();
@@ -13,11 +13,6 @@ public class ReturnSite extends AbstractSite{
 
 	public String getCallee() {
 		return callee;
-	}
-
-	@Override
-	protected void toString(StringBuilder builder) {
-		builder.append("{callee=").append(callee).append('}');
 	}
 
 

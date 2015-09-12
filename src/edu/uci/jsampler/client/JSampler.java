@@ -11,6 +11,7 @@ import java.util.Set;
 
 import edu.uci.jsampler.instrument.PInstrumentor;
 import edu.uci.jsampler.site.AbstractSite;
+import edu.uci.jsampler.util.Translator;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
@@ -62,6 +63,7 @@ public class JSampler {
 		soot.Main.main(soot_parameters.toArray(new String[soot_parameters.size()]));
 
 		// export static instrumentation information into files
+//		System.out.println(Translator.getInstance().toString());
 		printStaticSitesInfo(output_file_sites);
 	}
 

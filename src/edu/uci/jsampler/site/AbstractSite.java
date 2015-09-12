@@ -1,20 +1,22 @@
 package edu.uci.jsampler.site;
 
+import edu.uci.jsampler.util.Translator;
+
 public abstract class AbstractSite {
-	final private String fileName;
+	final private int fileName;
 	final private int lineNumber;
-	final private String methodName;
+	final private int methodName;
 	final private int cfgNumber;
 
-	public AbstractSite(String fileName, int lineNumber, String methodName, int cfgNumber) {
+	public AbstractSite(int fileName, int lineNumber, int methodName, int cfgNumber) {
 		super();
-		this.fileName = fileName.intern();
+		this.fileName = fileName;
 		this.lineNumber = lineNumber;
-		this.methodName = methodName.intern();
+		this.methodName = methodName;
 		this.cfgNumber = cfgNumber;
 	}
 
-	public String getFileName() {
+	public int getFileName() {
 		return fileName;
 	}
 
@@ -22,7 +24,7 @@ public abstract class AbstractSite {
 		return lineNumber;
 	}
 
-	public String getMethodName() {
+	public int getMethodName() {
 		return methodName;
 	}
 
@@ -34,32 +36,11 @@ public abstract class AbstractSite {
 		return "file = " + this.fileName;
 	}
 
-	public String toStringWithoutFile() {
-		StringBuilder builder = new StringBuilder();
-
-		this.toString(builder);
-		builder.append(", line=").append(lineNumber).append(", method=").append(methodName).append(", cfg=")
-				.append(this.cfgNumber);
-
-		return builder.toString();
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-
-		this.toString(builder);
-		builder.append(", line=").append(lineNumber).append(", method=").append(methodName).append(", file=")
-				.append(fileName).append(", cfg=").append(cfgNumber);
-
-		return builder.toString();
-	}
-
-	protected abstract void toString(StringBuilder builder);
 	
 	public String printToString(){
+		Translator translator = Translator.getInstance();
 		StringBuilder builder = new StringBuilder();
-		builder.append(this.fileName).append("\t").append(this.lineNumber).append("\t").append(this.methodName).append("\t").append(this.cfgNumber);
+		builder.append(translator.getString(this.fileName)).append("\t").append(this.lineNumber).append("\t").append(translator.getString(this.methodName)).append("\t").append(this.cfgNumber);
 		return builder.toString();
 	}
 

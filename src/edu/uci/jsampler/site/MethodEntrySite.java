@@ -2,13 +2,8 @@ package edu.uci.jsampler.site;
 
 
 public class MethodEntrySite extends AbstractSite {
-	public MethodEntrySite(String fileName, int lineNumber, String methodName, int cfgNumber) {
+	public MethodEntrySite(int fileName, int lineNumber, int methodName, int cfgNumber) {
 		super(fileName, lineNumber, methodName, cfgNumber);
-	}
-
-	@Override
-	protected void toString(StringBuilder builder) {
-		// TODO Auto-generated method stub
 	}
 
 
