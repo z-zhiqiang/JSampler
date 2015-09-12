@@ -1,12 +1,12 @@
-<sites unit="5E9F964EDBE1201154ED2708087913E4" scheme="branches">
+<sites unit="20A8A88A3846B9C47489A04A55CC0551" scheme="branches">
 HelloWorld	13	<HelloWorld: void invoke(int)>	5	i != 1
 </sites>
-<sites unit="5E9F964EDBE1201154ED2708087913E4" scheme="returns">
+<sites unit="20A8A88A3846B9C47489A04A55CC0551" scheme="returns">
 InterTest	9	<InterTest: void invoke1(int,int)>	13	this
 InterTest	31	<InterTest: int[] invoke4(int,HelloWorld)>	9	h
 InterTest	44	<InterTest: void main(java.lang.String[])>	11	static
 </sites>
-<sites unit="5E9F964EDBE1201154ED2708087913E4" scheme="scalar-pairs">
+<sites unit="20A8A88A3846B9C47489A04A55CC0551" scheme="scalar-pairs">
 InterTest	6	<InterTest: void invoke1(int,int)>	7	amount	local	direct	0	amount
 InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	a
 InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	b

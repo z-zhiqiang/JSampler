@@ -49,21 +49,26 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 	//instrumentation flag
-	private boolean branches_flag;
+	private final boolean branches_flag;
 
-	private boolean returns_flag;
+	private final boolean returns_flag;
 
-	private boolean scalarpairs_flag;
+	private final boolean scalarpairs_flag;
 
-	private boolean methodentries_flag;
-
-	//sampling flag
-	private boolean sample_flag;
-
-	private int opportunities;
+	private final boolean methodentries_flag;
 	
-	//methods instrumented
-	private Set<String> methods_instrument;
+
+	private final boolean sample_flag;//sampling flag
+
+	private final int opportunities;//sampling opportunities
+	
+	private final Set<String> methods_instrument;//methods instrumented
+	
+	
+	private final String output_file_sites;//output file name storing static sites info
+	
+	private final String output_file_reports;//output file name for dynamic reports
+	
 	
 	//static instrumentation site information
 	public static final List<ReturnSite> return_staticInfo = new ArrayList<ReturnSite>();
@@ -75,53 +80,37 @@ public class PInstrumentor extends BodyTransformer {
 	public static final List<MethodEntrySite> methodEntry_staticInfo = new ArrayList<MethodEntrySite>();
 	
 	
-	public static String unit_signature;//compilation unit signature: a 128-bit as 32 hexadecimal digits
+	public static final String unit_signature = generateUnitSignature();//compilation unit signature: a 128-bit as 32 hexadecimal digits
 	
-	
-	/**constructor mainly for sampler options parsing
-	 * @param sampler_options
-	 */
-	public PInstrumentor(List<String> sampler_options) {
-		System.out.println("constructor.........................");
-		this.methods_instrument = new HashSet<String>();
-		// parse the parameters to initialize flag fields
-		for (String option : sampler_options) {
-			switch (option) {
-			case "-sampler-scheme=branches":
-				this.branches_flag = true;
-				break;
-			case "-sampler-scheme=returns":
-				this.returns_flag = true;
-				break;
-			case "-sampler-scheme=scalar-pairs":
-				this.scalarpairs_flag = true;
-				break;
-			case "-sampler-scheme=method-entries":
-				this.methodentries_flag = true;
-				break;
-			case "-sampler":
-				this.sample_flag = true;
-				break;
-			case "-sampler-no":
-				this.sample_flag = false;
-				break;
-			case "-sampler-opportunities=\\d+":
-				this.opportunities = Integer.parseInt(option.split("=")[1].trim());
-				break;
-			case "-sampler-include-method=.*":
-				this.methods_instrument.add(option.split("=")[1].trim());
-			default:
-				System.err.println("wrong options!");
-			}
-		}
 
-		//initialize 128-bit compilation unit id
-		this.unit_signature = generateUnitSignature();
-		
+	/**constructor mainly for sampler options parsing
+	 * @param branches_flag
+	 * @param returns_flag
+	 * @param scalarpairs_flag
+	 * @param methodentries_flag
+	 * @param sample_flag
+	 * @param opportunities
+	 * @param methods_instrument
+	 * @param output_file_sites
+	 * @param output_file_reports
+	 */
+	public PInstrumentor(boolean branches_flag, boolean returns_flag, boolean scalarpairs_flag,
+			boolean methodentries_flag, boolean sample_flag, int opportunities, Set<String> methods_instrument, 
+			String output_file_sites, String output_file_reports) {
+		// TODO Auto-generated constructor stub
+		this.branches_flag = branches_flag;
+		this.returns_flag = returns_flag;
+		this.scalarpairs_flag = scalarpairs_flag;
+		this.methodentries_flag = methodentries_flag;
+		this.sample_flag = sample_flag;
+		this.opportunities = opportunities;
+		this.methods_instrument = methods_instrument;
+		this.output_file_sites = output_file_sites;
+		this.output_file_reports = output_file_reports;
 	}
 
 
-	private String generateUnitSignature() {
+	private static String generateUnitSignature() {
 		byte[] unitID = new byte[16];
 		SecureRandom random = new SecureRandom();
 		random.nextBytes(unitID);
