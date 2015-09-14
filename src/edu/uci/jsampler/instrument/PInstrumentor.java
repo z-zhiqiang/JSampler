@@ -29,24 +29,32 @@ import soot.jimple.IdentityStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ReturnVoidStmt;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 import soot.tagkit.*;
 import soot.util.Chain;
 
 public class PInstrumentor extends BodyTransformer {
 	
 	//internal fields
-	static SootClass checkerClass;
+	static SootClass checkerReporterClass;
 	static SootMethod checkReturns, checkBranches, checkScalarPairs, checkMethodEntries;
+	static SootMethod report;
 	
 	static{
-		checkerClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.instrument.StaticChecker");
-		checkReturns = checkerClass.getMethod("void checkReturns(java.lang.Object,int)");
-		checkBranches = checkerClass.getMethod("void checkBranches(boolean,int)");
-		checkScalarPairs = checkerClass.getMethod("void checkScalarPairs(java.lang.Object,java.lang.Object,int)");
-		checkMethodEntries = checkerClass.getMethod("void checkMethodEntries(int)");
+		checkerReporterClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.instrument.StaticCheckerReporter");
+		
+		checkReturns = checkerReporterClass.getMethod("void checkReturns(java.lang.Object,int)");
+		checkBranches = checkerReporterClass.getMethod("void checkBranches(boolean,int)");
+		checkScalarPairs = checkerReporterClass.getMethod("void checkScalarPairs(java.lang.Object,java.lang.Object,int)");
+		checkMethodEntries = checkerReporterClass.getMethod("void checkMethodEntries(int)");
+		
+		report = checkerReporterClass.getMethod("void exportReports(java.lang.String)");
 	}
 
 	//instrumentation flag
@@ -130,6 +138,8 @@ public class PInstrumentor extends BodyTransformer {
 	 */
 	@Override
 	protected void internalTransform(Body body, String phase, Map options) {
+		boolean isMain = body.getMethod().getSubSignature().equals("void main(java.lang.String[])");
+		
 		// need to get file name
 		// to-do
 		String file_name = body.getMethod().getDeclaringClass().getName();
@@ -188,9 +198,30 @@ public class PInstrumentor extends BodyTransformer {
 
 			}
 
-			//trace cfg_number
+			// trace cfg_number
 			cfg_number++;
+			
+			
+			/* add reporting code */
+			// insert reporting code before exit
+			if(stmt instanceof InvokeStmt){
+				InvokeExpr iexpr = stmt.getInvokeExpr();
+				if(iexpr instanceof StaticInvokeExpr && iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")){
+					instrumentReport(units, stmt);
+				}
+			}
+			// insert reporting code before return of main
+			if(isMain && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)){
+				instrumentReport(units, stmt);
+			}
 		}
+	}
+
+
+	private void instrumentReport(Chain<Unit> units, Stmt stmt) {
+		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(output_file_reports));
+		Stmt reportStmt = Jimple.v().newInvokeStmt(reportExpr);
+		units.insertBefore(reportStmt, stmt);
 	}
 
 

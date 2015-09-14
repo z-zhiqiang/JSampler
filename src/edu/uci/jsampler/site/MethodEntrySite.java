@@ -14,6 +14,6 @@ public class MethodEntrySite extends AbstractSite {
 	@Override
 	public String getSchemeName() {
 		// TODO Auto-generated method stub
-		return "function-entries";
+		return "method-entries";
 	}
 }
