@@ -56,7 +56,7 @@ public class JSampler {
 								output_file_reports)));
 
 		Options.v().setPhaseOption("jb", "use-original-names:true");
-		Options.v().set_output_format(Options.output_format_jimple);
+//		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_keep_line_number(true);
 		Options.v().set_prepend_classpath(true);
 
@@ -74,7 +74,7 @@ public class JSampler {
 	private static void parseParameters(String[] args, List<String> soot_parameters) {
 		// TODO Auto-generated method stub
 		for (int i = 0; i < args.length; i++) {
-			String option = args[i];
+			String option = args[i].trim();
 			if (option.startsWith("-sampler")) {
 				if (option.equals("-sampler-scheme=branches")) {
 					branches_flag = true;
@@ -159,6 +159,18 @@ public class JSampler {
 			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, "scalar-pairs");
 			// content
 			sitesInfo = PInstrumentor.scalarPair_staticInfo;
+			for (int i = 0; i < sitesInfo.size(); i++) {
+				AbstractSite site = (AbstractSite) sitesInfo.get(i);
+				out.println(site.printToString());
+			}
+			// tag close
+			out.println("</sites>");
+			
+			/* method-entries */
+			// tag headers
+			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, "method-entries");
+			// content
+			sitesInfo = PInstrumentor.methodEntry_staticInfo;
 			for (int i = 0; i < sitesInfo.size(); i++) {
 				AbstractSite site = (AbstractSite) sitesInfo.get(i);
 				out.println(site.printToString());

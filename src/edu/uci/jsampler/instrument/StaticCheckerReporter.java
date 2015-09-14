@@ -5,25 +5,26 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 public class StaticCheckerReporter {
 
 	// dynamic feedback reports
-	private static Map<Integer, byte[]> return_reports = new LinkedHashMap<Integer, byte[]>();
+	private static Map<Integer, byte[]> return_reports = new TreeMap<Integer, byte[]>();
 
-	private static Map<Integer, byte[]> branch_reports = new LinkedHashMap<Integer, byte[]>();
+	private static Map<Integer, byte[]> branch_reports = new TreeMap<Integer, byte[]>();
 
-	private static Map<Integer, byte[]> scalarPair_reports = new LinkedHashMap<Integer, byte[]>();
+	private static Map<Integer, byte[]> scalarPair_reports = new TreeMap<Integer, byte[]>();
 
-	private static Map<Integer, byte[]> methodEntry_reports = new LinkedHashMap<Integer, byte[]>();
+	private static Map<Integer, byte[]> methodEntry_reports = new TreeMap<Integer, byte[]>();
 	
 	
 
-	public static synchronized void exportReports(String output_file) {
+	public static synchronized void exportReports(String output_file, String unit_signature) {
 		File file = new File(output_file);
-		String unit_signature = PInstrumentor.unit_signature;
+//		String unit_signature = PInstrumentor.unit_signature;
 
 		PrintWriter out = null;
 
@@ -49,15 +50,17 @@ public class StaticCheckerReporter {
 	private static void printDynamicReportsInfoForEachScheme(Map<Integer, byte[]> reports, String scheme,
 			String unit_signature, PrintWriter out) {
 		out.printf("<samples unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
-		for (int index : reports.keySet()) {
-			byte[] bytes = reports.get(index);
-			out.println(toString(bytes));
+		for(Entry<Integer, byte[]> entry: reports.entrySet()){
+			out.println(toString(entry));
 		}
 		out.println("</samples>");
 	}
 
-	private static String toString(byte[] bytes) {
+
+	private static String toString(Entry<Integer, byte[]> entry) {
 		StringBuilder builder = new StringBuilder();
+		builder.append(entry.getKey()).append("\t");
+		byte[] bytes = entry.getValue();
 		for(int i = 0; i < bytes.length; i++){
 			builder.append(bytes[i]).append("\t");
 		}

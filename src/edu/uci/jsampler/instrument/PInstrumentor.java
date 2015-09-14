@@ -54,7 +54,7 @@ public class PInstrumentor extends BodyTransformer {
 		checkScalarPairs = checkerReporterClass.getMethod("void checkScalarPairs(java.lang.Object,java.lang.Object,int)");
 		checkMethodEntries = checkerReporterClass.getMethod("void checkMethodEntries(int)");
 		
-		report = checkerReporterClass.getMethod("void exportReports(java.lang.String)");
+		report = checkerReporterClass.getMethod("void exportReports(java.lang.String,java.lang.String)");
 	}
 
 	//instrumentation flag
@@ -183,17 +183,17 @@ public class PInstrumentor extends BodyTransformer {
 			
 			// for branches
 			if (stmt instanceof IfStmt) {
-				instrumentBranches(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
+//				instrumentBranches(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
 			}
 			// for returns and scalar-pairs
 			if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType && !(def.getType() instanceof BooleanType)) {
 				//for returns
 				if(((Stmt) stmt).containsInvokeExpr()){
-					instrumentReturns(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def);
+//					instrumentReturns(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def);
 				}
 				//for scalar-pairs
 				else{
-					instrumentScalarPairs(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def, original_locals);
+//					instrumentScalarPairs(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def, original_locals);
 				}
 
 			}
@@ -219,7 +219,7 @@ public class PInstrumentor extends BodyTransformer {
 
 
 	private void instrumentReport(Chain<Unit> units, Stmt stmt) {
-		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(output_file_reports));
+		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(output_file_reports), StringConstant.v(unit_signature));
 		Stmt reportStmt = Jimple.v().newInvokeStmt(reportExpr);
 		units.insertBefore(reportStmt, stmt);
 	}
