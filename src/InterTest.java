@@ -6,7 +6,12 @@ public class InterTest {
 		int amount = 0;
 		int c = a + b + amount;
 		
-		float csquare = invoke2(c);
+		long csquare = invoke2(c);
+		
+		boolean bb = invokebb();
+		if(bb){
+			System.out.println();
+		}
 
 		HelloWorld hello = new HelloWorld((int)csquare);
 		hello.invoke3();
@@ -22,6 +27,11 @@ public class InterTest {
 
 	}
 
+	private boolean invokebb() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
 	private HelloWorld getClass(float f){
 		return new HelloWorld((int)f);
 	}
@@ -35,8 +45,8 @@ public class InterTest {
 		return array;
 	}
 	
-	public float invoke2(int c) {
-		return c * c;
+	public long invoke2(int c) {
+		return (c * c);
 	}
 
 	public static void main(String[] args) {

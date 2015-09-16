@@ -74,8 +74,26 @@ public class StaticCheckerReporter {
 	 *            returned scalar value
 	 * @param index
 	 */
-	public static synchronized void checkReturns(Object returned, int index) {
-		double returned_value = (double) returned;
+	public static synchronized void checkReturns(int returned_value, int index) {
+		checkReturns((double) returned_value, index);
+	}
+	
+	public static synchronized void checkReturns(long returned_value, int index) {
+		checkReturns((double) returned_value, index);
+	}
+	
+	public static synchronized void checkReturns(float returned_value, int index) {
+		checkReturns((double) returned_value, index);
+	}
+	
+	/**
+	 * checking code for returns
+	 * 
+	 * @param returned
+	 *            returned scalar value
+	 * @param index
+	 */
+	public static synchronized void checkReturns(double returned_value, int index) {
 		if (!return_reports.containsKey(index)) {
 			return_reports.put(index, new byte[3]);
 		}
@@ -104,24 +122,87 @@ public class StaticCheckerReporter {
 		increaseCount(counts, 0);
 	}
 
-	/**
+	
+	/** 
 	 * checking code for branches
 	 * 
-	 * @param conditional
+	 * @param left
+	 * @param right
+	 * @param symbol
 	 * @param index
 	 */
-	public static synchronized void checkBranches(boolean conditional, int index) {
+	public static synchronized void checkBranches(int left, int right, String symbol, int index){
 		if (!branch_reports.containsKey(index)) {
 			branch_reports.put(index, new byte[2]);
 		}
 		// counts = {false, true}
 		byte[] counts = branch_reports.get(index);
-		if (!conditional) {
-			increaseCount(counts, 0);
-		} else {
-			increaseCount(counts, 1);
+		
+		if(symbol.equals("==")){
+			if(left == right){
+				increaseCount(counts, 1);
+			}
+			else{
+				increaseCount(counts, 0);
+			}
+		}
+		else if(symbol.equals("!=")){
+			if(left != right){
+				increaseCount(counts, 1);
+			}
+			else{
+				increaseCount(counts, 0);
+			}
+		}
+		else if(symbol.equals("<=")){
+			if(left <= right){
+				increaseCount(counts, 1);
+			}
+			else{
+				increaseCount(counts, 0);
+			}
+		}
+		else if(symbol.equals(">=")){
+			if(left >= right){
+				increaseCount(counts, 1);
+			}
+			else{
+				increaseCount(counts, 0);
+			}
+		}
+		else if(symbol.equals("<")){
+			if(left < right){
+				increaseCount(counts, 1);
+			}
+			else{
+				increaseCount(counts, 0);
+			}
+		}
+		else if(symbol.equals(">")){
+			if(left > right){
+				increaseCount(counts, 1);
+			}
+			else{
+				increaseCount(counts, 0);
+			}
+		}
+		else{
+			System.err.println("wrong operator!");
 		}
 	}
+	
+	
+//	/** checking code for branches
+//	 * @param index
+//	 * @param i: 0->false, 1->true
+//	 */
+//	public static synchronized void checkBranches(int index, int i){
+//		if(!branch_reports.containsKey(index)){
+//			branch_reports.put(index, new byte[2]);
+//		}
+//		byte[] counts = branch_reports.get(index);
+//		increaseCount(counts, i);
+//	}
 
 	public static synchronized void checkScalarPairs(Object assigned, Object local, int index) {
 		assert(assigned.getClass() == local.getClass());

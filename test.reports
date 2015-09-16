@@ -1,10 +1,26 @@
-<samples unit="82AA02A9E7FC61563DF57229BEE51523" scheme="branches">
+<samples unit="3744DA8C075097DE07FE6A07E153E5BB" scheme="branches">
+0	1	0	
+1	1	0	
 </samples>
-<samples unit="82AA02A9E7FC61563DF57229BEE51523" scheme="returns">
+<samples unit="3744DA8C075097DE07FE6A07E153E5BB" scheme="returns">
+0	0	0	1	
+1	0	0	1	
+2	0	0	1	
+3	1	0	0	
 </samples>
-<samples unit="82AA02A9E7FC61563DF57229BEE51523" scheme="scalar-pairs">
+<samples unit="3744DA8C075097DE07FE6A07E153E5BB" scheme="scalar-pairs">
 </samples>
-<samples unit="82AA02A9E7FC61563DF57229BEE51523" scheme="method-entries">
+<samples unit="3744DA8C075097DE07FE6A07E153E5BB" scheme="method-entries">
 0	1	
 1	1	
+2	1	
+3	1	
+4	1	
+5	1	
+6	1	
+8	2	
+9	1	
+10	2	
+11	1	
+13	1	
 </samples>

@@ -1,144 +1,71 @@
-<sites unit="E03F2BDA207516FAC002A17492F5B01E" scheme="branches">
+<sites unit="EEC3EFEEABB71C890CD2671679F7DD0E" scheme="branches">
+InterTest	12	<InterTest: void invoke1(int,int)>	17	bb == 0
+HelloWorld	13	<HelloWorld: void invoke(int)>	5	i != 1
 </sites>
-<sites unit="E03F2BDA207516FAC002A17492F5B01E" scheme="returns">
+<sites unit="EEC3EFEEABB71C890CD2671679F7DD0E" scheme="returns">
+InterTest	9	<InterTest: void invoke1(int,int)>	13	this
+InterTest	11	<InterTest: void invoke1(int,int)>	15	this
+InterTest	41	<InterTest: int[] invoke4(int,HelloWorld)>	9	h
+InterTest	54	<InterTest: void main(java.lang.String[])>	11	static
 </sites>
-<sites unit="E03F2BDA207516FAC002A17492F5B01E" scheme="scalar-pairs">
-test	7	<test: void main(java.lang.String[])>	7	j	local	direct	10	i
-test	7	<test: void main(java.lang.String[])>	7	j	local	direct	10	j
-test	7	<test: void main(java.lang.String[])>	7	j	local	direct	10	two
-test	7	<test: void main(java.lang.String[])>	7	j	local	direct	10	aa
-test	7	<test: void main(java.lang.String[])>	7	j	local	direct	10	$i0
-test	7	<test: void main(java.lang.String[])>	7	j	local	direct	10	$i1
-test	7	<test: void main(java.lang.String[])>	7	j	local	direct	10	$i2
-test	8	<test: void main(java.lang.String[])>	9	two	local	direct	2	i
-test	8	<test: void main(java.lang.String[])>	9	two	local	direct	2	j
-test	8	<test: void main(java.lang.String[])>	9	two	local	direct	2	two
-test	8	<test: void main(java.lang.String[])>	9	two	local	direct	2	aa
-test	8	<test: void main(java.lang.String[])>	9	two	local	direct	2	$i0
-test	8	<test: void main(java.lang.String[])>	9	two	local	direct	2	$i1
-test	8	<test: void main(java.lang.String[])>	9	two	local	direct	2	$i2
-test	11	<test: void main(java.lang.String[])>	13	j	local	direct	i - 1	i
-test	11	<test: void main(java.lang.String[])>	13	j	local	direct	i - 1	j
-test	11	<test: void main(java.lang.String[])>	13	j	local	direct	i - 1	two
-test	11	<test: void main(java.lang.String[])>	13	j	local	direct	i - 1	aa
-test	11	<test: void main(java.lang.String[])>	13	j	local	direct	i - 1	$i0
-test	11	<test: void main(java.lang.String[])>	13	j	local	direct	i - 1	$i1
-test	11	<test: void main(java.lang.String[])>	13	j	local	direct	i - 1	$i2
-test	12	<test: void main(java.lang.String[])>	15	$i0	local	direct	i % 2	i
-test	12	<test: void main(java.lang.String[])>	15	$i0	local	direct	i % 2	j
-test	12	<test: void main(java.lang.String[])>	15	$i0	local	direct	i % 2	two
-test	12	<test: void main(java.lang.String[])>	15	$i0	local	direct	i % 2	aa
-test	12	<test: void main(java.lang.String[])>	15	$i0	local	direct	i % 2	$i0
-test	12	<test: void main(java.lang.String[])>	15	$i0	local	direct	i % 2	$i1
-test	12	<test: void main(java.lang.String[])>	15	$i0	local	direct	i % 2	$i2
-test	13	<test: void main(java.lang.String[])>	19	z1	local	direct	0	z1
-test	15	<test: void main(java.lang.String[])>	23	two	local	direct	two + 1	i
-test	15	<test: void main(java.lang.String[])>	23	two	local	direct	two + 1	j
-test	15	<test: void main(java.lang.String[])>	23	two	local	direct	two + 1	two
-test	15	<test: void main(java.lang.String[])>	23	two	local	direct	two + 1	aa
-test	15	<test: void main(java.lang.String[])>	23	two	local	direct	two + 1	$i0
-test	15	<test: void main(java.lang.String[])>	23	two	local	direct	two + 1	$i1
-test	15	<test: void main(java.lang.String[])>	23	two	local	direct	two + 1	$i2
-test	18	<test: void main(java.lang.String[])>	27	two	local	direct	two + -1	i
-test	18	<test: void main(java.lang.String[])>	27	two	local	direct	two + -1	j
-test	18	<test: void main(java.lang.String[])>	27	two	local	direct	two + -1	two
-test	18	<test: void main(java.lang.String[])>	27	two	local	direct	two + -1	aa
-test	18	<test: void main(java.lang.String[])>	27	two	local	direct	two + -1	$i0
-test	18	<test: void main(java.lang.String[])>	27	two	local	direct	two + -1	$i1
-test	18	<test: void main(java.lang.String[])>	27	two	local	direct	two + -1	$i2
-test	20	<test: void main(java.lang.String[])>	29	i	local	direct	1	i
-test	20	<test: void main(java.lang.String[])>	29	i	local	direct	1	j
-test	20	<test: void main(java.lang.String[])>	29	i	local	direct	1	two
-test	20	<test: void main(java.lang.String[])>	29	i	local	direct	1	aa
-test	20	<test: void main(java.lang.String[])>	29	i	local	direct	1	$i0
-test	20	<test: void main(java.lang.String[])>	29	i	local	direct	1	$i1
-test	20	<test: void main(java.lang.String[])>	29	i	local	direct	1	$i2
-test	21	<test: void main(java.lang.String[])>	31	j	local	direct	i + two	i
-test	21	<test: void main(java.lang.String[])>	31	j	local	direct	i + two	j
-test	21	<test: void main(java.lang.String[])>	31	j	local	direct	i + two	two
-test	21	<test: void main(java.lang.String[])>	31	j	local	direct	i + two	aa
-test	21	<test: void main(java.lang.String[])>	31	j	local	direct	i + two	$i0
-test	21	<test: void main(java.lang.String[])>	31	j	local	direct	i + two	$i1
-test	21	<test: void main(java.lang.String[])>	31	j	local	direct	i + two	$i2
-test	26	<test: void main(java.lang.String[])>	41	$i1	local	direct	i + 4	i
-test	26	<test: void main(java.lang.String[])>	41	$i1	local	direct	i + 4	j
-test	26	<test: void main(java.lang.String[])>	41	$i1	local	direct	i + 4	two
-test	26	<test: void main(java.lang.String[])>	41	$i1	local	direct	i + 4	aa
-test	26	<test: void main(java.lang.String[])>	41	$i1	local	direct	i + 4	$i0
-test	26	<test: void main(java.lang.String[])>	41	$i1	local	direct	i + 4	$i1
-test	26	<test: void main(java.lang.String[])>	41	$i1	local	direct	i + 4	$i2
-test	26	<test: void main(java.lang.String[])>	43	t.<test: int field>	local	field	$i1	i
-test	26	<test: void main(java.lang.String[])>	43	t.<test: int field>	local	field	$i1	j
-test	26	<test: void main(java.lang.String[])>	43	t.<test: int field>	local	field	$i1	two
-test	26	<test: void main(java.lang.String[])>	43	t.<test: int field>	local	field	$i1	aa
-test	26	<test: void main(java.lang.String[])>	43	t.<test: int field>	local	field	$i1	$i0
-test	26	<test: void main(java.lang.String[])>	43	t.<test: int field>	local	field	$i1	$i1
-test	26	<test: void main(java.lang.String[])>	43	t.<test: int field>	local	field	$i1	$i2
-test	27	<test: void main(java.lang.String[])>	45	$i0	local	direct	t.<test: int field>	i
-test	27	<test: void main(java.lang.String[])>	45	$i0	local	direct	t.<test: int field>	j
-test	27	<test: void main(java.lang.String[])>	45	$i0	local	direct	t.<test: int field>	two
-test	27	<test: void main(java.lang.String[])>	45	$i0	local	direct	t.<test: int field>	aa
-test	27	<test: void main(java.lang.String[])>	45	$i0	local	direct	t.<test: int field>	$i0
-test	27	<test: void main(java.lang.String[])>	45	$i0	local	direct	t.<test: int field>	$i1
-test	27	<test: void main(java.lang.String[])>	45	$i0	local	direct	t.<test: int field>	$i2
-test	27	<test: void main(java.lang.String[])>	47	j	local	direct	$i0 - two	i
-test	27	<test: void main(java.lang.String[])>	47	j	local	direct	$i0 - two	j
-test	27	<test: void main(java.lang.String[])>	47	j	local	direct	$i0 - two	two
-test	27	<test: void main(java.lang.String[])>	47	j	local	direct	$i0 - two	aa
-test	27	<test: void main(java.lang.String[])>	47	j	local	direct	$i0 - two	$i0
-test	27	<test: void main(java.lang.String[])>	47	j	local	direct	$i0 - two	$i1
-test	27	<test: void main(java.lang.String[])>	47	j	local	direct	$i0 - two	$i2
-test	30	<test: void main(java.lang.String[])>	51	$i2	local	direct	t.<test: int field>	i
-test	30	<test: void main(java.lang.String[])>	51	$i2	local	direct	t.<test: int field>	j
-test	30	<test: void main(java.lang.String[])>	51	$i2	local	direct	t.<test: int field>	two
-test	30	<test: void main(java.lang.String[])>	51	$i2	local	direct	t.<test: int field>	aa
-test	30	<test: void main(java.lang.String[])>	51	$i2	local	direct	t.<test: int field>	$i0
-test	30	<test: void main(java.lang.String[])>	51	$i2	local	direct	t.<test: int field>	$i1
-test	30	<test: void main(java.lang.String[])>	51	$i2	local	direct	t.<test: int field>	$i2
-test	30	<test: void main(java.lang.String[])>	53	array[0]	mem	index	$i2	i
-test	30	<test: void main(java.lang.String[])>	53	array[0]	mem	index	$i2	j
-test	30	<test: void main(java.lang.String[])>	53	array[0]	mem	index	$i2	two
-test	30	<test: void main(java.lang.String[])>	53	array[0]	mem	index	$i2	aa
-test	30	<test: void main(java.lang.String[])>	53	array[0]	mem	index	$i2	$i0
-test	30	<test: void main(java.lang.String[])>	53	array[0]	mem	index	$i2	$i1
-test	30	<test: void main(java.lang.String[])>	53	array[0]	mem	index	$i2	$i2
-test	31	<test: void main(java.lang.String[])>	55	array[1]	mem	index	j	i
-test	31	<test: void main(java.lang.String[])>	55	array[1]	mem	index	j	j
-test	31	<test: void main(java.lang.String[])>	55	array[1]	mem	index	j	two
-test	31	<test: void main(java.lang.String[])>	55	array[1]	mem	index	j	aa
-test	31	<test: void main(java.lang.String[])>	55	array[1]	mem	index	j	$i0
-test	31	<test: void main(java.lang.String[])>	55	array[1]	mem	index	j	$i1
-test	31	<test: void main(java.lang.String[])>	55	array[1]	mem	index	j	$i2
-test	36	<test: void main(java.lang.String[])>	65	i	local	direct	i + 1	i
-test	36	<test: void main(java.lang.String[])>	65	i	local	direct	i + 1	j
-test	36	<test: void main(java.lang.String[])>	65	i	local	direct	i + 1	two
-test	36	<test: void main(java.lang.String[])>	65	i	local	direct	i + 1	aa
-test	36	<test: void main(java.lang.String[])>	65	i	local	direct	i + 1	$i0
-test	36	<test: void main(java.lang.String[])>	65	i	local	direct	i + 1	$i1
-test	36	<test: void main(java.lang.String[])>	65	i	local	direct	i + 1	$i2
-test	37	<test: void main(java.lang.String[])>	69	j	local	direct	i + 1	i
-test	37	<test: void main(java.lang.String[])>	69	j	local	direct	i + 1	j
-test	37	<test: void main(java.lang.String[])>	69	j	local	direct	i + 1	two
-test	37	<test: void main(java.lang.String[])>	69	j	local	direct	i + 1	aa
-test	37	<test: void main(java.lang.String[])>	69	j	local	direct	i + 1	$i0
-test	37	<test: void main(java.lang.String[])>	69	j	local	direct	i + 1	$i1
-test	37	<test: void main(java.lang.String[])>	69	j	local	direct	i + 1	$i2
-test	38	<test: void main(java.lang.String[])>	73	two	local	direct	i + 1	i
-test	38	<test: void main(java.lang.String[])>	73	two	local	direct	i + 1	j
-test	38	<test: void main(java.lang.String[])>	73	two	local	direct	i + 1	two
-test	38	<test: void main(java.lang.String[])>	73	two	local	direct	i + 1	aa
-test	38	<test: void main(java.lang.String[])>	73	two	local	direct	i + 1	$i0
-test	38	<test: void main(java.lang.String[])>	73	two	local	direct	i + 1	$i1
-test	38	<test: void main(java.lang.String[])>	73	two	local	direct	i + 1	$i2
-test	46	<test: void main(java.lang.String[])>	83	aa	local	direct	(int) $d0	i
-test	46	<test: void main(java.lang.String[])>	83	aa	local	direct	(int) $d0	j
-test	46	<test: void main(java.lang.String[])>	83	aa	local	direct	(int) $d0	two
-test	46	<test: void main(java.lang.String[])>	83	aa	local	direct	(int) $d0	aa
-test	46	<test: void main(java.lang.String[])>	83	aa	local	direct	(int) $d0	$i0
-test	46	<test: void main(java.lang.String[])>	83	aa	local	direct	(int) $d0	$i1
-test	46	<test: void main(java.lang.String[])>	83	aa	local	direct	(int) $d0	$i2
+<sites unit="EEC3EFEEABB71C890CD2671679F7DD0E" scheme="scalar-pairs">
+InterTest	6	<InterTest: void invoke1(int,int)>	7	amount	local	direct	0	amount
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	a
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	b
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	c
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	i
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	$i0
+InterTest	7	<InterTest: void invoke1(int,int)>	9	$i0	local	direct	a + b	$i1
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	a
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	b
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	c
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	i
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	$i0
+InterTest	7	<InterTest: void invoke1(int,int)>	11	c	local	direct	$i0 + amount	$i1
+InterTest	16	<InterTest: void invoke1(int,int)>	25	$i1	local	direct	(int) csquare	a
+InterTest	16	<InterTest: void invoke1(int,int)>	25	$i1	local	direct	(int) csquare	b
+InterTest	16	<InterTest: void invoke1(int,int)>	25	$i1	local	direct	(int) csquare	c
+InterTest	16	<InterTest: void invoke1(int,int)>	25	$i1	local	direct	(int) csquare	i
+InterTest	16	<InterTest: void invoke1(int,int)>	25	$i1	local	direct	(int) csquare	$i0
+InterTest	16	<InterTest: void invoke1(int,int)>	25	$i1	local	direct	(int) csquare	$i1
+InterTest	19	<InterTest: void invoke1(int,int)>	33	$l2	local	direct	2L * csquare	csquare
+InterTest	19	<InterTest: void invoke1(int,int)>	33	$l2	local	direct	2L * csquare	$l2
+InterTest	19	<InterTest: void invoke1(int,int)>	35	$f0	local	direct	(float) $l2	$f0
+InterTest	24	<InterTest: void invoke1(int,int)>	45	i	local	direct	array[0]	a
+InterTest	24	<InterTest: void invoke1(int,int)>	45	i	local	direct	array[0]	b
+InterTest	24	<InterTest: void invoke1(int,int)>	45	i	local	direct	array[0]	c
+InterTest	24	<InterTest: void invoke1(int,int)>	45	i	local	direct	array[0]	i
+InterTest	24	<InterTest: void invoke1(int,int)>	45	i	local	direct	array[0]	$i0
+InterTest	24	<InterTest: void invoke1(int,int)>	45	i	local	direct	array[0]	$i1
+InterTest	36	<InterTest: HelloWorld getClass(float)>	7	$i0	local	direct	(int) f	$i0
+InterTest	42	<InterTest: int[] invoke4(int,HelloWorld)>	11	array[0]	mem	index	v	i
+InterTest	42	<InterTest: int[] invoke4(int,HelloWorld)>	11	array[0]	mem	index	v	v
+InterTest	43	<InterTest: int[] invoke4(int,HelloWorld)>	13	array[1]	mem	index	i	i
+InterTest	43	<InterTest: int[] invoke4(int,HelloWorld)>	13	array[1]	mem	index	i	v
+InterTest	44	<InterTest: int[] invoke4(int,HelloWorld)>	15	array[2]	mem	index	0	i
+InterTest	44	<InterTest: int[] invoke4(int,HelloWorld)>	15	array[2]	mem	index	0	v
+InterTest	49	<InterTest: long invoke2(int)>	5	$i0	local	direct	c * c	c
+InterTest	49	<InterTest: long invoke2(int)>	5	$i0	local	direct	c * c	$i0
+InterTest	49	<InterTest: long invoke2(int)>	7	$l1	local	direct	(long) $i0	$l1
+HelloWorld	9	<HelloWorld: void <init>(int)>	7	this.<HelloWorld: int field>	local	field	i	i
+HelloWorld	21	<HelloWorld: void invoke3()>	5	$i0	local	direct	this.<HelloWorld: int field>	$i0
+HelloWorld	33	<HelloWorld: int getField()>	3	$i0	local	direct	this.<HelloWorld: int field>	$i0
+HelloWorld	36	<HelloWorld: void setField(int)>	5	this.<HelloWorld: int field>	local	field	field	field
 </sites>
-<sites unit="E03F2BDA207516FAC002A17492F5B01E" scheme="method-entries">
-test	2	<test: void <init>()>	3
-test	6	<test: void main(java.lang.String[])>	3
+<sites unit="EEC3EFEEABB71C890CD2671679F7DD0E" scheme="method-entries">
+InterTest	3	<InterTest: void <init>()>	3
+InterTest	6	<InterTest: void invoke1(int,int)>	7
+InterTest	32	<InterTest: boolean invokebb()>	3
+InterTest	36	<InterTest: HelloWorld getClass(float)>	5
+InterTest	40	<InterTest: int[] invoke4(int,HelloWorld)>	7
+InterTest	49	<InterTest: long invoke2(int)>	5
+InterTest	53	<InterTest: void main(java.lang.String[])>	3
+HelloWorld	5	<HelloWorld: void <init>()>	3
+HelloWorld	8	<HelloWorld: void <init>(int)>	5
+HelloWorld	13	<HelloWorld: void invoke(int)>	5
+HelloWorld	21	<HelloWorld: void invoke3()>	3
+HelloWorld	25	<HelloWorld: void hello()>	3
+HelloWorld	29	<HelloWorld: void nohello()>	3
+HelloWorld	33	<HelloWorld: int getField()>	3
+HelloWorld	36	<HelloWorld: void setField(int)>	5
 </sites>

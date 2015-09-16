@@ -1,0 +1,115 @@
+public class HelloWorld extends java.lang.Object
+{
+    private int field;
+
+    public void <init>()
+    {
+        HelloWorld this;
+
+        this := @this: HelloWorld;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(7);
+        specialinvoke this.<java.lang.Object: void <init>()>();
+        return;
+    }
+
+    public void <init>(int)
+    {
+        HelloWorld this;
+        int i, tmp7;
+
+        this := @this: HelloWorld;
+        i := @parameter0: int;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(8);
+        specialinvoke this.<java.lang.Object: void <init>()>();
+        this.<HelloWorld: int field> = i;
+        tmp7 = this.<HelloWorld: int field>;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp7, i, 38);
+        return;
+    }
+
+    public void invoke(int)
+    {
+        HelloWorld this;
+        int i;
+
+        this := @this: HelloWorld;
+        i := @parameter0: int;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(9);
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(i, 1, "!=", 1);
+        if i != 1 goto label0;
+
+        virtualinvoke this.<HelloWorld: void hello()>();
+        goto label1;
+
+     label0:
+        virtualinvoke this.<HelloWorld: void nohello()>();
+
+     label1:
+        return;
+    }
+
+    public void invoke3()
+    {
+        HelloWorld this;
+        java.io.PrintStream $r0;
+        int $i0;
+
+        this := @this: HelloWorld;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(10);
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        $i0 = this.<HelloWorld: int field>;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i0, 39);
+        virtualinvoke $r0.<java.io.PrintStream: void println(int)>($i0);
+        return;
+    }
+
+    public void hello()
+    {
+        HelloWorld this;
+        java.io.PrintStream $r0;
+
+        this := @this: HelloWorld;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(11);
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r0.<java.io.PrintStream: void println(java.lang.String)>("Hello world!");
+        return;
+    }
+
+    public void nohello()
+    {
+        HelloWorld this;
+        java.io.PrintStream $r0;
+
+        this := @this: HelloWorld;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(12);
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r0.<java.io.PrintStream: void println()>();
+        return;
+    }
+
+    public int getField()
+    {
+        HelloWorld this;
+        int $i0;
+
+        this := @this: HelloWorld;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(13);
+        $i0 = this.<HelloWorld: int field>;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>($i0, $i0, 40);
+        return $i0;
+    }
+
+    public void setField(int)
+    {
+        HelloWorld this;
+        int field, tmp5;
+
+        this := @this: HelloWorld;
+        field := @parameter0: int;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(14);
+        this.<HelloWorld: int field> = field;
+        tmp5 = this.<HelloWorld: int field>;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(java.lang.Object,java.lang.Object,int)>(tmp5, field, 41);
+        return;
+    }
+}
