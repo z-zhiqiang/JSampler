@@ -1,12 +1,14 @@
 public class HelloWorld {
 
 	private int field;
+	private int field2;
 
 	public HelloWorld(){
 		
 	}
 	public HelloWorld(int i) {
 		field = i;
+		
 	}
 
 	public void invoke(int i) {
@@ -14,6 +16,8 @@ public class HelloWorld {
 			hello();
 		else
 			nohello();
+		
+		this.field2 = this.getField();
 
 	}
 

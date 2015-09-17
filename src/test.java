@@ -45,6 +45,9 @@ public class test {
 		}
 		
 		int aa = (int) Math.pow(4, 2);
+		
+		long ll = 5;
+		long ll2 = (long) j;
 	}
 
 }

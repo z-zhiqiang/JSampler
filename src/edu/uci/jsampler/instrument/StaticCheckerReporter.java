@@ -75,11 +75,23 @@ public class StaticCheckerReporter {
 	 * @param index
 	 */
 	public static synchronized void checkReturns(int returned_value, int index) {
-		checkReturns((double) returned_value, index);
+		checkReturns((long) returned_value, index);
 	}
 	
 	public static synchronized void checkReturns(long returned_value, int index) {
-		checkReturns((double) returned_value, index);
+		if (!return_reports.containsKey(index)) {
+			return_reports.put(index, new byte[3]);
+		}
+
+		// counts = {negative, zero, positive}
+		byte[] counts = return_reports.get(index);
+		if (returned_value < 0) {
+			increaseCount(counts, 0);
+		} else if (returned_value == 0) {
+			increaseCount(counts, 1);
+		} else {
+			increaseCount(counts, 2);
+		}
 	}
 	
 	public static synchronized void checkReturns(float returned_value, int index) {
@@ -203,11 +215,37 @@ public class StaticCheckerReporter {
 //		byte[] counts = branch_reports.get(index);
 //		increaseCount(counts, i);
 //	}
+	
+	
+	/** checking code for scalar-pairs
+	 * @param assigned
+	 * @param local
+	 * @param index
+	 */
+	public static synchronized void checkScalarPairs(int assigned, int local, int index){
+		checkScalarPairs((long) assigned, (long) local, index);
+	}
+	
+	public static synchronized void checkScalarPairs(long assigned_value, long local_value, int index){
+		if (!scalarPair_reports.containsKey(index)) {
+			scalarPair_reports.put(index, new byte[3]);
+		}
+		// counts = {<, ==, >}
+		byte[] counts = scalarPair_reports.get(index);
+		if (assigned_value < local_value) {
+			increaseCount(counts, 0);
+		} else if (assigned_value == local_value) {
+			increaseCount(counts, 1);
+		} else {
+			increaseCount(counts, 2);
+		}
+	}
+	
+	public static synchronized void checkScalarPairs(float assigned, float local, int index){
+		checkScalarPairs((double) assigned, (double) local, index);
+	}
 
-	public static synchronized void checkScalarPairs(Object assigned, Object local, int index) {
-		assert(assigned.getClass() == local.getClass());
-		double assigned_value = (double) assigned;
-		double local_value = (double) local;
+	public static synchronized void checkScalarPairs(double assigned_value, double local_value, int index) {
 		if (!scalarPair_reports.containsKey(index)) {
 			scalarPair_reports.put(index, new byte[3]);
 		}

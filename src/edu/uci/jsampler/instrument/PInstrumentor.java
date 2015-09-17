@@ -2,6 +2,7 @@ package edu.uci.jsampler.instrument;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,9 @@ import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.tagkit.*;
+import soot.toolkits.graph.BriefUnitGraph;
+import soot.toolkits.scalar.FlowSet;
+import soot.toolkits.scalar.InitAnalysis;
 import soot.util.Chain;
 
 public class PInstrumentor extends BodyTransformer {
@@ -50,7 +54,7 @@ public class PInstrumentor extends BodyTransformer {
 	static SootClass checkerReporterClass;
 	static SootMethod checkReturns_int, checkReturns_long, checkReturns_float, checkReturns_double, 
 			checkBranches,
-			checkScalarPairs, 
+			checkScalarPairs_int, checkScalarPairs_long, checkScalarPairs_float, checkScalarPairs_double, 
 			checkMethodEntries;
 	static SootMethod report;
 
@@ -64,13 +68,17 @@ public class PInstrumentor extends BodyTransformer {
 
 		checkBranches = checkerReporterClass.getMethod("void checkBranches(int,int,java.lang.String,int)");
 		
-		checkScalarPairs = checkerReporterClass.getMethod("void checkScalarPairs(java.lang.Object,java.lang.Object,int)");
+		checkScalarPairs_int = checkerReporterClass.getMethod("void checkScalarPairs(int,int,int)");
+		checkScalarPairs_long = checkerReporterClass.getMethod("void checkScalarPairs(long,long,int)");
+		checkScalarPairs_float = checkerReporterClass.getMethod("void checkScalarPairs(float,float,int)");
+		checkScalarPairs_double = checkerReporterClass.getMethod("void checkScalarPairs(double,double,int)");
 		
 		checkMethodEntries = checkerReporterClass.getMethod("void checkMethodEntries(int)");
 
 		report = checkerReporterClass.getMethod("void exportReports(java.lang.String,java.lang.String)");
 	}
 
+	
 	// instrumentation flag
 	private final boolean branches_flag;
 
@@ -90,6 +98,7 @@ public class PInstrumentor extends BodyTransformer {
 
 	private final String output_file_reports;// output file name for dynamic reports
 
+	
 	// static instrumentation site information
 	public static final List<ReturnSite> return_staticInfo = new ArrayList<ReturnSite>();
 
@@ -129,6 +138,9 @@ public class PInstrumentor extends BodyTransformer {
 		this.output_file_reports = output_file_reports;
 	}
 
+	/** generate a unique compilation unit signature: a 128-bit as 32 hexadecimal digits
+	 * @return
+	 */
 	private static String generateUnitSignature() {
 		byte[] unitID = new byte[16];
 		SecureRandom random = new SecureRandom();
@@ -138,10 +150,10 @@ public class PInstrumentor extends BodyTransformer {
 		for (byte b : unitID) {
 			builder.append(String.format("%02X", b));
 		}
-		System.out.println(builder.toString());
 		return builder.toString();
 	}
 
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -150,86 +162,96 @@ public class PInstrumentor extends BodyTransformer {
 	 */
 	@Override
 	protected void internalTransform(Body body, String phase, Map options) {
-		boolean isMain = body.getMethod().getSubSignature().equals("void main(java.lang.String[])");
-
-		// need to get file name
-		// to-do
-		String file_name = body.getMethod().getDeclaringClass().getName();
-		int file_name_translated = Translator.getInstance().getInteger(file_name);
-
-		// body's method
-		String method_name = body.getMethod().getSignature();
-		int method_name_tranlated = Translator.getInstance().getInteger(method_name);
-
-		// locals
-		Chain<Local> locals = body.getLocals();
-		List<Local> original_locals = new ArrayList<Local>();
-		for (Local local : locals) {
-			original_locals.add(local);
-		}
-
 		// get body's units
 		Chain<Unit> units = body.getUnits();
 		Iterator<Unit> stmtIt = units.snapshotIterator();
-		int cfg_number = 0;
 
-		int line_number = 0;
-		boolean instrumentEntry_flag = true;
-		Value def = null;
+		//instrument the specified methods
+		if(this.methods_instrument.isEmpty() || this.methods_instrument.contains(body.getMethod().getSignature())){
+			// source file name
+			String file_name = body.getMethod().getDeclaringClass().getName();
+			int file_name_translated = Translator.getInstance().getInteger(file_name);
+			
+			// body's method
+			String method_name = body.getMethod().getSignature();
+			int method_name_tranlated = Translator.getInstance().getInteger(method_name);
+			
+			//initialized variables
+			InitAnalysis analysis = new InitAnalysis(new BriefUnitGraph(body));
 
-		while (stmtIt.hasNext()) {
-			// cast back to a statement
-			Stmt stmt = (Stmt) stmtIt.next();
-			// System.out.println(stmt.toString());
-//			SourceFileTag t = (SourceFileTag) stmt.getTag("SourceFileTag");
-//			if(t != null){
-//				System.out.println(t.getAbsolutePath());
-//			}
-//			else{
-//				System.out.println("");
-//			}
-
-			cfg_number++;
-			line_number = getSourceLineNumber(stmt);
-
-			// for method-entries
-			if (instrumentEntry_flag && !(stmt instanceof IdentityStmt)) {
-				instrumentMethodEntries(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
-				instrumentEntry_flag = false;
-			}
-
-			// for branches
-			if (stmt instanceof IfStmt) {
-				instrumentBranches(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
-			}
-			// for returns and scalar-pairs
-			if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType) {
-				// for returns
-				if (((Stmt) stmt).containsInvokeExpr()) {
-					instrumentReturns(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def);
+			int cfg_number = 0;
+			boolean instrumentEntry_flag = true;
+			Value def = null;
+			
+			while (stmtIt.hasNext()) {
+				// cast back to a statement
+				Stmt stmt = (Stmt) stmtIt.next();
+// 			    System.out.println(stmt.toString());
+				
+				// get source line number
+				int line_number = getSourceLineNumber(stmt);
+				
+				/* add checking code */
+				// for method-entries
+				if (this.methodentries_flag && instrumentEntry_flag && !(stmt instanceof IdentityStmt)) {
+					instrumentMethodEntries(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
+					instrumentEntry_flag = false;
 				}
-				// for scalar-pairs
-				else {
-					 instrumentScalarPairs(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def, original_locals);
+				
+				// for branches
+				if (this.branches_flag && stmt instanceof IfStmt) {
+					instrumentBranches(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
 				}
-
-			}
-
-			// trace cfg_number
-			cfg_number++;
-
-			/* add reporting code */
-			// insert reporting code before exit
-			if (stmt instanceof InvokeStmt) {
-				InvokeExpr iexpr = stmt.getInvokeExpr();
-				if (iexpr instanceof StaticInvokeExpr
-						&& iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
+				// for returns and scalar-pairs
+				if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType) {
+					// for returns
+					if (this.returns_flag && ((Stmt) stmt).containsInvokeExpr()) {
+						instrumentReturns(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def);
+					}
+					// for scalar-pairs
+					else if(this.scalarpairs_flag){
+						instrumentScalarPairs(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def, analysis);
+					}
+					
+				}
+				
+				/* add reporting code */
+				// insert reporting code before exit
+				if (stmt instanceof InvokeStmt) {
+					InvokeExpr iexpr = stmt.getInvokeExpr();
+					if (iexpr instanceof StaticInvokeExpr
+							&& iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
+						instrumentReport(units, stmt);
+					}
+				}
+				// insert reporting code before return of main
+				if (body.getMethod().getSubSignature().equals("void main(java.lang.String[])") && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)) {
 					instrumentReport(units, stmt);
 				}
+				
+				
+				// trace cfg_number
+				cfg_number++;
 			}
-			// insert reporting code before return of main
-			if (isMain && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)) {
-				instrumentReport(units, stmt);
+		}
+		else{
+			while (stmtIt.hasNext()) {
+				// cast back to a statement
+				Stmt stmt = (Stmt) stmtIt.next();
+				
+				/* add reporting code */
+				// insert reporting code before exit
+				if (stmt instanceof InvokeStmt) {
+					InvokeExpr iexpr = stmt.getInvokeExpr();
+					if (iexpr instanceof StaticInvokeExpr
+							&& iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
+						instrumentReport(units, stmt);
+					}
+				}
+				// insert reporting code before return of main
+				if (body.getMethod().getSubSignature().equals("void main(java.lang.String[])") && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)) {
+					instrumentReport(units, stmt);
+				}
 			}
 		}
 	}
@@ -249,10 +271,10 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param units
 	 * @param stmt
 	 * @param def
-	 * @param original_locals
+	 * @param analysis 
 	 */
 	private void instrumentScalarPairs(int file_name, int method_name, int line_number, int cfg_number, Body body,
-			Chain<Unit> units, Stmt stmt, Value def, List<Local> original_locals) {
+			Chain<Unit> units, Stmt stmt, Value def, InitAnalysis analysis) {
 		/* static site information for scalar-pair */
 		// left info
 		String left = def.toString();
@@ -284,14 +306,33 @@ public class PInstrumentor extends BodyTransformer {
 			stmt = inserted_assign;
 		}
 
-		for (Local local : original_locals) {
-			if (local.getType() == def.getType()) {
+		Iterator it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+		while(it.hasNext()){
+			Local local = (Local) it.next();
+			if (local.getType() == def.getType() && local != def) {
 				// create static instrumentation site for scalar-pairs
 				ScalarPairSite site = new ScalarPairSite(file_name, line_number, method_name, cfg_number, left, scope_type_assign, container_type, right, local.toString());
 				scalarPair_staticInfo.add(site);
 
 				// insert checking code
-				InvokeExpr checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+				InvokeExpr checkScalarPair = null;
+				if(def.getType() instanceof IntegerType){
+					//boolean, byte, char, short, int
+					checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_int.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+				}
+				else if(def.getType() instanceof LongType){
+					checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_long.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+				}
+				else if(def.getType() instanceof FloatType){
+					checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_float.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+				}
+				else if(def.getType() instanceof DoubleType){
+					checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_double.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+				}
+				else{
+					System.err.println("wrong prim type!");
+				}
+				
 				Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
 				units.insertAfter(checkScalarPairStmt, stmt);
 			}
@@ -396,4 +437,41 @@ public class PInstrumentor extends BodyTransformer {
 		units.insertAfter(checkReturnStmt, stmt);
 	}
 
+	public boolean isBranches_flag() {
+		return branches_flag;
+	}
+
+	public boolean isReturns_flag() {
+		return returns_flag;
+	}
+
+	public boolean isScalarpairs_flag() {
+		return scalarpairs_flag;
+	}
+
+	public boolean isMethodentries_flag() {
+		return methodentries_flag;
+	}
+
+	public boolean isSample_flag() {
+		return sample_flag;
+	}
+
+	public int getOpportunities() {
+		return opportunities;
+	}
+
+	public Set<String> getMethods_instrument() {
+		return methods_instrument;
+	}
+
+	public String getOutput_file_sites() {
+		return output_file_sites;
+	}
+
+	public String getOutput_file_reports() {
+		return output_file_reports;
+	}
+
+	
 }

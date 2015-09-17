@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,25 +39,18 @@ public class JSampler {
 
 	private static String output_file_reports;
 
+	
 	public static void main(String[] args) {
-		if (args.length == 0) {
-			System.err.println("Usage: java JSampler sampler-options [soot-options] classname");
-			System.exit(0);
-		}
-
-		// List<String> sampler_options = new ArrayList<String>();
+		//parse arguments
 		List<String> soot_parameters = new ArrayList<String>();
-		// parseParameters(args, sampler_options, soot_parameters);
 		parseParameters(args, soot_parameters);
 
-		PackManager.v().getPack("jtp")
-				.add(new Transform("jtp.instrumenter",
-						new PInstrumentor(branches_flag, returns_flag, scalarpairs_flag, methodentries_flag,
-								sample_flag, opportunities, methods_instrument, output_file_sites,
-								output_file_reports)));
+		PInstrumentor instrumentor = new PInstrumentor(branches_flag, returns_flag, scalarpairs_flag, methodentries_flag,
+				sample_flag, opportunities, methods_instrument, output_file_sites, output_file_reports);
+		PackManager.v().getPack("jtp").add(new Transform("jtp.instrumenter", instrumentor));
 
 		Options.v().setPhaseOption("jb", "use-original-names:true");
-		Options.v().set_output_format(Options.output_format_jimple);
+//		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_keep_line_number(true);
 		Options.v().set_prepend_classpath(true);
 
@@ -64,7 +58,7 @@ public class JSampler {
 
 		// export static instrumentation information into files
 //		System.out.println(Translator.getInstance().toString());
-		printStaticSitesInfo(output_file_sites);
+		writeOutStaticSitesInfo(instrumentor.getOutput_file_sites());
 	}
 
 	/**
@@ -72,6 +66,21 @@ public class JSampler {
 	 * @param soot_parameters
 	 */
 	private static void parseParameters(String[] args, List<String> soot_parameters) {
+		if (args.length == 0) {
+			System.err.println("Usage: java JSampler sampler-options [soot-options] classname");
+			System.exit(0);
+		}
+		
+		//default values
+		output_file_sites = "./output.sites";
+		
+		output_file_reports = "./output.reports";
+		
+		methods_instrument = new HashSet<String>();
+		
+		opportunities = 1000;
+		
+		
 		// TODO Auto-generated method stub
 		for (int i = 0; i < args.length; i++) {
 			String option = args[i].trim();
@@ -90,9 +99,6 @@ public class JSampler {
 				} 
 				else if (option.equals("-sampler")) {
 					sample_flag = true;
-				} 
-				else if (option.equals("-sampler-no")) {
-					sample_flag = false;
 				} 
 				else if (option.startsWith("-sampler-opportunities=")) {
 					 opportunities = Integer.parseInt(option.split("=")[1].trim());
@@ -118,10 +124,9 @@ public class JSampler {
 	/**
 	 * @param sites_file_name
 	 */
-	private static void printStaticSitesInfo(String sites_file_name) {
+	private static void writeOutStaticSitesInfo(String sites_file_name) {
 		File file = new File(sites_file_name);
 		String unit_signature = PInstrumentor.unit_signature;
-		List sitesInfo = null;
 		PrintWriter out = null;
 		try {
 			if (!file.getParentFile().exists()) {
@@ -131,52 +136,24 @@ public class JSampler {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
 			/* branches */
-			// tag headers
-			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, "branches");
-			// content
-			sitesInfo = PInstrumentor.branch_staticInfo;
-			for (int i = 0; i < sitesInfo.size(); i++) {
-				AbstractSite site = (AbstractSite) sitesInfo.get(i);
-				out.println(site.printToString());
+			if(branches_flag){
+				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.branch_staticInfo, unit_signature, "branches");
 			}
-			// tag close
-			out.println("</sites>");
 
 			/* returns */
-			// tag headers
-			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, "returns");
-			// content
-			sitesInfo = PInstrumentor.return_staticInfo;
-			for (int i = 0; i < sitesInfo.size(); i++) {
-				AbstractSite site = (AbstractSite) sitesInfo.get(i);
-				out.println(site.printToString());
+			if(returns_flag){
+				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.return_staticInfo, unit_signature, "returns");
 			}
-			// tag close
-			out.println("</sites>");
 
 			/* scalar-pairs */
-			// tag headers
-			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, "scalar-pairs");
-			// content
-			sitesInfo = PInstrumentor.scalarPair_staticInfo;
-			for (int i = 0; i < sitesInfo.size(); i++) {
-				AbstractSite site = (AbstractSite) sitesInfo.get(i);
-				out.println(site.printToString());
+			if(scalarpairs_flag){
+				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.scalarPair_staticInfo, unit_signature, "scalar-pairs");
 			}
-			// tag close
-			out.println("</sites>");
 			
 			/* method-entries */
-			// tag headers
-			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, "method-entries");
-			// content
-			sitesInfo = PInstrumentor.methodEntry_staticInfo;
-			for (int i = 0; i < sitesInfo.size(); i++) {
-				AbstractSite site = (AbstractSite) sitesInfo.get(i);
-				out.println(site.printToString());
+			if(methodentries_flag){
+				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.methodEntry_staticInfo, unit_signature, "method-entries");
 			}
-			// tag close
-			out.println("</sites>");
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -185,6 +162,19 @@ public class JSampler {
 		}
 	}
 
+	private static void printStaticInstrumentationInfoForEachScheme(PrintWriter out, List sitesInfo, String unit_signature, String scheme){
+		// tag headers
+		out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
+		// content
+		for (int i = 0; i < sitesInfo.size(); i++) {
+			AbstractSite site = (AbstractSite) sitesInfo.get(i);
+			out.println(site.printToString());
+		}
+		// tag close
+		out.println("</sites>");
+	}
+	
+	
 	/**
 	 * separate parameters into sampler-options and soot-parameters
 	 * 
@@ -211,7 +201,7 @@ public class JSampler {
 	 * @param unit_signature
 	 * @param file
 	 */
-	private static void printStaticInstrumentationInfoForEachScheme(List sitesInfo, String unit_signature, File file) {
+	private static void writeOutStaticInstrumentationInfoForEachScheme(List sitesInfo, String unit_signature, File file) {
 		PrintWriter out = null;
 		try {
 			if (!file.getParentFile().exists()) {
