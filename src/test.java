@@ -1,6 +1,6 @@
 
 public class test {
-	private int field;
+//	private int field;
 
 	public static void main(String[] args) {
 //		int i = Integer.parseInt(args[0]);

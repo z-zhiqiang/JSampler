@@ -3,6 +3,7 @@ package edu.uci.jsampler.instrument;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,7 @@ import soot.BodyTransformer;
 import soot.BooleanType;
 import soot.DoubleType;
 import soot.FloatType;
+import soot.IntType;
 import soot.IntegerType;
 import soot.Local;
 import soot.LongType;
@@ -31,6 +33,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.AssignStmt;
 import soot.jimple.ConditionExpr;
+import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
@@ -165,6 +168,9 @@ public class PInstrumentor extends BodyTransformer {
 		// get body's units
 		Chain<Unit> units = body.getUnits();
 		Iterator<Unit> stmtIt = units.snapshotIterator();
+		Iterator<Unit> faststmtIt = units.snapshotIterator();
+		
+		Stmt firstStmt = getFirstNonIdentityStmt(units);
 
 		//instrument the specified methods
 		if(this.methods_instrument.isEmpty() || this.methods_instrument.contains(body.getMethod().getSignature())){
@@ -174,7 +180,7 @@ public class PInstrumentor extends BodyTransformer {
 			
 			// body's method
 			String method_name = body.getMethod().getSignature();
-			int method_name_tranlated = Translator.getInstance().getInteger(method_name);
+			int method_name_translated = Translator.getInstance().getInteger(method_name);
 			
 			//initialized variables
 			InitAnalysis analysis = new InitAnalysis(new BriefUnitGraph(body));
@@ -194,23 +200,23 @@ public class PInstrumentor extends BodyTransformer {
 				/* add checking code */
 				// for method-entries
 				if (this.methodentries_flag && instrumentEntry_flag && !(stmt instanceof IdentityStmt)) {
-					instrumentMethodEntries(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
+					instrumentMethodEntries(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt);
 					instrumentEntry_flag = false;
 				}
 				
 				// for branches
 				if (this.branches_flag && stmt instanceof IfStmt) {
-					instrumentBranches(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt);
+					instrumentBranches(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt);
 				}
 				// for returns and scalar-pairs
 				if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType) {
 					// for returns
 					if (this.returns_flag && ((Stmt) stmt).containsInvokeExpr()) {
-						instrumentReturns(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def);
+						instrumentReturns(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def);
 					}
 					// for scalar-pairs
 					else if(this.scalarpairs_flag){
-						instrumentScalarPairs(file_name_translated, method_name_tranlated, line_number, cfg_number, body, units, stmt, def, analysis);
+						instrumentScalarPairs(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def, analysis);
 					}
 					
 				}
@@ -254,6 +260,72 @@ public class PInstrumentor extends BodyTransformer {
 				}
 			}
 		}
+		
+		
+		//fast path
+		Map<Unit, Unit> map = new HashMap<Unit, Unit>();
+		
+		Stmt lastStmt = (Stmt) units.getLast();
+		System.out.println(lastStmt.toString());
+		
+		while(faststmtIt.hasNext()){
+			Stmt stmt = (Stmt) faststmtIt.next();
+//			System.out.println(stmt);
+//			System.out.println(stmt.hashCode());
+			Stmt newStmt = (Stmt) stmt.clone();
+//			System.out.println(newStmt);
+//			System.out.println(newStmt.hashCode());
+//			System.out.println(stmt == newStmt);
+			if(!(stmt instanceof IdentityStmt)){
+				map.put(stmt, newStmt);
+				units.insertAfter(newStmt, lastStmt);
+				lastStmt = newStmt;
+			}
+		}
+		
+		for(Unit oldStmt: map.keySet()){
+			if(oldStmt instanceof IfStmt){
+				IfStmt newIfStmt = (IfStmt) map.get(oldStmt);
+				newIfStmt.setTarget(map.get(newIfStmt.getTarget()));
+			}
+			else if(oldStmt instanceof GotoStmt){
+				GotoStmt newGotoStmt = (GotoStmt) map.get(oldStmt);
+				newGotoStmt.setTarget(map.get(newGotoStmt.getTarget()));
+			}
+		}
+		
+		
+
+		
+		//
+		sampleMethodEntry(body, units, getFirstNonIdentityStmt(units), (Stmt) map.get(firstStmt));
+		
+		
+	}
+
+
+	private Stmt getFirstNonIdentityStmt(Chain<Unit> units) {
+		// TODO Auto-generated method stub
+		Stmt firstStmt = null;
+		Iterator<Unit> stmtIt = units.snapshotIterator();
+		while(stmtIt.hasNext()){
+			Stmt stmt = (Stmt) stmtIt.next();
+			if(!(stmt instanceof IdentityStmt)){
+				firstStmt = stmt;
+				break;
+			}
+		}
+		return firstStmt;
+	}
+
+	private void sampleMethodEntry(Body body, Chain<Unit> units, Stmt stmt, Stmt toStmt) {
+		// TODO Auto-generated method stub
+		Local tmp = Jimple.v().newLocal("countdown", IntType.v());
+		body.getLocals().add(tmp);
+		
+		ConditionExpr condition = Jimple.v().newGtExpr(tmp, IntConstant.v(2));
+		Stmt ifStmt = Jimple.v().newIfStmt(condition, toStmt);
+		units.insertBefore(ifStmt, stmt);
 	}
 
 	private void instrumentReport(Chain<Unit> units, Stmt stmt) {
