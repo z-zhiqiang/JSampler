@@ -7,13 +7,15 @@ public class test extends java.lang.Object
         int countdown;
 
         this := @this: test;
-        if countdown > 2 goto label0;
+        countdown = staticinvoke <edu.uci.jsampler.instrument.GlobalCountdown: int getCountdown()>();
+        if countdown > 0 goto label0;
 
         staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(0);
         specialinvoke this.<java.lang.Object: void <init>()>();
         return;
 
      label0:
+        countdown = countdown - 0;
         specialinvoke this.<java.lang.Object: void <init>()>();
         return;
     }
@@ -29,7 +31,8 @@ public class test extends java.lang.Object
         test $r0;
 
         args := @parameter0: java.lang.String[];
-        if countdown > 2 goto label5;
+        countdown = staticinvoke <edu.uci.jsampler.instrument.GlobalCountdown: int getCountdown()>();
+        if countdown > 0 goto label5;
 
         staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(1);
         i = 0.8;
@@ -97,10 +100,11 @@ public class test extends java.lang.Object
         ll = 5L;
         ll2 = (long) j;
         staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(long,long,int)>(ll2, ll, 22);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "8918D57B756E82EFBA48F5833FA65C60");
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "30FDFB0ECEB0BE45C0AE6BAFE0688114");
         return;
 
      label5:
+        countdown = countdown - 0;
         i = 0.8;
         j = 10.9;
         two = 2.0;

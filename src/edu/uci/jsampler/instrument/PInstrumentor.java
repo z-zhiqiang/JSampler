@@ -32,6 +32,7 @@ import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
 import soot.jimple.AssignStmt;
+import soot.jimple.BinopExpr;
 import soot.jimple.ConditionExpr;
 import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
@@ -40,13 +41,17 @@ import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
+import soot.jimple.NopStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
+import soot.jimple.toolkits.annotation.logic.Loop;
+import soot.jimple.toolkits.annotation.logic.LoopFinder;
 import soot.tagkit.*;
 import soot.toolkits.graph.BriefUnitGraph;
+import soot.toolkits.graph.LoopNestTree;
 import soot.toolkits.scalar.FlowSet;
 import soot.toolkits.scalar.InitAnalysis;
 import soot.util.Chain;
@@ -54,7 +59,8 @@ import soot.util.Chain;
 public class PInstrumentor extends BodyTransformer {
 
 	// internal fields
-	static SootClass checkerReporterClass;
+	static SootClass checkerReporterClass, globalCountdownClass;
+	static SootMethod getCountdown, setCountdown;
 	static SootMethod checkReturns_int, checkReturns_long, checkReturns_float, checkReturns_double, 
 			checkBranches,
 			checkScalarPairs_int, checkScalarPairs_long, checkScalarPairs_float, checkScalarPairs_double, 
@@ -62,6 +68,7 @@ public class PInstrumentor extends BodyTransformer {
 	static SootMethod report;
 
 	static {
+		//checkerReporterClass
 		checkerReporterClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.instrument.StaticCheckerReporter");
 
 		checkReturns_int = checkerReporterClass.getMethod("void checkReturns(int,int)");
@@ -79,6 +86,13 @@ public class PInstrumentor extends BodyTransformer {
 		checkMethodEntries = checkerReporterClass.getMethod("void checkMethodEntries(int)");
 
 		report = checkerReporterClass.getMethod("void exportReports(java.lang.String,java.lang.String)");
+		
+		
+		//globalCountdownClass
+		globalCountdownClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.instrument.GlobalCountdown");
+		
+		getCountdown = globalCountdownClass.getMethod("int getCountdown()");
+		setCountdown = globalCountdownClass.getMethod("void setCountdown(int)");
 	}
 
 	
@@ -170,8 +184,67 @@ public class PInstrumentor extends BodyTransformer {
 		Iterator<Unit> stmtIt = units.snapshotIterator();
 		Iterator<Unit> faststmtIt = units.snapshotIterator();
 		
-		Stmt firstStmt = getFirstNonIdentityStmt(units);
+		
+		/*---------------------------------------------- sampling -------------------------------------------------*/
+		
+		//region weights
+		int weight_function = 0;
+		Map<Unit, Integer> weight_loops = new HashMap<Unit, Integer>();
+		LoopNestTree loopNestTree = new LoopNestTree(body);
+		for(Loop loop: loopNestTree){
+			System.out.println("a loop with head: " + loop.getHead().toString() + "  back: " + loop.getBackJumpStmt().toString());
+			weight_loops.put(loop.getHead(), 0);
+		}
+		
+		
+		//export current global countdown into a local countdown
+		Local countdown = Jimple.v().newLocal("countdown", IntType.v());
+		body.getLocals().add(countdown);
 
+		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
+		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
+		units.insertBefore(getCountdownStmt, getFirstNonIdentityStmt(units));
+		
+		
+		//add nop statement at the end of the original code
+		NopStmt nopStmt = Jimple.v().newNopStmt();
+		units.insertAfter(nopStmt, units.getLast());
+		
+		//add sample checking code at the very beginning
+		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
+		IfStmt ifStmt = Jimple.v().newIfStmt(condition, nopStmt);
+		units.insertAfter(ifStmt, getCountdownStmt);		
+		
+		//fast path
+		//decrease countdown
+		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
+		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
+		units.insertAfter(decreaseStmt, nopStmt);		
+		
+		//add cloned code at the end of the original code
+		Map<Unit, Unit> map = new HashMap<Unit, Unit>();
+		while(faststmtIt.hasNext()){
+			Stmt stmt = (Stmt) faststmtIt.next();
+			Stmt newStmt = (Stmt) stmt.clone();
+			if(!(stmt instanceof IdentityStmt)){
+				map.put(stmt, newStmt);
+				units.insertAfter(newStmt, units.getLast());
+			}
+		}
+		for(Unit oldStmt: map.keySet()){
+			if(oldStmt instanceof IfStmt){
+				IfStmt newIfStmt = (IfStmt) map.get(oldStmt);
+				newIfStmt.setTarget(map.get(newIfStmt.getTarget()));
+			}
+			else if(oldStmt instanceof GotoStmt){
+				GotoStmt newGotoStmt = (GotoStmt) map.get(oldStmt);
+				newGotoStmt.setTarget(map.get(newGotoStmt.getTarget()));
+			}
+		}		
+		
+
+		/*---------------------------------------------- predicates instrumentation -------------------------------------------------*/
+		
 		//instrument the specified methods
 		if(this.methods_instrument.isEmpty() || this.methods_instrument.contains(body.getMethod().getSignature())){
 			// source file name
@@ -260,45 +333,6 @@ public class PInstrumentor extends BodyTransformer {
 				}
 			}
 		}
-		
-		
-		//fast path
-		Map<Unit, Unit> map = new HashMap<Unit, Unit>();
-		
-		Stmt lastStmt = (Stmt) units.getLast();
-		System.out.println(lastStmt.toString());
-		
-		while(faststmtIt.hasNext()){
-			Stmt stmt = (Stmt) faststmtIt.next();
-//			System.out.println(stmt);
-//			System.out.println(stmt.hashCode());
-			Stmt newStmt = (Stmt) stmt.clone();
-//			System.out.println(newStmt);
-//			System.out.println(newStmt.hashCode());
-//			System.out.println(stmt == newStmt);
-			if(!(stmt instanceof IdentityStmt)){
-				map.put(stmt, newStmt);
-				units.insertAfter(newStmt, lastStmt);
-				lastStmt = newStmt;
-			}
-		}
-		
-		for(Unit oldStmt: map.keySet()){
-			if(oldStmt instanceof IfStmt){
-				IfStmt newIfStmt = (IfStmt) map.get(oldStmt);
-				newIfStmt.setTarget(map.get(newIfStmt.getTarget()));
-			}
-			else if(oldStmt instanceof GotoStmt){
-				GotoStmt newGotoStmt = (GotoStmt) map.get(oldStmt);
-				newGotoStmt.setTarget(map.get(newGotoStmt.getTarget()));
-			}
-		}
-		
-		
-
-		
-		//
-		sampleMethodEntry(body, units, getFirstNonIdentityStmt(units), (Stmt) map.get(firstStmt));
 		
 		
 	}

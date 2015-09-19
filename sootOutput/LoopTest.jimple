@@ -1,0 +1,92 @@
+public class LoopTest extends java.lang.Object
+{
+
+    public void <init>()
+    {
+        LoopTest this;
+        int countdown;
+
+        this := @this: LoopTest;
+        countdown = staticinvoke <edu.uci.jsampler.instrument.GlobalCountdown: int getCountdown()>();
+        if countdown > 0 goto label0;
+
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(0);
+        specialinvoke this.<java.lang.Object: void <init>()>();
+        return;
+
+     label0:
+        nop;
+        countdown = countdown - 0;
+        specialinvoke this.<java.lang.Object: void <init>()>();
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] args;
+        int i, j, countdown;
+        java.io.PrintStream $r0;
+
+        args := @parameter0: java.lang.String[];
+        countdown = staticinvoke <edu.uci.jsampler.instrument.GlobalCountdown: int getCountdown()>();
+        if countdown > 0 goto label4;
+
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(1);
+        i = 0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(i, countdown, 0);
+        goto label3;
+
+     label0:
+        j = 0;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(j, i, 2);
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(j, countdown, 1);
+        goto label2;
+
+     label1:
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r0.<java.io.PrintStream: void println(int)>(j);
+        j = j + 1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(j, i, 4);
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(j, countdown, 3);
+
+     label2:
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(j, i, "<", 0);
+        if j < i goto label1;
+
+        i = i + 1;
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(i, j, 6);
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(i, countdown, 5);
+
+     label3:
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(i, 10, "<", 1);
+        if i < 10 goto label0;
+
+        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "A527718A16A291E3D99E8D6B8CDF1351");
+        return;
+
+     label4:
+        nop;
+        countdown = countdown - 0;
+        i = 0;
+        goto label8;
+
+     label5:
+        j = 0;
+        goto label7;
+
+     label6:
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r0.<java.io.PrintStream: void println(int)>(j);
+        j = j + 1;
+
+     label7:
+        if j < i goto label6;
+
+        i = i + 1;
+
+     label8:
+        if i < 10 goto label5;
+
+        return;
+    }
+}

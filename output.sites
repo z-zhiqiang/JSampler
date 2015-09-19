@@ -1,37 +1,19 @@
-<sites unit="8918D57B756E82EFBA48F5833FA65C60" scheme="branches">
-test	15	<test: void main(java.lang.String[])>	8	$b0 >= 0
-test	11	<test: void main(java.lang.String[])>	15	$b0 > 0
-test	43	<test: void main(java.lang.String[])>	20	$z0 == 0
+<sites unit="A527718A16A291E3D99E8D6B8CDF1351" scheme="branches">
+LoopTest	5	<LoopTest: void main(java.lang.String[])>	8	j < i
+LoopTest	4	<LoopTest: void main(java.lang.String[])>	10	i < 10
 </sites>
-<sites unit="8918D57B756E82EFBA48F5833FA65C60" scheme="returns">
-test	47	<test: void main(java.lang.String[])>	22	static
+<sites unit="A527718A16A291E3D99E8D6B8CDF1351" scheme="returns">
 </sites>
-<sites unit="8918D57B756E82EFBA48F5833FA65C60" scheme="scalar-pairs">
-test	8	<test: void main(java.lang.String[])>	2	j	local	direct	10.9	i
-test	9	<test: void main(java.lang.String[])>	3	two	local	direct	2.0	i
-test	9	<test: void main(java.lang.String[])>	3	two	local	direct	2.0	j
-test	12	<test: void main(java.lang.String[])>	5	j	local	direct	i - 1.0	i
-test	12	<test: void main(java.lang.String[])>	5	j	local	direct	i - 1.0	two
-test	14	<test: void main(java.lang.String[])>	6	z1	local	direct	0.77	i
-test	14	<test: void main(java.lang.String[])>	6	z1	local	direct	0.77	j
-test	14	<test: void main(java.lang.String[])>	6	z1	local	direct	0.77	two
-test	16	<test: void main(java.lang.String[])>	9	two	local	direct	two + 1.0	i
-test	16	<test: void main(java.lang.String[])>	9	two	local	direct	two + 1.0	j
-test	16	<test: void main(java.lang.String[])>	9	two	local	direct	two + 1.0	z1
-test	19	<test: void main(java.lang.String[])>	11	two	local	direct	two - 1.0	i
-test	19	<test: void main(java.lang.String[])>	11	two	local	direct	two - 1.0	j
-test	19	<test: void main(java.lang.String[])>	11	two	local	direct	two - 1.0	z1
-test	21	<test: void main(java.lang.String[])>	12	i	local	direct	1.0	j
-test	21	<test: void main(java.lang.String[])>	12	i	local	direct	1.0	two
-test	21	<test: void main(java.lang.String[])>	12	i	local	direct	1.0	z1
-test	22	<test: void main(java.lang.String[])>	13	j	local	direct	i + two	i
-test	22	<test: void main(java.lang.String[])>	13	j	local	direct	i + two	two
-test	22	<test: void main(java.lang.String[])>	13	j	local	direct	i + two	z1
-test	43	<test: void main(java.lang.String[])>	19	$z0	local	direct	$r0 instanceof test	bb
-test	44	<test: void main(java.lang.String[])>	21	bb	local	direct	0	$z0
-test	50	<test: void main(java.lang.String[])>	25	ll2	local	direct	(long) j	ll
+<sites unit="A527718A16A291E3D99E8D6B8CDF1351" scheme="scalar-pairs">
+LoopTest	4	<LoopTest: void main(java.lang.String[])>	1	i	local	direct	0	countdown
+LoopTest	5	<LoopTest: void main(java.lang.String[])>	3	j	local	direct	0	countdown
+LoopTest	5	<LoopTest: void main(java.lang.String[])>	3	j	local	direct	0	i
+LoopTest	5	<LoopTest: void main(java.lang.String[])>	7	j	local	direct	j + 1	countdown
+LoopTest	5	<LoopTest: void main(java.lang.String[])>	7	j	local	direct	j + 1	i
+LoopTest	4	<LoopTest: void main(java.lang.String[])>	9	i	local	direct	i + 1	countdown
+LoopTest	4	<LoopTest: void main(java.lang.String[])>	9	i	local	direct	i + 1	j
 </sites>
-<sites unit="8918D57B756E82EFBA48F5833FA65C60" scheme="method-entries">
-test	2	<test: void <init>()>	1
-test	7	<test: void main(java.lang.String[])>	1
+<sites unit="A527718A16A291E3D99E8D6B8CDF1351" scheme="method-entries">
+LoopTest	2	<LoopTest: void <init>()>	1
+LoopTest	4	<LoopTest: void main(java.lang.String[])>	1
 </sites>
