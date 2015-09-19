@@ -1,4 +1,4 @@
-package edu.uci.jsampler.instrument;
+package edu.uci.jsampler.assist;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-public class StaticCheckerReporter {
+public class PredicateCheckerReporter {
 
 	// dynamic feedback reports
 	private static Map<Integer, byte[]> return_reports = new TreeMap<Integer, byte[]>();

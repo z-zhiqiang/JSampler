@@ -1,4 +1,4 @@
-package edu.uci.jsampler.instrument;
+package edu.uci.jsampler.assist;
 
 public class GlobalCountdown {
 	

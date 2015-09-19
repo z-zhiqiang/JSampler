@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.uci.jsampler.instrument.PInstrumentor;
 import edu.uci.jsampler.site.AbstractSite;
+import edu.uci.jsampler.transformer.PInstrumentor;
 import edu.uci.jsampler.util.Translator;
 import soot.PackManager;
 import soot.Transform;

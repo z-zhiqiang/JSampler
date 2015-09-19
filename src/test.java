@@ -12,12 +12,12 @@ public class test {
 			j = i - 1;
 //			if(i % 2 == 0){
 				double z1 =0.77;
-				if(z1 < 0){
-					two++;
-				}
-				else{
-					two--;
-				}
+//				if(z1 < 0){
+//					two++;
+//				}
+//				else{
+//					two--;
+//				}
 				i=1;
 				j = i + two;
 //			}

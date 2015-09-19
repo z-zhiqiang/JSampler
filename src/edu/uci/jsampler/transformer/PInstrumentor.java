@@ -1,4 +1,4 @@
-package edu.uci.jsampler.instrument;
+package edu.uci.jsampler.transformer;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,8 +60,9 @@ import soot.util.Chain;
 public class PInstrumentor extends BodyTransformer {
 
 	// internal fields
-	static SootClass checkerReporterClass, globalCountdownClass;
+	static SootClass checkerReporterClass, globalCountdownClass, sampleCheckerClass;
 	static SootMethod getCountdown, setCountdown;
+	static SootMethod toSample;
 	static SootMethod checkReturns_int, checkReturns_long, checkReturns_float, checkReturns_double, 
 			checkBranches,
 			checkScalarPairs_int, checkScalarPairs_long, checkScalarPairs_float, checkScalarPairs_double, 
@@ -69,7 +71,7 @@ public class PInstrumentor extends BodyTransformer {
 
 	static {
 		//checkerReporterClass
-		checkerReporterClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.instrument.StaticCheckerReporter");
+		checkerReporterClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.assist.PredicateCheckerReporter");
 
 		checkReturns_int = checkerReporterClass.getMethod("void checkReturns(int,int)");
 		checkReturns_long = checkerReporterClass.getMethod("void checkReturns(long,int)");
@@ -89,10 +91,16 @@ public class PInstrumentor extends BodyTransformer {
 		
 		
 		//globalCountdownClass
-		globalCountdownClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.instrument.GlobalCountdown");
+		globalCountdownClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.assist.GlobalCountdown");
 		
 		getCountdown = globalCountdownClass.getMethod("int getCountdown()");
 		setCountdown = globalCountdownClass.getMethod("void setCountdown(int)");
+		
+		
+		//sampleCheckerClass
+		sampleCheckerClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.assist.SampleChecker");
+		
+		toSample = sampleCheckerClass.getMethod("boolean toSample()");
 	}
 
 	
@@ -180,6 +188,7 @@ public class PInstrumentor extends BodyTransformer {
 	@Override
 	protected void internalTransform(Body body, String phase, Map options) {
 		// get body's units
+		Body body_original = (Body) body.clone();
 		Chain<Unit> units = body.getUnits();
 		Iterator<Unit> stmtIt = units.snapshotIterator();
 		Iterator<Unit> faststmtIt = units.snapshotIterator();
@@ -187,50 +196,38 @@ public class PInstrumentor extends BodyTransformer {
 		
 		/*---------------------------------------------- sampling -------------------------------------------------*/
 		
-		//region weights
-		int weight_function = 0;
-		Map<Unit, Integer> weight_loops = new HashMap<Unit, Integer>();
-		LoopNestTree loopNestTree = new LoopNestTree(body);
-		for(Loop loop: loopNestTree){
-			System.out.println("a loop with head: " + loop.getHead().toString() + "  back: " + loop.getBackJumpStmt().toString());
-			weight_loops.put(loop.getHead(), 0);
-		}
-		
-		
-		//export current global countdown into a local countdown
-		Local countdown = Jimple.v().newLocal("countdown", IntType.v());
-		body.getLocals().add(countdown);
-
-		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
-		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
-		units.insertBefore(getCountdownStmt, getFirstNonIdentityStmt(units));
-		
-		
+		//at functin entry
 		//add nop statement at the end of the original code
 		NopStmt nopStmt = Jimple.v().newNopStmt();
 		units.insertAfter(nopStmt, units.getLast());
 		
 		//add sample checking code at the very beginning
-		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
+		Local toSampleLocal = Jimple.v().newLocal("_toSampleLocal_functionentry", BooleanType.v());
+		body.getLocals().add(toSampleLocal);
+		
+		InvokeExpr toSampleExpr = Jimple.v().newStaticInvokeExpr(toSample.makeRef());
+		AssignStmt toSampleStmt = Jimple.v().newAssignStmt(toSampleLocal, toSampleExpr);
+		units.insertBefore(toSampleStmt, getFirstNonIdentityStmt(units));
+		
+		ConditionExpr condition = Jimple.v().newEqExpr(toSampleLocal, IntConstant.v(0));
 		IfStmt ifStmt = Jimple.v().newIfStmt(condition, nopStmt);
-		units.insertAfter(ifStmt, getCountdownStmt);		
+		units.insertAfter(ifStmt, toSampleStmt);	
+		
 		
 		//fast path
-		//decrease countdown
-		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
-		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
-		units.insertAfter(decreaseStmt, nopStmt);		
-		
 		//add cloned code at the end of the original code
 		Map<Unit, Unit> map = new HashMap<Unit, Unit>();
 		while(faststmtIt.hasNext()){
 			Stmt stmt = (Stmt) faststmtIt.next();
+			System.out.println(stmt.toString() + "\t" + stmt.hashCode());
 			Stmt newStmt = (Stmt) stmt.clone();
+			System.out.println(newStmt.toString() + "\t" + newStmt.hashCode());
 			if(!(stmt instanceof IdentityStmt)){
 				map.put(stmt, newStmt);
 				units.insertAfter(newStmt, units.getLast());
 			}
 		}
+		
 		for(Unit oldStmt: map.keySet()){
 			if(oldStmt instanceof IfStmt){
 				IfStmt newIfStmt = (IfStmt) map.get(oldStmt);
@@ -241,6 +238,71 @@ public class PInstrumentor extends BodyTransformer {
 				newGotoStmt.setTarget(map.get(newGotoStmt.getTarget()));
 			}
 		}		
+				
+		System.out.println();
+		
+		//at loop back edge
+		//region weights
+//		int weight_function = 0;
+//		Map<Unit, Integer> weight_loops = new HashMap<Unit, Integer>();
+		LoopNestTree loopNestTree = new LoopNestTree(body);
+//		loopNestTree.r
+		int i = 0;
+		for(Loop loop: loopNestTree){
+			System.out.println("a loop with head: " + loop.getHead().toString() + "\t" + loop.getHead().hashCode() + "  \nback: " + loop.getBackJumpStmt().toString());
+//			weight_loops.put(loop.getHead(), 0);
+			if(map.keySet().contains(loop.getHead())){
+				System.out.println(loop.getHead().hashCode());
+				Stmt backJumpStmt = loop.getBackJumpStmt();
+				
+				Local toSampleLocal_loop = Jimple.v().newLocal("_toSampleLocal_loop_" + i++, BooleanType.v());
+				body.getLocals().add(toSampleLocal_loop);
+				
+				InvokeExpr toSampleExpr_loop = Jimple.v().newStaticInvokeExpr(toSample.makeRef());
+				AssignStmt toSampleStmt_loop = Jimple.v().newAssignStmt(toSampleLocal_loop, toSampleExpr_loop);
+				units.insertAfter(toSampleStmt_loop, backJumpStmt);
+				
+				ConditionExpr condition_loop = Jimple.v().newEqExpr(toSampleLocal_loop, IntConstant.v(0));
+				IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, map.get(loop.getHead()));
+				units.insertAfter(ifStmt_loop, toSampleStmt_loop);	
+				
+				Stmt fastBackJumpStmt = (Stmt) map.get(backJumpStmt);
+				GotoStmt fastGotoStmt = Jimple.v().newGotoStmt(toSampleStmt_loop);
+				units.insertAfter(fastGotoStmt, fastBackJumpStmt);
+			}
+		}
+		
+		
+					
+		
+		
+		
+		
+//		//export current global countdown into a local countdown
+//		Local countdown = Jimple.v().newLocal("countdown", IntType.v());
+//		body.getLocals().add(countdown);
+//
+//		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
+//		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
+//		units.insertBefore(getCountdownStmt, getFirstNonIdentityStmt(units));
+//		
+//		
+//		//add nop statement at the end of the original code
+//		NopStmt nopStmt = Jimple.v().newNopStmt();
+//		units.insertAfter(nopStmt, units.getLast());
+//		
+//		//add sample checking code at the very beginning
+//		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
+//		IfStmt ifStmt = Jimple.v().newIfStmt(condition, nopStmt);
+//		units.insertAfter(ifStmt, getCountdownStmt);		
+//		
+//		//fast path
+//		//decrease countdown
+//		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
+//		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
+//		units.insertAfter(decreaseStmt, nopStmt);		
+		
+			
 		
 
 		/*---------------------------------------------- predicates instrumentation -------------------------------------------------*/
