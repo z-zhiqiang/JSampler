@@ -12,7 +12,6 @@ import java.util.Set;
 
 import edu.uci.jsampler.site.AbstractSite;
 import edu.uci.jsampler.transformer.PInstrumentor;
-import edu.uci.jsampler.util.Translator;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
@@ -57,11 +56,12 @@ public class JSampler {
 		soot.Main.main(soot_parameters.toArray(new String[soot_parameters.size()]));
 
 		// export static instrumentation information into files
-//		System.out.println(Translator.getInstance().toString());
-		writeOutStaticSitesInfo(instrumentor.getOutput_file_sites());
+		writeOutStaticSitesInfo(output_file_sites);
 	}
 
 	/**
+	 * parse parameters into sampler-options and soot-parameters
+	 * 
 	 * @param args
 	 * @param soot_parameters
 	 */
@@ -175,25 +175,6 @@ public class JSampler {
 	}
 	
 	
-	/**
-	 * separate parameters into sampler-options and soot-parameters
-	 * 
-	 * @param args
-	 * @param sampler_options
-	 * @param soot_parameters
-	 */
-	private static void parseParameters(String[] args, List<String> sampler_options, List<String> soot_parameters) {
-		// TODO Auto-generated method stub
-		for (int i = 0; i < args.length; i++) {
-			String para = args[i];
-			if (para.startsWith("-sampler")) {
-				sampler_options.add(para);
-			} else {
-				soot_parameters.add(para);
-			}
-		}
-	}
-
 	/**
 	 * print out the static instrumentation information in sitesInfo to a file
 	 * 

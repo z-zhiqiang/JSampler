@@ -1,18 +1,23 @@
-<sites unit="D17F48B01A6A7F9867CC9029C847EE80" scheme="branches">
+<sites unit="04C23280B610D66772AD26C1DF9115B7" scheme="branches">
 LoopTest	5	<LoopTest: void main(java.lang.String[])>	9	j < 10
 LoopTest	4	<LoopTest: void main(java.lang.String[])>	11	i < 10
 </sites>
-<sites unit="D17F48B01A6A7F9867CC9029C847EE80" scheme="returns">
+<sites unit="04C23280B610D66772AD26C1DF9115B7" scheme="returns">
 </sites>
-<sites unit="D17F48B01A6A7F9867CC9029C847EE80" scheme="scalar-pairs">
+<sites unit="04C23280B610D66772AD26C1DF9115B7" scheme="scalar-pairs">
+LoopTest	4	<LoopTest: void main(java.lang.String[])>	1	i	local	direct	0	_samplecountdown_functionentry
+LoopTest	5	<LoopTest: void main(java.lang.String[])>	3	j	local	direct	0	_samplecountdown_functionentry
 LoopTest	5	<LoopTest: void main(java.lang.String[])>	3	j	local	direct	0	i
+LoopTest	6	<LoopTest: void main(java.lang.String[])>	6	$i0	local	direct	i + j	_samplecountdown_functionentry
 LoopTest	6	<LoopTest: void main(java.lang.String[])>	6	$i0	local	direct	i + j	i
 LoopTest	6	<LoopTest: void main(java.lang.String[])>	6	$i0	local	direct	i + j	j
+LoopTest	5	<LoopTest: void main(java.lang.String[])>	8	j	local	direct	j + 1	_samplecountdown_functionentry
 LoopTest	5	<LoopTest: void main(java.lang.String[])>	8	j	local	direct	j + 1	i
 LoopTest	5	<LoopTest: void main(java.lang.String[])>	8	j	local	direct	j + 1	$i0
+LoopTest	4	<LoopTest: void main(java.lang.String[])>	10	i	local	direct	i + 1	_samplecountdown_functionentry
 LoopTest	4	<LoopTest: void main(java.lang.String[])>	10	i	local	direct	i + 1	j
 </sites>
-<sites unit="D17F48B01A6A7F9867CC9029C847EE80" scheme="method-entries">
+<sites unit="04C23280B610D66772AD26C1DF9115B7" scheme="method-entries">
 LoopTest	2	<LoopTest: void <init>()>	1
 LoopTest	4	<LoopTest: void main(java.lang.String[])>	1
 </sites>

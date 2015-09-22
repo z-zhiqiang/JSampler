@@ -4,18 +4,18 @@ public class LoopTest extends java.lang.Object
     public void <init>()
     {
         LoopTest this;
-        boolean _toSampleLocal_functionentry;
+        int _samplecountdown_functionentry;
 
         this := @this: LoopTest;
-        _toSampleLocal_functionentry = staticinvoke <edu.uci.jsampler.assist.SampleChecker: boolean toSample()>();
-        if _toSampleLocal_functionentry == 0 goto label0;
+        _samplecountdown_functionentry = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _samplecountdown_functionentry > 0 goto label0;
 
         staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(0);
         specialinvoke this.<java.lang.Object: void <init>()>();
         return;
 
      label0:
-        nop;
+        _samplecountdown_functionentry = _samplecountdown_functionentry - 0;
         specialinvoke this.<java.lang.Object: void <init>()>();
         return;
     }
@@ -23,57 +23,59 @@ public class LoopTest extends java.lang.Object
     public static void main(java.lang.String[])
     {
         java.lang.String[] args;
-        int i, j, $i0;
+        int i, j, $i0, _samplecountdown_functionentry;
         java.io.PrintStream $r0;
-        boolean _toSampleLocal_functionentry, _toSampleLocal_loop_0, _toSampleLocal_loop_1;
 
         args := @parameter0: java.lang.String[];
-        _toSampleLocal_functionentry = staticinvoke <edu.uci.jsampler.assist.SampleChecker: boolean toSample()>();
-        if _toSampleLocal_functionentry == 0 goto label6;
+        _samplecountdown_functionentry = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _samplecountdown_functionentry > 0 goto label6;
 
         staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(1);
         i = 0;
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, _samplecountdown_functionentry, 0);
         goto label5;
 
      label0:
         j = 0;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(j, i, 0);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(j, i, 2);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(j, _samplecountdown_functionentry, 1);
         goto label3;
 
      label1:
         $r0 = <java.lang.System: java.io.PrintStream out>;
         $i0 = i + j;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i0, j, 2);
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i0, i, 1);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i0, j, 5);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i0, i, 4);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i0, _samplecountdown_functionentry, 3);
         virtualinvoke $r0.<java.io.PrintStream: void println(int)>($i0);
         j = j + 1;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(j, $i0, 4);
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(j, i, 3);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(j, $i0, 8);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(j, i, 7);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(j, _samplecountdown_functionentry, 6);
 
      label2:
-        _toSampleLocal_loop_0 = staticinvoke <edu.uci.jsampler.assist.SampleChecker: boolean toSample()>();
-        if _toSampleLocal_loop_0 == 0 goto label9;
+        if _samplecountdown_functionentry > 0 goto label9;
 
      label3:
         staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(j, 10, "<", 0);
         if j < 10 goto label1;
 
         i = i + 1;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, j, 5);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, j, 10);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, _samplecountdown_functionentry, 9);
 
      label4:
-        _toSampleLocal_loop_1 = staticinvoke <edu.uci.jsampler.assist.SampleChecker: boolean toSample()>();
-        if _toSampleLocal_loop_1 == 0 goto label10;
+        if _samplecountdown_functionentry > 0 goto label10;
 
      label5:
         staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(i, 10, "<", 1);
         if i < 10 goto label0;
 
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "D17F48B01A6A7F9867CC9029C847EE80");
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "04C23280B610D66772AD26C1DF9115B7");
         return;
 
      label6:
-        nop;
+        _samplecountdown_functionentry = _samplecountdown_functionentry - 0;
         i = 0;
         goto label10;
 
@@ -89,14 +91,17 @@ public class LoopTest extends java.lang.Object
         goto label2;
 
      label9:
+        _samplecountdown_functionentry = _samplecountdown_functionentry - 0;
         if j < 10 goto label8;
 
         i = i + 1;
         goto label4;
 
      label10:
+        _samplecountdown_functionentry = _samplecountdown_functionentry - 0;
         if i < 10 goto label7;
 
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "04C23280B610D66772AD26C1DF9115B7");
         return;
     }
 }

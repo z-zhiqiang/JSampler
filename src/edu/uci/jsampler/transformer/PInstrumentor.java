@@ -60,7 +60,7 @@ import soot.util.Chain;
 public class PInstrumentor extends BodyTransformer {
 
 	// internal fields
-	static SootClass checkerReporterClass, globalCountdownClass, sampleCheckerClass;
+	static SootClass checkerReporterClass, globalCountdownClass;
 	static SootMethod getCountdown, setCountdown;
 	static SootMethod toSample;
 	static SootMethod checkReturns_int, checkReturns_long, checkReturns_float, checkReturns_double, 
@@ -96,11 +96,6 @@ public class PInstrumentor extends BodyTransformer {
 		getCountdown = globalCountdownClass.getMethod("int getCountdown()");
 		setCountdown = globalCountdownClass.getMethod("void setCountdown(int)");
 		
-		
-		//sampleCheckerClass
-		sampleCheckerClass = Scene.v().loadClassAndSupport("edu.uci.jsampler.assist.SampleChecker");
-		
-		toSample = sampleCheckerClass.getMethod("boolean toSample()");
 	}
 
 	
@@ -188,7 +183,6 @@ public class PInstrumentor extends BodyTransformer {
 	@Override
 	protected void internalTransform(Body body, String phase, Map options) {
 		// get body's units
-		Body body_original = (Body) body.clone();
 		Chain<Unit> units = body.getUnits();
 		Iterator<Unit> stmtIt = units.snapshotIterator();
 		Iterator<Unit> faststmtIt = units.snapshotIterator();
@@ -196,22 +190,37 @@ public class PInstrumentor extends BodyTransformer {
 		
 		/*---------------------------------------------- sampling -------------------------------------------------*/
 		
+		//region weights
+		int weight_function = 0;
+		Map<Unit, Integer> weight_loops = new HashMap<Unit, Integer>();
+		//...
+		
+				
+				
 		//at functin entry
+		//export current global countdown into a local countdown
+		Local countdown = Jimple.v().newLocal("_localcountdown", IntType.v());
+		body.getLocals().add(countdown);
+
+		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
+		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
+		units.insertBefore(getCountdownStmt, getFirstNonIdentityStmt(units));
+		
+		
 		//add nop statement at the end of the original code
 		NopStmt nopStmt = Jimple.v().newNopStmt();
 		units.insertAfter(nopStmt, units.getLast());
 		
 		//add sample checking code at the very beginning
-		Local toSampleLocal = Jimple.v().newLocal("_toSampleLocal_functionentry", BooleanType.v());
-		body.getLocals().add(toSampleLocal);
-		
-		InvokeExpr toSampleExpr = Jimple.v().newStaticInvokeExpr(toSample.makeRef());
-		AssignStmt toSampleStmt = Jimple.v().newAssignStmt(toSampleLocal, toSampleExpr);
-		units.insertBefore(toSampleStmt, getFirstNonIdentityStmt(units));
-		
-		ConditionExpr condition = Jimple.v().newEqExpr(toSampleLocal, IntConstant.v(0));
+		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
 		IfStmt ifStmt = Jimple.v().newIfStmt(condition, nopStmt);
-		units.insertAfter(ifStmt, toSampleStmt);	
+		units.insertAfter(ifStmt, getCountdownStmt);		
+		
+		//fast path
+		//decrease countdown
+		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
+		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
+		units.insertAfter(decreaseStmt, nopStmt);	
 		
 		
 		//fast path
@@ -219,9 +228,9 @@ public class PInstrumentor extends BodyTransformer {
 		Map<Unit, Unit> map = new HashMap<Unit, Unit>();
 		while(faststmtIt.hasNext()){
 			Stmt stmt = (Stmt) faststmtIt.next();
-			System.out.println(stmt.toString() + "\t" + stmt.hashCode());
+//			System.out.println(stmt.toString() + "\t" + stmt.hashCode());
 			Stmt newStmt = (Stmt) stmt.clone();
-			System.out.println(newStmt.toString() + "\t" + newStmt.hashCode());
+//			System.out.println(newStmt.toString() + "\t" + newStmt.hashCode());
 			if(!(stmt instanceof IdentityStmt)){
 				map.put(stmt, newStmt);
 				units.insertAfter(newStmt, units.getLast());
@@ -239,70 +248,30 @@ public class PInstrumentor extends BodyTransformer {
 			}
 		}		
 				
-		System.out.println();
 		
 		//at loop back edge
-		//region weights
-//		int weight_function = 0;
-//		Map<Unit, Integer> weight_loops = new HashMap<Unit, Integer>();
 		LoopNestTree loopNestTree = new LoopNestTree(body);
-//		loopNestTree.r
-		int i = 0;
 		for(Loop loop: loopNestTree){
-			System.out.println("a loop with head: " + loop.getHead().toString() + "\t" + loop.getHead().hashCode() + "  \nback: " + loop.getBackJumpStmt().toString());
-//			weight_loops.put(loop.getHead(), 0);
 			if(map.keySet().contains(loop.getHead())){
+				weight_loops.put(loop.getHead(), 0);
 				System.out.println(loop.getHead().hashCode());
 				Stmt backJumpStmt = loop.getBackJumpStmt();
 				
-				Local toSampleLocal_loop = Jimple.v().newLocal("_toSampleLocal_loop_" + i++, BooleanType.v());
-				body.getLocals().add(toSampleLocal_loop);
-				
-				InvokeExpr toSampleExpr_loop = Jimple.v().newStaticInvokeExpr(toSample.makeRef());
-				AssignStmt toSampleStmt_loop = Jimple.v().newAssignStmt(toSampleLocal_loop, toSampleExpr_loop);
-				units.insertAfter(toSampleStmt_loop, backJumpStmt);
-				
-				ConditionExpr condition_loop = Jimple.v().newEqExpr(toSampleLocal_loop, IntConstant.v(0));
+				ConditionExpr condition_loop = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
 				IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, map.get(loop.getHead()));
-				units.insertAfter(ifStmt_loop, toSampleStmt_loop);	
+				units.insertAfter(ifStmt_loop, backJumpStmt);	
+				
+				//decrease countdown
+				BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
+				AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
+				units.insertBefore(decreaseStmt_loop, map.get(loop.getHead()));	
 				
 				Stmt fastBackJumpStmt = (Stmt) map.get(backJumpStmt);
-				GotoStmt fastGotoStmt = Jimple.v().newGotoStmt(toSampleStmt_loop);
+				GotoStmt fastGotoStmt = Jimple.v().newGotoStmt(ifStmt_loop);
 				units.insertAfter(fastGotoStmt, fastBackJumpStmt);
 			}
 		}
-		
-		
-					
-		
-		
-		
-		
-//		//export current global countdown into a local countdown
-//		Local countdown = Jimple.v().newLocal("countdown", IntType.v());
-//		body.getLocals().add(countdown);
-//
-//		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
-//		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
-//		units.insertBefore(getCountdownStmt, getFirstNonIdentityStmt(units));
-//		
-//		
-//		//add nop statement at the end of the original code
-//		NopStmt nopStmt = Jimple.v().newNopStmt();
-//		units.insertAfter(nopStmt, units.getLast());
-//		
-//		//add sample checking code at the very beginning
-//		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
-//		IfStmt ifStmt = Jimple.v().newIfStmt(condition, nopStmt);
-//		units.insertAfter(ifStmt, getCountdownStmt);		
-//		
-//		//fast path
-//		//decrease countdown
-//		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
-//		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
-//		units.insertAfter(decreaseStmt, nopStmt);		
-		
-			
+
 		
 
 		/*---------------------------------------------- predicates instrumentation -------------------------------------------------*/
@@ -327,7 +296,6 @@ public class PInstrumentor extends BodyTransformer {
 			while (stmtIt.hasNext()) {
 				// cast back to a statement
 				Stmt stmt = (Stmt) stmtIt.next();
-// 			    System.out.println(stmt.toString());
 				
 				// get source line number
 				int line_number = getSourceLineNumber(stmt);
@@ -356,50 +324,42 @@ public class PInstrumentor extends BodyTransformer {
 					
 				}
 				
-				/* add reporting code */
-				// insert reporting code before exit
-				if (stmt instanceof InvokeStmt) {
-					InvokeExpr iexpr = stmt.getInvokeExpr();
-					if (iexpr instanceof StaticInvokeExpr
-							&& iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
-						instrumentReport(units, stmt);
-					}
-				}
-				// insert reporting code before return of main
-				if (body.getMethod().getSubSignature().equals("void main(java.lang.String[])") && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)) {
-					instrumentReport(units, stmt);
-				}
-				
-				
 				// trace cfg_number
 				cfg_number++;
 			}
 		}
-		else{
-			while (stmtIt.hasNext()) {
-				// cast back to a statement
-				Stmt stmt = (Stmt) stmtIt.next();
-				
-				/* add reporting code */
-				// insert reporting code before exit
-				if (stmt instanceof InvokeStmt) {
-					InvokeExpr iexpr = stmt.getInvokeExpr();
-					if (iexpr instanceof StaticInvokeExpr
-							&& iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
-						instrumentReport(units, stmt);
-					}
-				}
-				// insert reporting code before return of main
-				if (body.getMethod().getSubSignature().equals("void main(java.lang.String[])") && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)) {
+		
+		
+		// add reporting code before exit 
+		Iterator<Unit> sIt = units.snapshotIterator();
+		while(sIt.hasNext()){
+			Stmt stmt = (Stmt) sIt.next();
+			
+			// insert reporting code before exit
+			if (stmt instanceof InvokeStmt) {
+				InvokeExpr iexpr = stmt.getInvokeExpr();
+				if (iexpr instanceof StaticInvokeExpr
+						&& iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
 					instrumentReport(units, stmt);
 				}
+			}
+			// insert reporting code before return of main
+			if (body.getMethod().getSubSignature().equals("void main(java.lang.String[])") && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)) {
+				instrumentReport(units, stmt);
 			}
 		}
 		
 		
+		//remove nopstmt
+		units.remove(nopStmt);
+		
 	}
 
 
+	/** get the first non-identity statement
+	 * @param units
+	 * @return
+	 */
 	private Stmt getFirstNonIdentityStmt(Chain<Unit> units) {
 		// TODO Auto-generated method stub
 		Stmt firstStmt = null;
@@ -414,15 +374,6 @@ public class PInstrumentor extends BodyTransformer {
 		return firstStmt;
 	}
 
-	private void sampleMethodEntry(Body body, Chain<Unit> units, Stmt stmt, Stmt toStmt) {
-		// TODO Auto-generated method stub
-		Local tmp = Jimple.v().newLocal("countdown", IntType.v());
-		body.getLocals().add(tmp);
-		
-		ConditionExpr condition = Jimple.v().newGtExpr(tmp, IntConstant.v(2));
-		Stmt ifStmt = Jimple.v().newIfStmt(condition, toStmt);
-		units.insertBefore(ifStmt, stmt);
-	}
 
 	private void instrumentReport(Chain<Unit> units, Stmt stmt) {
 		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(output_file_reports), StringConstant.v(unit_signature));
@@ -605,41 +556,42 @@ public class PInstrumentor extends BodyTransformer {
 		units.insertAfter(checkReturnStmt, stmt);
 	}
 
-	public boolean isBranches_flag() {
-		return branches_flag;
-	}
-
-	public boolean isReturns_flag() {
-		return returns_flag;
-	}
-
-	public boolean isScalarpairs_flag() {
-		return scalarpairs_flag;
-	}
-
-	public boolean isMethodentries_flag() {
-		return methodentries_flag;
-	}
-
-	public boolean isSample_flag() {
-		return sample_flag;
-	}
-
-	public int getOpportunities() {
-		return opportunities;
-	}
-
-	public Set<String> getMethods_instrument() {
-		return methods_instrument;
-	}
-
-	public String getOutput_file_sites() {
-		return output_file_sites;
-	}
-
-	public String getOutput_file_reports() {
-		return output_file_reports;
-	}
+	
+//	public boolean isBranches_flag() {
+//		return branches_flag;
+//	}
+//
+//	public boolean isReturns_flag() {
+//		return returns_flag;
+//	}
+//
+//	public boolean isScalarpairs_flag() {
+//		return scalarpairs_flag;
+//	}
+//
+//	public boolean isMethodentries_flag() {
+//		return methodentries_flag;
+//	}
+//
+//	public boolean isSample_flag() {
+//		return sample_flag;
+//	}
+//
+//	public int getOpportunities() {
+//		return opportunities;
+//	}
+//
+//	public Set<String> getMethods_instrument() {
+//		return methods_instrument;
+//	}
+//
+//	public String getOutput_file_sites() {
+//		return output_file_sites;
+//	}
+//
+//	public String getOutput_file_reports() {
+//		return output_file_reports;
+//	}
 
 	
 }
