@@ -2,28 +2,20 @@ package edu.uci.jsampler.assist;
 
 public class GlobalCountdown {
 	
-	public static final int opportunities = 1000;
-	
-//	private static final int[] countdowns = getCountdowns();
-	
-	private static int countdown;
+	private static int countdown = 1;
 	
 
 	public static int getCountdown() {
 		return countdown;
 	}
 
-//	private static int[] getCountdowns() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
 	public static void setCountdown(int countdown) {
 		GlobalCountdown.countdown = countdown;
 	}
 	
-	public static int getNextCountdown(){
-		return GlobalCountdown.opportunities;
+	public static int getNextCountdown(int opportunities){
+		countdown = opportunities;
+		return countdown;
 	}
 
 	

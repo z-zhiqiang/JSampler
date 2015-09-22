@@ -6,7 +6,7 @@ public class test {
 //		int i = Integer.parseInt(args[0]);
 		double i = 0.8;
 		double j = 10.9;
-		double two = 2;
+		double two = -2;
 		
 		while (j > i ){
 			j = i - 1;

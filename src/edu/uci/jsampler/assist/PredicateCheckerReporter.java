@@ -24,8 +24,6 @@ public class PredicateCheckerReporter {
 
 	public static synchronized void exportReports(String output_file, String unit_signature) {
 		File file = new File(output_file);
-//		String unit_signature = PInstrumentor.unit_signature;
-
 		PrintWriter out = null;
 
 		try {
@@ -202,19 +200,6 @@ public class PredicateCheckerReporter {
 			System.err.println("wrong operator!");
 		}
 	}
-	
-	
-//	/** checking code for branches
-//	 * @param index
-//	 * @param i: 0->false, 1->true
-//	 */
-//	public static synchronized void checkBranches(int index, int i){
-//		if(!branch_reports.containsKey(index)){
-//			branch_reports.put(index, new byte[2]);
-//		}
-//		byte[] counts = branch_reports.get(index);
-//		increaseCount(counts, i);
-//	}
 	
 	
 	/** checking code for scalar-pairs

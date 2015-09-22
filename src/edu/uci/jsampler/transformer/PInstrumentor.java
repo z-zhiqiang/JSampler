@@ -61,7 +61,7 @@ public class PInstrumentor extends BodyTransformer {
 
 	// internal fields
 	static SootClass checkerReporterClass, globalCountdownClass;
-	static SootMethod getCountdown, setCountdown;
+	static SootMethod getCountdown, setCountdown, getNextCountdown;
 	static SootMethod toSample;
 	static SootMethod checkReturns_int, checkReturns_long, checkReturns_float, checkReturns_double, 
 			checkBranches,
@@ -95,6 +95,7 @@ public class PInstrumentor extends BodyTransformer {
 		
 		getCountdown = globalCountdownClass.getMethod("int getCountdown()");
 		setCountdown = globalCountdownClass.getMethod("void setCountdown(int)");
+		getNextCountdown = globalCountdownClass.getMethod("int getNextCountdown(int)");
 		
 	}
 
@@ -129,6 +130,7 @@ public class PInstrumentor extends BodyTransformer {
 	public static final List<MethodEntrySite> methodEntry_staticInfo = new ArrayList<MethodEntrySite>();
 
 	public static final String unit_signature = generateUnitSignature();// compilation unit signature: a 128-bit as 32 hexadecimal digits
+	
 
 	/**
 	 * constructor mainly for sampler options parsing
@@ -177,107 +179,48 @@ public class PInstrumentor extends BodyTransformer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see soot.BodyTransformer#internalTransform(soot.Body, java.lang.String,
-	 * java.util.Map)
+	 * @see soot.BodyTransformer#internalTransform(soot.Body, java.lang.String, java.util.Map)
 	 */
 	@Override
 	protected void internalTransform(Body body, String phase, Map options) {
 		// get body's units
 		Chain<Unit> units = body.getUnits();
+		Iterator<Unit> original_stmtIt = units.snapshotIterator();
 		Iterator<Unit> stmtIt = units.snapshotIterator();
-		Iterator<Unit> faststmtIt = units.snapshotIterator();
+		
+		//initialized variables
+		InitAnalysis analysis = new InitAnalysis(new BriefUnitGraph(body));
+
+		Local countdown = null;
+		
+		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(body.getMethod().getSignature());
 		
 		
 		/*---------------------------------------------- sampling -------------------------------------------------*/
 		
-		//region weights
-		int weight_function = 0;
-		Map<Unit, Integer> weight_loops = new HashMap<Unit, Integer>();
-		//...
-		
-				
-				
-		//at functin entry
-		//export current global countdown into a local countdown
-		Local countdown = Jimple.v().newLocal("_localcountdown", IntType.v());
-		body.getLocals().add(countdown);
-
-		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
-		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
-		units.insertBefore(getCountdownStmt, getFirstNonIdentityStmt(units));
-		
-		
-		//add nop statement at the end of the original code
-		NopStmt nopStmt = Jimple.v().newNopStmt();
-		units.insertAfter(nopStmt, units.getLast());
-		
-		//add sample checking code at the very beginning
-		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
-		IfStmt ifStmt = Jimple.v().newIfStmt(condition, nopStmt);
-		units.insertAfter(ifStmt, getCountdownStmt);		
-		
-		//fast path
-		//decrease countdown
-		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
-		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
-		units.insertAfter(decreaseStmt, nopStmt);	
-		
-		
-		//fast path
-		//add cloned code at the end of the original code
-		Map<Unit, Unit> map = new HashMap<Unit, Unit>();
-		while(faststmtIt.hasNext()){
-			Stmt stmt = (Stmt) faststmtIt.next();
-//			System.out.println(stmt.toString() + "\t" + stmt.hashCode());
-			Stmt newStmt = (Stmt) stmt.clone();
-//			System.out.println(newStmt.toString() + "\t" + newStmt.hashCode());
-			if(!(stmt instanceof IdentityStmt)){
-				map.put(stmt, newStmt);
-				units.insertAfter(newStmt, units.getLast());
-			}
+		if(this.sample_flag && under_analysis){
+			//region weights: weight_function and weight_loops
+			Map<Unit, Integer> weight_loops = new HashMap<Unit, Integer>();
+			int weight_function = computeWeights(body, units, weight_loops, analysis);
+			
+			//import current global countdown into a local countdown
+			countdown = importGlobalCountdownIntoLocal(body, units);
+			
+			//at function entry
+			insertSampleCheckingCodeAtFunctionentry(body, units, weight_function, countdown);	
+			
+			//fast path
+			Map<Unit, Unit> unitsMap = addClonedCodeAsFastpath(units, stmtIt);		
+			
+			//at loop back edge
+			insertSampleCheckingCodeAtLoopback(body, units, weight_loops, countdown, unitsMap);
 		}
-		
-		for(Unit oldStmt: map.keySet()){
-			if(oldStmt instanceof IfStmt){
-				IfStmt newIfStmt = (IfStmt) map.get(oldStmt);
-				newIfStmt.setTarget(map.get(newIfStmt.getTarget()));
-			}
-			else if(oldStmt instanceof GotoStmt){
-				GotoStmt newGotoStmt = (GotoStmt) map.get(oldStmt);
-				newGotoStmt.setTarget(map.get(newGotoStmt.getTarget()));
-			}
-		}		
-				
-		
-		//at loop back edge
-		LoopNestTree loopNestTree = new LoopNestTree(body);
-		for(Loop loop: loopNestTree){
-			if(map.keySet().contains(loop.getHead())){
-				weight_loops.put(loop.getHead(), 0);
-				System.out.println(loop.getHead().hashCode());
-				Stmt backJumpStmt = loop.getBackJumpStmt();
-				
-				ConditionExpr condition_loop = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
-				IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, map.get(loop.getHead()));
-				units.insertAfter(ifStmt_loop, backJumpStmt);	
-				
-				//decrease countdown
-				BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
-				AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
-				units.insertBefore(decreaseStmt_loop, map.get(loop.getHead()));	
-				
-				Stmt fastBackJumpStmt = (Stmt) map.get(backJumpStmt);
-				GotoStmt fastGotoStmt = Jimple.v().newGotoStmt(ifStmt_loop);
-				units.insertAfter(fastGotoStmt, fastBackJumpStmt);
-			}
-		}
-
 		
 
 		/*---------------------------------------------- predicates instrumentation -------------------------------------------------*/
 		
 		//instrument the specified methods
-		if(this.methods_instrument.isEmpty() || this.methods_instrument.contains(body.getMethod().getSignature())){
+		if(under_analysis){
 			// source file name
 			String file_name = body.getMethod().getDeclaringClass().getName();
 			int file_name_translated = Translator.getInstance().getInteger(file_name);
@@ -285,17 +228,14 @@ public class PInstrumentor extends BodyTransformer {
 			// body's method
 			String method_name = body.getMethod().getSignature();
 			int method_name_translated = Translator.getInstance().getInteger(method_name);
-			
-			//initialized variables
-			InitAnalysis analysis = new InitAnalysis(new BriefUnitGraph(body));
 
 			int cfg_number = 0;
 			boolean instrumentEntry_flag = true;
 			Value def = null;
 			
-			while (stmtIt.hasNext()) {
+			while (original_stmtIt.hasNext()) {
 				// cast back to a statement
-				Stmt stmt = (Stmt) stmtIt.next();
+				Stmt stmt = (Stmt) original_stmtIt.next();
 				
 				// get source line number
 				int line_number = getSourceLineNumber(stmt);
@@ -303,23 +243,23 @@ public class PInstrumentor extends BodyTransformer {
 				/* add checking code */
 				// for method-entries
 				if (this.methodentries_flag && instrumentEntry_flag && !(stmt instanceof IdentityStmt)) {
-					instrumentMethodEntries(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt);
+					instrumentMethodEntries(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, countdown);
 					instrumentEntry_flag = false;
 				}
 				
 				// for branches
 				if (this.branches_flag && stmt instanceof IfStmt) {
-					instrumentBranches(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt);
+					instrumentBranches(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, countdown);
 				}
 				// for returns and scalar-pairs
 				if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType) {
 					// for returns
 					if (this.returns_flag && ((Stmt) stmt).containsInvokeExpr()) {
-						instrumentReturns(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def);
+						instrumentReturns(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def, countdown);
 					}
 					// for scalar-pairs
 					else if(this.scalarpairs_flag){
-						instrumentScalarPairs(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def, analysis);
+						instrumentScalarPairs(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def, analysis, countdown);
 					}
 					
 				}
@@ -330,29 +270,251 @@ public class PInstrumentor extends BodyTransformer {
 		}
 		
 		
-		// add reporting code before exit 
+		// add reporting code before program exit 
 		Iterator<Unit> sIt = units.snapshotIterator();
 		while(sIt.hasNext()){
 			Stmt stmt = (Stmt) sIt.next();
 			
-			// insert reporting code before exit
+			// insert reporting code before system exit
 			if (stmt instanceof InvokeStmt) {
 				InvokeExpr iexpr = stmt.getInvokeExpr();
 				if (iexpr instanceof StaticInvokeExpr
 						&& iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
-					instrumentReport(units, stmt);
+					insertReportingCode(units, stmt);
 				}
 			}
 			// insert reporting code before return of main
 			if (body.getMethod().getSubSignature().equals("void main(java.lang.String[])") && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)) {
-				instrumentReport(units, stmt);
+				insertReportingCode(units, stmt);
 			}
 		}
 		
 		
-		//remove nopstmt
-		units.remove(nopStmt);
+		/*---------------------------------------------- sampling -------------------------------------------------*/
 		
+		//export local countdown back to global before function exit and remove nop statement
+		if(this.sample_flag && under_analysis){
+			exportLocalCountdownToGlobal(units, countdown);
+		}
+		
+	}
+
+	/**
+	 * import current global countdown into a local countdown at function entry
+	 * 
+	 * @param body
+	 * @param units
+	 * @return
+	 */
+	private Local importGlobalCountdownIntoLocal(Body body, Chain<Unit> units) {
+		Local countdown = Jimple.v().newLocal("_localCountdown", IntType.v());
+		body.getLocals().add(countdown);
+		
+		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
+		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
+		units.insertBefore(getCountdownStmt, getFirstNonIdentityStmt(units));
+		
+		return countdown;
+	}
+
+	/**
+	 * export local countdown back to global before function exit, and by the way remove nop statement
+	 * 
+	 * @param units
+	 * @param countdown
+	 */
+	private void exportLocalCountdownToGlobal(Chain<Unit> units, Local countdown) {
+		Iterator<Unit> stmtIterator = units.snapshotIterator();
+		while(stmtIterator.hasNext()){
+			Stmt stmt = (Stmt) stmtIterator.next();
+			
+			//export local countdown 
+			if (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt) {
+				InvokeExpr invokeExpr = Jimple.v().newStaticInvokeExpr(setCountdown.makeRef(), countdown);
+				InvokeStmt invokeStmt = Jimple.v().newInvokeStmt(invokeExpr);
+				units.insertBefore(invokeStmt, stmt);
+			}
+			
+			//remove nopstmt
+			if(stmt instanceof NopStmt){
+				units.remove(stmt);
+			}
+		}
+	}
+
+	
+	/**
+	 * insert sample checking code at each loop back point
+	 * 
+	 * @param body
+	 * @param units
+	 * @param weight_loops
+	 * @param countdown
+	 * @param unitsMap
+	 */
+	private void insertSampleCheckingCodeAtLoopback(Body body, Chain<Unit> units, Map<Unit, Integer> weight_loops,
+			Local countdown, Map<Unit, Unit> unitsMap) {
+		//nested loops
+		LoopNestTree loopNestTree = new LoopNestTree(body);
+		for(Loop loop: loopNestTree){
+			//only consider the original code
+			if(unitsMap.keySet().contains(loop.getHead())){
+				Stmt backJumpStmt = loop.getBackJumpStmt();
+				Stmt fastLoopHead = (Stmt) unitsMap.get(loop.getHead());
+				
+				//decrease countdown at fast path
+				BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
+				AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
+				units.insertBefore(decreaseStmt_loop, fastLoopHead);	
+				
+				//sample checking code at loop back
+				ConditionExpr condition_loop = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
+				IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, decreaseStmt_loop);
+				units.insertAfter(ifStmt_loop, backJumpStmt);	
+				
+				//go back to sample checking code from fast path 
+				Stmt fastBackJumpStmt = (Stmt) unitsMap.get(backJumpStmt);
+				GotoStmt fastGotoStmt = Jimple.v().newGotoStmt(ifStmt_loop);
+				units.insertAfter(fastGotoStmt, fastBackJumpStmt);
+			}
+		}
+	}
+
+	
+	/**
+	 * duplicate code to build fast path
+	 * 
+	 * @param units
+	 * @param stmtIt
+	 * @return
+	 */
+	private Map<Unit, Unit> addClonedCodeAsFastpath(Chain<Unit> units, Iterator<Unit> stmtIt) {
+		//add cloned code at the end of the original code
+		Map<Unit, Unit> unitsMap = new HashMap<Unit, Unit>();
+		while(stmtIt.hasNext()){
+			Stmt stmt = (Stmt) stmtIt.next();
+			Stmt newStmt = (Stmt) stmt.clone();
+			if(!(stmt instanceof IdentityStmt)){
+				unitsMap.put(stmt, newStmt);
+				units.insertAfter(newStmt, units.getLast());
+			}
+		}
+		for(Unit oldStmt: unitsMap.keySet()){
+			if(oldStmt instanceof IfStmt){
+				IfStmt newIfStmt = (IfStmt) unitsMap.get(oldStmt);
+				newIfStmt.setTarget(unitsMap.get(newIfStmt.getTarget()));
+			}
+			else if(oldStmt instanceof GotoStmt){
+				GotoStmt newGotoStmt = (GotoStmt) unitsMap.get(oldStmt);
+				newGotoStmt.setTarget(unitsMap.get(newGotoStmt.getTarget()));
+			}
+		}
+		return unitsMap;
+	}
+
+	
+	/**
+	 * insert sample checking code at the function entry point
+	 * 
+	 * @param body
+	 * @param units
+	 * @param weight_function
+	 * @param countdown
+	 */
+	private void insertSampleCheckingCodeAtFunctionentry(Body body, Chain<Unit> units, int weight_function, Local countdown) {
+		//decrease countdown at fast path
+		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
+		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
+		units.insertAfter(decreaseStmt, units.getLast());
+
+		//add sample checking code at the very beginning
+		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
+		IfStmt ifStmt_functionentry = Jimple.v().newIfStmt(condition, decreaseStmt);
+		units.insertAfter(ifStmt_functionentry, getFirstNonIdentityStmt(units));
+	}
+	
+
+	/**
+	 * compute region weights: for whole function region and each loop region 
+	 * 
+	 * @param body
+	 * @param units
+	 * @param weight_loops: weight for each loop region
+	 * @param analysis
+	 * @return weight for the entire function region
+	 */
+	private int computeWeights(Body body, Chain<Unit> units, Map<Unit, Integer> weight_loops, InitAnalysis analysis) {
+		int weight_function = 0;
+		boolean instrumentEntry_flag = true;
+		Value def = null;
+		
+		//compute function region weight
+		Iterator<Unit> stmtIt = units.snapshotIterator();
+		while (stmtIt.hasNext()) {
+			// cast back to a statement
+			Stmt stmt = (Stmt) stmtIt.next();
+			
+			// for method-entries
+			if (this.methodentries_flag && instrumentEntry_flag && !(stmt instanceof IdentityStmt)) {
+				weight_function++;
+				instrumentEntry_flag = false;
+			}
+			
+			// for branches
+			if (this.branches_flag && stmt instanceof IfStmt) {
+				weight_function++;
+			}
+			// for returns and scalar-pairs
+			if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType) {
+				// for returns
+				if (this.returns_flag && ((Stmt) stmt).containsInvokeExpr()) {
+					weight_function++;
+				}
+				// for scalar-pairs
+				else if(this.scalarpairs_flag){
+					Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+					while(it.hasNext()){
+						Local local = (Local) it.next();
+						if (local.getType() == def.getType() && local != def) {
+							weight_function++;
+						}
+					}
+				}
+			}
+		}
+		
+		//compute loop region weights
+		LoopNestTree loopNestTree = new LoopNestTree(body);
+		for(Loop loop: loopNestTree){
+			int counts = 0;
+			for(Stmt stmt: loop.getLoopStatements()){
+				// for branches
+				if (this.branches_flag && stmt instanceof IfStmt) {
+					counts++;
+				}
+				// for returns and scalar-pairs
+				if (stmt instanceof AssignStmt && (def = ((AssignStmt) stmt).getLeftOp()).getType() instanceof PrimType) {
+					// for returns
+					if (this.returns_flag && ((Stmt) stmt).containsInvokeExpr()) {
+						counts++;
+					}
+					// for scalar-pairs
+					else if(this.scalarpairs_flag){
+						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+						while(it.hasNext()){
+							Local local = (Local) it.next();
+							if (local.getType() == def.getType() && local != def) {
+								counts++;
+							}
+						}
+					}
+				}
+			}
+			
+			weight_loops.put(loop.getHead(), counts);
+		}
+		
+		return weight_function;
 	}
 
 
@@ -375,7 +537,13 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 
-	private void instrumentReport(Chain<Unit> units, Stmt stmt) {
+	/**
+	 * insert reporting code before program exit
+	 * 
+	 * @param units
+	 * @param stmt
+	 */
+	private void insertReportingCode(Chain<Unit> units, Stmt stmt) {
 		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(output_file_reports), StringConstant.v(unit_signature));
 		Stmt reportStmt = Jimple.v().newInvokeStmt(reportExpr);
 		units.insertBefore(reportStmt, stmt);
@@ -391,9 +559,10 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param stmt
 	 * @param def
 	 * @param analysis 
+	 * @param countdown 
 	 */
 	private void instrumentScalarPairs(int file_name, int method_name, int line_number, int cfg_number, Body body,
-			Chain<Unit> units, Stmt stmt, Value def, InitAnalysis analysis) {
+			Chain<Unit> units, Stmt stmt, Value def, InitAnalysis analysis, Local countdown) {
 		/* static site information for scalar-pair */
 		// left info
 		String left = def.toString();
@@ -454,6 +623,9 @@ public class PInstrumentor extends BodyTransformer {
 				
 				Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
 				units.insertAfter(checkScalarPairStmt, stmt);
+				
+				//insert checking code for sampling
+				insertSampleCheckingCode(units, checkScalarPairStmt, countdown);
 			}
 		}
 	}
@@ -467,9 +639,10 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param body
 	 * @param units
 	 * @param stmt
+	 * @param countdown 
 	 */
 	private void instrumentBranches(int file_name, int method_name, int line_number, int cfg_number, Body body,
-			Chain<Unit> units, Stmt stmt) {
+			Chain<Unit> units, Stmt stmt, Local countdown) {
 		Value conditional = ((IfStmt) stmt).getCondition();
 		assert(conditional instanceof ConditionExpr);
 
@@ -484,6 +657,9 @@ public class PInstrumentor extends BodyTransformer {
 		InvokeExpr checkBranch = Jimple.v().newStaticInvokeExpr(checkBranches.makeRef(), leftop, rightop, StringConstant.v(symbol.trim()), IntConstant.v(branch_staticInfo.size() - 1));
 		Stmt checkBranchStmt = Jimple.v().newInvokeStmt(checkBranch);
 		units.insertBefore(checkBranchStmt, stmt);
+		
+		//insert checking code for sampling
+		insertSampleCheckingCode(units, checkBranchStmt, countdown);
 	}
 
 	private int getSourceLineNumber(Stmt stmt) {
@@ -499,9 +675,10 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param body
 	 * @param units
 	 * @param stmt
+	 * @param countdown 
 	 */
 	private void instrumentMethodEntries(int file_name, int method_name, int line_number, int cfg_number, Body body,
-			Chain<Unit> units, Unit stmt) {
+			Chain<Unit> units, Unit stmt, Local countdown) {
 		// static instrumentation site for method entry
 		MethodEntrySite site = new MethodEntrySite(file_name, line_number, method_name, cfg_number);
 		methodEntry_staticInfo.add(site);
@@ -510,6 +687,36 @@ public class PInstrumentor extends BodyTransformer {
 		InvokeExpr checkMethodEntry = Jimple.v().newStaticInvokeExpr(checkMethodEntries.makeRef(), IntConstant.v(methodEntry_staticInfo.size() - 1));
 		Stmt checkMethodEntryStmt = Jimple.v().newInvokeStmt(checkMethodEntry);
 		units.insertBefore(checkMethodEntryStmt, stmt);
+		
+		////insert checking code for sampling
+		insertSampleCheckingCode(units, checkMethodEntryStmt, countdown);
+	}
+
+	
+	/**
+	 * insert sample checking code at each instrumentation site
+	 * 
+	 * @param units
+	 * @param checkStmt
+	 * @param countdown
+	 */
+	private void insertSampleCheckingCode(Chain<Unit> units, Stmt checkStmt, Local countdown) {
+		if(this.sample_flag){
+			BinopExpr binopExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(1));
+			AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binopExpr);
+			units.insertBefore(decreaseStmt, checkStmt);
+			
+			InvokeExpr getNextCountdownExpr = Jimple.v().newStaticInvokeExpr(getNextCountdown.makeRef(), IntConstant.v(this.opportunities));
+			AssignStmt assignNextCountdownStmt = Jimple.v().newAssignStmt(countdown, getNextCountdownExpr);
+			units.insertAfter(assignNextCountdownStmt, checkStmt);
+			
+			NopStmt nopStmt = Jimple.v().newNopStmt();
+			units.insertAfter(nopStmt, assignNextCountdownStmt);
+			
+			ConditionExpr conditionExpr = Jimple.v().newNeExpr(countdown, IntConstant.v(0));
+			IfStmt ifStmt = Jimple.v().newIfStmt(conditionExpr, nopStmt);
+			units.insertBefore(ifStmt, checkStmt);
+		}
 	}
 
 	/**
@@ -521,9 +728,10 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param units
 	 * @param stmt
 	 * @param def
+	 * @param countdown 
 	 */
 	private void instrumentReturns(int file_name, int method_name, int line_number, int cfg_number, Body body,
-			Chain<Unit> units, Unit stmt, Value def) {
+			Chain<Unit> units, Unit stmt, Value def, Local countdown) {
 		// callee
 		String callee = "static";
 		if (!(((Stmt) stmt).getInvokeExpr() instanceof StaticInvokeExpr)) {
@@ -554,8 +762,13 @@ public class PInstrumentor extends BodyTransformer {
 		}
 		Stmt checkReturnStmt = Jimple.v().newInvokeStmt(checkReturn);
 		units.insertAfter(checkReturnStmt, stmt);
+		
+		
+		//insert checking code for sampling
+		insertSampleCheckingCode(units, checkReturnStmt, countdown);
 	}
 
+	
 	
 //	public boolean isBranches_flag() {
 //		return branches_flag;
