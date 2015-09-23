@@ -1,30 +1,56 @@
-<sites unit="4AFD75AF2FD393F6FAB56B76D5B3369E" scheme="branches">
-test	11	<test: void main(java.lang.String[])>	10	$b0 > 0
-test	43	<test: void main(java.lang.String[])>	15	$z0 == 0
+<sites unit="18311788FDC9C5542DFC448AFCEAA19A" scheme="branches">
+InterTest	12	<InterTest: void invoke1(int,int)>	8	bb == 0
+HelloWorld	15	<HelloWorld: void invoke(int)>	2	i != 1
 </sites>
-<sites unit="4AFD75AF2FD393F6FAB56B76D5B3369E" scheme="returns">
-test	47	<test: void main(java.lang.String[])>	17	static
+<sites unit="18311788FDC9C5542DFC448AFCEAA19A" scheme="returns">
+InterTest	9	<InterTest: void invoke1(int,int)>	6	this
+InterTest	11	<InterTest: void invoke1(int,int)>	7	this
+InterTest	41	<InterTest: int[] invoke4(int,HelloWorld)>	4	h
+InterTest	54	<InterTest: void main(java.lang.String[])>	5	static
+HelloWorld	20	<HelloWorld: void invoke(int)>	6	this
 </sites>
-<sites unit="4AFD75AF2FD393F6FAB56B76D5B3369E" scheme="scalar-pairs">
-test	8	<test: void main(java.lang.String[])>	2	j	local	direct	10.9	i
-test	9	<test: void main(java.lang.String[])>	3	two	local	direct	-2.0	i
-test	9	<test: void main(java.lang.String[])>	3	two	local	direct	-2.0	j
-test	12	<test: void main(java.lang.String[])>	5	j	local	direct	i - 1.0	i
-test	12	<test: void main(java.lang.String[])>	5	j	local	direct	i - 1.0	two
-test	14	<test: void main(java.lang.String[])>	6	z1	local	direct	0.77	i
-test	14	<test: void main(java.lang.String[])>	6	z1	local	direct	0.77	j
-test	14	<test: void main(java.lang.String[])>	6	z1	local	direct	0.77	two
-test	21	<test: void main(java.lang.String[])>	7	i	local	direct	1.0	j
-test	21	<test: void main(java.lang.String[])>	7	i	local	direct	1.0	two
-test	21	<test: void main(java.lang.String[])>	7	i	local	direct	1.0	z1
-test	22	<test: void main(java.lang.String[])>	8	j	local	direct	i + two	i
-test	22	<test: void main(java.lang.String[])>	8	j	local	direct	i + two	two
-test	22	<test: void main(java.lang.String[])>	8	j	local	direct	i + two	z1
-test	43	<test: void main(java.lang.String[])>	14	$z0	local	direct	$r0 instanceof test	bb
-test	44	<test: void main(java.lang.String[])>	16	bb	local	direct	0	$z0
-test	50	<test: void main(java.lang.String[])>	20	ll2	local	direct	(long) j	ll
+<sites unit="18311788FDC9C5542DFC448AFCEAA19A" scheme="scalar-pairs">
+InterTest	7	<InterTest: void invoke1(int,int)>	4	$i0	local	direct	a + b	a
+InterTest	7	<InterTest: void invoke1(int,int)>	4	$i0	local	direct	a + b	b
+InterTest	7	<InterTest: void invoke1(int,int)>	5	c	local	direct	$i0 + amount	a
+InterTest	7	<InterTest: void invoke1(int,int)>	5	c	local	direct	$i0 + amount	b
+InterTest	7	<InterTest: void invoke1(int,int)>	5	c	local	direct	$i0 + amount	$i0
+InterTest	16	<InterTest: void invoke1(int,int)>	12	$i1	local	direct	(int) csquare	a
+InterTest	16	<InterTest: void invoke1(int,int)>	12	$i1	local	direct	(int) csquare	b
+InterTest	16	<InterTest: void invoke1(int,int)>	12	$i1	local	direct	(int) csquare	$i0
+InterTest	16	<InterTest: void invoke1(int,int)>	12	$i1	local	direct	(int) csquare	c
+InterTest	19	<InterTest: void invoke1(int,int)>	16	$l2	local	direct	2L * csquare	csquare
+InterTest	24	<InterTest: void invoke1(int,int)>	22	i	local	direct	array[0]	a
+InterTest	24	<InterTest: void invoke1(int,int)>	22	i	local	direct	array[0]	b
+InterTest	24	<InterTest: void invoke1(int,int)>	22	i	local	direct	array[0]	$i0
+InterTest	24	<InterTest: void invoke1(int,int)>	22	i	local	direct	array[0]	c
+InterTest	24	<InterTest: void invoke1(int,int)>	22	i	local	direct	array[0]	$i1
+InterTest	42	<InterTest: int[] invoke4(int,HelloWorld)>	5	array[0]	mem	index	v	i
+InterTest	42	<InterTest: int[] invoke4(int,HelloWorld)>	5	array[0]	mem	index	v	v
+InterTest	43	<InterTest: int[] invoke4(int,HelloWorld)>	6	array[1]	mem	index	i	i
+InterTest	43	<InterTest: int[] invoke4(int,HelloWorld)>	6	array[1]	mem	index	i	v
+InterTest	44	<InterTest: int[] invoke4(int,HelloWorld)>	7	array[2]	mem	index	0	i
+InterTest	44	<InterTest: int[] invoke4(int,HelloWorld)>	7	array[2]	mem	index	0	v
+InterTest	49	<InterTest: long invoke2(int)>	2	$i0	local	direct	c * c	c
+HelloWorld	10	<HelloWorld: void <init>(int)>	3	this.<HelloWorld: int field>	local	field	i	i
+HelloWorld	20	<HelloWorld: void invoke(int)>	7	this.<HelloWorld: int field2>	local	field	$i0	i
+HelloWorld	20	<HelloWorld: void invoke(int)>	7	this.<HelloWorld: int field2>	local	field	$i0	$i0
+HelloWorld	40	<HelloWorld: void setField(int)>	2	this.<HelloWorld: int field>	local	field	field	field
 </sites>
-<sites unit="4AFD75AF2FD393F6FAB56B76D5B3369E" scheme="method-entries">
-test	2	<test: void <init>()>	1
-test	7	<test: void main(java.lang.String[])>	1
+<sites unit="18311788FDC9C5542DFC448AFCEAA19A" scheme="method-entries">
+InterTest	3	<InterTest: void <init>()>	1
+InterTest	6	<InterTest: void invoke1(int,int)>	3
+InterTest	32	<InterTest: boolean invokebb()>	1
+InterTest	36	<InterTest: HelloWorld getClass(float)>	2
+InterTest	40	<InterTest: int[] invoke4(int,HelloWorld)>	3
+InterTest	49	<InterTest: long invoke2(int)>	2
+InterTest	53	<InterTest: void main(java.lang.String[])>	1
+HelloWorld	6	<HelloWorld: void <init>()>	1
+HelloWorld	9	<HelloWorld: void <init>(int)>	2
+HelloWorld	15	<HelloWorld: void invoke(int)>	2
+HelloWorld	25	<HelloWorld: void invoke3()>	1
+HelloWorld	29	<HelloWorld: void hello()>	1
+HelloWorld	33	<HelloWorld: void nohello()>	1
+HelloWorld	37	<HelloWorld: int getField()>	1
+HelloWorld	40	<HelloWorld: void setField(int)>	2
 </sites>

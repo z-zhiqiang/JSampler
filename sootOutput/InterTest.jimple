@@ -4,17 +4,34 @@ public class InterTest extends java.lang.Object
     public void <init>()
     {
         InterTest this;
+        int _localCountdown;
 
         this := @this: InterTest;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(0);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _localCountdown > 1 goto label1;
+
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label0;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(0);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label0:
         specialinvoke this.<java.lang.Object: void <init>()>();
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        return;
+
+     label1:
+        _localCountdown = _localCountdown - 1;
+        specialinvoke this.<java.lang.Object: void <init>()>();
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return;
     }
 
     public void invoke1(int, int)
     {
         InterTest this;
-        int a, b, c, i, $i0, $i1;
+        int a, b, c, i, $i0, $i1, _localCountdown;
         byte amount;
         long csquare, $l2;
         boolean bb;
@@ -26,67 +43,227 @@ public class InterTest extends java.lang.Object
         this := @this: InterTest;
         a := @parameter0: int;
         b := @parameter1: int;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(1);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _localCountdown > 19 goto label20;
+
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label0;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(1);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label0:
         amount = 0;
         $i0 = a + b;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i0, $i1, 4);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i0, i, 3);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i0, c, 2);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i0, b, 1);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i0, a, 0);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label1;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i0, b, 1);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label1:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label2;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i0, a, 0);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label2:
         c = $i0 + amount;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(c, $i1, 9);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(c, $i0, 8);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(c, i, 7);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(c, b, 6);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(c, a, 5);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label3;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(c, $i0, 4);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label3:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label4;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(c, b, 3);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label4:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label5;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(c, a, 2);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label5:
         csquare = virtualinvoke this.<InterTest: long invoke2(int)>(c);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkReturns(long,int)>(csquare, 0);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label6;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkReturns(long,int)>(csquare, 0);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label6:
         bb = specialinvoke this.<InterTest: boolean invokebb()>();
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkReturns(int,int)>(bb, 1);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(bb, 0, "==", 0);
-        if bb == 0 goto label0;
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label7;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkReturns(int,int)>(bb, 1);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label7:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label8;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(bb, 0, "==", 0);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label8:
+        if bb == 0 goto label9;
 
         $r0 = <java.lang.System: java.io.PrintStream out>;
         virtualinvoke $r0.<java.io.PrintStream: void println()>();
 
-     label0:
+     label9:
         $r1 = new HelloWorld;
         $i1 = (int) csquare;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i1, $i0, 14);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i1, i, 13);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i1, c, 12);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i1, b, 11);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i1, a, 10);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label10;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i1, c, 8);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label10:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label11;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i1, $i0, 7);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label11:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label12;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i1, b, 6);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label12:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label13;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i1, a, 5);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label13:
         specialinvoke $r1.<HelloWorld: void <init>(int)>($i1);
         hello = $r1;
         virtualinvoke hello.<HelloWorld: void invoke3()>();
         $l2 = 2L * csquare;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(long,long,int)>($l2, csquare, 15);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label14;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(long,long,int)>($l2, csquare, 9);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label14:
         $f0 = (float) $l2;
         h = specialinvoke this.<InterTest: HelloWorld getClass(float)>($f0);
         virtualinvoke h.<HelloWorld: void invoke(int)>(c);
         virtualinvoke h.<HelloWorld: void invoke3()>();
         array = specialinvoke this.<InterTest: int[] invoke4(int,HelloWorld)>(2, h);
         i = array[0];
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(i, $i1, 20);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(i, $i0, 19);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(i, c, 18);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(i, b, 17);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(i, a, 16);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label15;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, $i1, 14);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label15:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label16;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, c, 13);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label16:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label17;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, $i0, 12);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label17:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label18;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, b, 11);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label18:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label19;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, a, 10);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label19:
         $r0 = <java.lang.System: java.io.PrintStream out>;
         virtualinvoke $r0.<java.io.PrintStream: void println(java.lang.Object)>(array);
         $r0 = <java.lang.System: java.io.PrintStream out>;
         virtualinvoke $r0.<java.io.PrintStream: void println(int)>(i);
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        return;
+
+     label20:
+        _localCountdown = _localCountdown - 19;
+        amount = 0;
+        $i0 = a + b;
+        c = $i0 + amount;
+        csquare = virtualinvoke this.<InterTest: long invoke2(int)>(c);
+        bb = specialinvoke this.<InterTest: boolean invokebb()>();
+        if bb == 0 goto label21;
+
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r0.<java.io.PrintStream: void println()>();
+
+     label21:
+        $r1 = new HelloWorld;
+        $i1 = (int) csquare;
+        specialinvoke $r1.<HelloWorld: void <init>(int)>($i1);
+        hello = $r1;
+        virtualinvoke hello.<HelloWorld: void invoke3()>();
+        $l2 = 2L * csquare;
+        $f0 = (float) $l2;
+        h = specialinvoke this.<InterTest: HelloWorld getClass(float)>($f0);
+        virtualinvoke h.<HelloWorld: void invoke(int)>(c);
+        virtualinvoke h.<HelloWorld: void invoke3()>();
+        array = specialinvoke this.<InterTest: int[] invoke4(int,HelloWorld)>(2, h);
+        i = array[0];
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r0.<java.io.PrintStream: void println(java.lang.Object)>(array);
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r0.<java.io.PrintStream: void println(int)>(i);
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return;
     }
 
     private boolean invokebb()
     {
         InterTest this;
+        int _localCountdown;
 
         this := @this: InterTest;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(2);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _localCountdown > 1 goto label1;
+
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label0;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(2);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label0:
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        return 1;
+
+     label1:
+        _localCountdown = _localCountdown - 1;
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return 1;
     }
 
@@ -95,58 +272,161 @@ public class InterTest extends java.lang.Object
         InterTest this;
         float f;
         HelloWorld $r0;
-        int $i0;
+        int $i0, _localCountdown;
 
         this := @this: InterTest;
         f := @parameter0: float;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(3);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _localCountdown > 1 goto label1;
+
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label0;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(3);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label0:
         $r0 = new HelloWorld;
         $i0 = (int) f;
         specialinvoke $r0.<HelloWorld: void <init>(int)>($i0);
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        return $r0;
+
+     label1:
+        _localCountdown = _localCountdown - 1;
+        $r0 = new HelloWorld;
+        $i0 = (int) f;
+        specialinvoke $r0.<HelloWorld: void <init>(int)>($i0);
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return $r0;
     }
 
     private int[] invoke4(int, HelloWorld)
     {
         InterTest this;
-        int i, v, tmp11, tmp13, tmp15;
+        int i, v, _localCountdown, tmp5, tmp6, tmp7;
         HelloWorld h;
         int[] array;
 
         this := @this: InterTest;
         i := @parameter0: int;
         h := @parameter1: HelloWorld;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(4);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _localCountdown > 8 goto label8;
+
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label0;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(4);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label0:
         array = newarray (int)[3];
         v = virtualinvoke h.<HelloWorld: int getField()>();
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkReturns(int,int)>(v, 2);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label1;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkReturns(int,int)>(v, 2);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label1:
         array[0] = v;
-        tmp11 = array[0];
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(tmp11, v, 22);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(tmp11, i, 21);
+        tmp5 = array[0];
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label2;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(tmp5, v, 16);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label2:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label3;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(tmp5, i, 15);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label3:
         array[1] = i;
-        tmp13 = array[1];
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(tmp13, v, 24);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(tmp13, i, 23);
+        tmp6 = array[1];
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label4;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(tmp6, v, 18);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label4:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label5;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(tmp6, i, 17);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label5:
         array[2] = 0;
-        tmp15 = array[2];
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(tmp15, v, 26);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>(tmp15, i, 25);
+        tmp7 = array[2];
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label6;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(tmp7, v, 20);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label6:
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label7;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(tmp7, i, 19);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label7:
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        return array;
+
+     label8:
+        _localCountdown = _localCountdown - 8;
+        array = newarray (int)[3];
+        v = virtualinvoke h.<HelloWorld: int getField()>();
+        array[0] = v;
+        array[1] = i;
+        array[2] = 0;
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return array;
     }
 
     public long invoke2(int)
     {
         InterTest this;
-        int c, $i0;
+        int c, $i0, _localCountdown;
         long $l1;
 
         this := @this: InterTest;
         c := @parameter0: int;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(5);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _localCountdown > 2 goto label2;
+
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label0;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(5);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label0:
         $i0 = c * c;
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkScalarPairs(int,int,int)>($i0, c, 27);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label1;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($i0, c, 21);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label1:
         $l1 = (long) $i0;
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        return $l1;
+
+     label2:
+        _localCountdown = _localCountdown - 2;
+        $i0 = c * c;
+        $l1 = (long) $i0;
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return $l1;
     }
 
@@ -155,18 +435,46 @@ public class InterTest extends java.lang.Object
         java.lang.String[] args;
         InterTest $r0, t;
         java.lang.String $r1;
-        int $i0;
+        int $i0, _localCountdown;
 
         args := @parameter0: java.lang.String[];
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkMethodEntries(int)>(6);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
+        if _localCountdown > 2 goto label2;
+
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label0;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkMethodEntries(int)>(6);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label0:
         $r0 = new InterTest;
         specialinvoke $r0.<InterTest: void <init>()>();
         t = $r0;
         $r1 = args[0];
         $i0 = staticinvoke <java.lang.Integer: int parseInt(java.lang.String)>($r1);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void checkReturns(int,int)>($i0, 3);
+        _localCountdown = _localCountdown - 1;
+        if _localCountdown != 0 goto label1;
+
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkReturns(int,int)>($i0, 3);
+        _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
+
+     label1:
         virtualinvoke t.<InterTest: void invoke1(int,int)>($i0, 2);
-        staticinvoke <edu.uci.jsampler.instrument.StaticCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("/home/icuzzq/Workspace/program/JSampler/test.reports", "1F77315A89D163CEDB08588D732B74C1");
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "18311788FDC9C5542DFC448AFCEAA19A");
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        return;
+
+     label2:
+        _localCountdown = _localCountdown - 2;
+        $r0 = new InterTest;
+        specialinvoke $r0.<InterTest: void <init>()>();
+        t = $r0;
+        $r1 = args[0];
+        $i0 = staticinvoke <java.lang.Integer: int parseInt(java.lang.String)>($r1);
+        virtualinvoke t.<InterTest: void invoke1(int,int)>($i0, 2);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "18311788FDC9C5542DFC448AFCEAA19A");
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return;
     }
 }

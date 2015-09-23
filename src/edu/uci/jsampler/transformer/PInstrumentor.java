@@ -580,6 +580,9 @@ public class PInstrumentor extends BodyTransformer {
 			scope_type_assign = "mem";
 			container_type = "index";
 		}
+		
+		Iterator it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+		
 		// right and compared variable info
 		String right = ((AssignStmt) stmt).getRightOp().toString();
 
@@ -594,7 +597,6 @@ public class PInstrumentor extends BodyTransformer {
 			stmt = inserted_assign;
 		}
 
-		Iterator it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 		while(it.hasNext()){
 			Local local = (Local) it.next();
 			if (local.getType() == def.getType() && local != def) {
