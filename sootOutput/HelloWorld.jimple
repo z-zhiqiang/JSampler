@@ -19,6 +19,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         specialinvoke this.<java.lang.Object: void <init>()>();
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return;
@@ -47,6 +48,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         specialinvoke this.<java.lang.Object: void <init>()>();
         this.<HelloWorld: int field> = i;
         tmp3 = this.<HelloWorld: int field>;
@@ -57,6 +59,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label1:
+        nop;
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return;
 
@@ -85,6 +88,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label1;
 
@@ -92,6 +96,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label1:
+        nop;
         if i != 1 goto label2;
 
         virtualinvoke this.<HelloWorld: void hello()>();
@@ -109,6 +114,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label4:
+        nop;
         this.<HelloWorld: int field2> = $i0;
         tmp7 = this.<HelloWorld: int field2>;
         _localCountdown = _localCountdown - 1;
@@ -118,6 +124,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label5:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label6;
 
@@ -125,6 +132,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label6:
+        nop;
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return;
 
@@ -162,6 +170,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         $r0 = <java.lang.System: java.io.PrintStream out>;
         $i0 = this.<HelloWorld: int field>;
         virtualinvoke $r0.<java.io.PrintStream: void println(int)>($i0);
@@ -194,6 +203,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         $r0 = <java.lang.System: java.io.PrintStream out>;
         virtualinvoke $r0.<java.io.PrintStream: void println(java.lang.String)>("Hello world!");
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
@@ -224,6 +234,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         $r0 = <java.lang.System: java.io.PrintStream out>;
         virtualinvoke $r0.<java.io.PrintStream: void println()>();
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
@@ -253,6 +264,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         $i0 = this.<HelloWorld: int field>;
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return $i0;
@@ -281,6 +293,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         this.<HelloWorld: int field> = field;
         tmp2 = this.<HelloWorld: int field>;
         _localCountdown = _localCountdown - 1;
@@ -290,6 +303,7 @@ public class HelloWorld extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label1:
+        nop;
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return;
 

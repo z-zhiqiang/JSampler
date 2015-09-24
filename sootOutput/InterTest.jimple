@@ -17,6 +17,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         specialinvoke this.<java.lang.Object: void <init>()>();
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return;
@@ -53,6 +54,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         amount = 0;
         $i0 = a + b;
         _localCountdown = _localCountdown - 1;
@@ -62,6 +64,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label1:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label2;
 
@@ -69,6 +72,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label2:
+        nop;
         c = $i0 + amount;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label3;
@@ -77,6 +81,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label3:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label4;
 
@@ -84,6 +89,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label4:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label5;
 
@@ -91,6 +97,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label5:
+        nop;
         csquare = virtualinvoke this.<InterTest: long invoke2(int)>(c);
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label6;
@@ -99,6 +106,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label6:
+        nop;
         bb = specialinvoke this.<InterTest: boolean invokebb()>();
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label7;
@@ -107,6 +115,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label7:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label8;
 
@@ -114,6 +123,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label8:
+        nop;
         if bb == 0 goto label9;
 
         $r0 = <java.lang.System: java.io.PrintStream out>;
@@ -129,6 +139,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label10:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label11;
 
@@ -136,6 +147,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label11:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label12;
 
@@ -143,6 +155,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label12:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label13;
 
@@ -150,6 +163,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label13:
+        nop;
         specialinvoke $r1.<HelloWorld: void <init>(int)>($i1);
         hello = $r1;
         virtualinvoke hello.<HelloWorld: void invoke3()>();
@@ -161,6 +175,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label14:
+        nop;
         $f0 = (float) $l2;
         h = specialinvoke this.<InterTest: HelloWorld getClass(float)>($f0);
         virtualinvoke h.<HelloWorld: void invoke(int)>(c);
@@ -174,6 +189,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label15:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label16;
 
@@ -181,6 +197,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label16:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label17;
 
@@ -188,6 +205,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label17:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label18;
 
@@ -195,6 +213,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label18:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label19;
 
@@ -202,6 +221,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label19:
+        nop;
         $r0 = <java.lang.System: java.io.PrintStream out>;
         virtualinvoke $r0.<java.io.PrintStream: void println(java.lang.Object)>(array);
         $r0 = <java.lang.System: java.io.PrintStream out>;
@@ -251,6 +271,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getCountdown()>();
         if _localCountdown > 1 goto label1;
 
+        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label0;
 
@@ -258,7 +279,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
-        staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        nop;
         return 1;
 
      label1:
@@ -286,6 +307,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         $r0 = new HelloWorld;
         $i0 = (int) f;
         specialinvoke $r0.<HelloWorld: void <init>(int)>($i0);
@@ -321,6 +343,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         array = newarray (int)[3];
         v = virtualinvoke h.<HelloWorld: int getField()>();
         _localCountdown = _localCountdown - 1;
@@ -330,6 +353,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label1:
+        nop;
         array[0] = v;
         tmp5 = array[0];
         _localCountdown = _localCountdown - 1;
@@ -339,6 +363,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label2:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label3;
 
@@ -346,6 +371,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label3:
+        nop;
         array[1] = i;
         tmp6 = array[1];
         _localCountdown = _localCountdown - 1;
@@ -355,6 +381,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label4:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label5;
 
@@ -362,6 +389,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label5:
+        nop;
         array[2] = 0;
         tmp7 = array[2];
         _localCountdown = _localCountdown - 1;
@@ -371,6 +399,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label6:
+        nop;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label7;
 
@@ -378,6 +407,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label7:
+        nop;
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return array;
 
@@ -410,6 +440,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         $i0 = c * c;
         _localCountdown = _localCountdown - 1;
         if _localCountdown != 0 goto label1;
@@ -418,6 +449,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label1:
+        nop;
         $l1 = (long) $i0;
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
         return $l1;
@@ -434,7 +466,7 @@ public class InterTest extends java.lang.Object
     {
         java.lang.String[] args;
         InterTest $r0, t;
-        java.lang.String $r1;
+        java.lang.String $r1, _tmp_output_filename;
         int $i0, _localCountdown;
 
         args := @parameter0: java.lang.String[];
@@ -448,6 +480,7 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label0:
+        nop;
         $r0 = new InterTest;
         specialinvoke $r0.<InterTest: void <init>()>();
         t = $r0;
@@ -460,9 +493,11 @@ public class InterTest extends java.lang.Object
         _localCountdown = staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: int getNextCountdown(int)>(1000);
 
      label1:
+        nop;
         virtualinvoke t.<InterTest: void invoke1(int,int)>($i0, 2);
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "18311788FDC9C5542DFC448AFCEAA19A");
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        _tmp_output_filename = staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: java.lang.String getReportFilename()>();
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>(_tmp_output_filename, "8FC57AC9FBDA655B18DD65D7BB99B9FD");
         return;
 
      label2:
@@ -473,8 +508,9 @@ public class InterTest extends java.lang.Object
         $r1 = args[0];
         $i0 = staticinvoke <java.lang.Integer: int parseInt(java.lang.String)>($r1);
         virtualinvoke t.<InterTest: void invoke1(int,int)>($i0, 2);
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>("./output.reports", "18311788FDC9C5542DFC448AFCEAA19A");
         staticinvoke <edu.uci.jsampler.assist.GlobalCountdown: void setCountdown(int)>(_localCountdown);
+        _tmp_output_filename = staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: java.lang.String getReportFilename()>();
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String,java.lang.String)>(_tmp_output_filename, "8FC57AC9FBDA655B18DD65D7BB99B9FD");
         return;
     }
 }

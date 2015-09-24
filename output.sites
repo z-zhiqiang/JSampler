@@ -1,15 +1,15 @@
-<sites unit="18311788FDC9C5542DFC448AFCEAA19A" scheme="branches">
+<sites unit="FFA91F9F86E06CE7D37A5D27AB2620E9" scheme="branches">
 InterTest	12	<InterTest: void invoke1(int,int)>	8	bb == 0
 HelloWorld	15	<HelloWorld: void invoke(int)>	2	i != 1
 </sites>
-<sites unit="18311788FDC9C5542DFC448AFCEAA19A" scheme="returns">
+<sites unit="FFA91F9F86E06CE7D37A5D27AB2620E9" scheme="returns">
 InterTest	9	<InterTest: void invoke1(int,int)>	6	this
 InterTest	11	<InterTest: void invoke1(int,int)>	7	this
 InterTest	41	<InterTest: int[] invoke4(int,HelloWorld)>	4	h
 InterTest	54	<InterTest: void main(java.lang.String[])>	5	static
 HelloWorld	20	<HelloWorld: void invoke(int)>	6	this
 </sites>
-<sites unit="18311788FDC9C5542DFC448AFCEAA19A" scheme="scalar-pairs">
+<sites unit="FFA91F9F86E06CE7D37A5D27AB2620E9" scheme="scalar-pairs">
 InterTest	7	<InterTest: void invoke1(int,int)>	4	$i0	local	direct	a + b	a
 InterTest	7	<InterTest: void invoke1(int,int)>	4	$i0	local	direct	a + b	b
 InterTest	7	<InterTest: void invoke1(int,int)>	5	c	local	direct	$i0 + amount	a
@@ -37,7 +37,7 @@ HelloWorld	20	<HelloWorld: void invoke(int)>	7	this.<HelloWorld: int field2>	loc
 HelloWorld	20	<HelloWorld: void invoke(int)>	7	this.<HelloWorld: int field2>	local	field	$i0	$i0
 HelloWorld	40	<HelloWorld: void setField(int)>	2	this.<HelloWorld: int field>	local	field	field	field
 </sites>
-<sites unit="18311788FDC9C5542DFC448AFCEAA19A" scheme="method-entries">
+<sites unit="FFA91F9F86E06CE7D37A5D27AB2620E9" scheme="method-entries">
 InterTest	3	<InterTest: void <init>()>	1
 InterTest	6	<InterTest: void invoke1(int,int)>	3
 InterTest	32	<InterTest: boolean invokebb()>	1

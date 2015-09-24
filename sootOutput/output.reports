@@ -1,30 +1,9 @@
-<samples unit="4AFD75AF2FD393F6FAB56B76D5B3369E" scheme="branches">
-0	1	1	
-1	1	0	
+<samples unit="CD8C4B7A138E8F1B27239C4F55A954D5" scheme="branches">
 </samples>
-<samples unit="4AFD75AF2FD393F6FAB56B76D5B3369E" scheme="returns">
-0	0	0	1	
+<samples unit="CD8C4B7A138E8F1B27239C4F55A954D5" scheme="returns">
 </samples>
-<samples unit="4AFD75AF2FD393F6FAB56B76D5B3369E" scheme="scalar-pairs">
-0	0	0	1	
-1	1	0	0	
-2	1	0	0	
-3	1	0	0	
-4	0	0	1	
-5	1	0	0	
-6	0	0	1	
-7	0	0	1	
-8	0	0	1	
-9	0	0	1	
-10	0	0	1	
-11	1	0	0	
-12	0	0	1	
-13	1	0	0	
-14	0	1	0	
-15	1	0	0	
-16	1	0	0	
+<samples unit="CD8C4B7A138E8F1B27239C4F55A954D5" scheme="scalar-pairs">
 </samples>
-<samples unit="4AFD75AF2FD393F6FAB56B76D5B3369E" scheme="method-entries">
-0	1	
+<samples unit="CD8C4B7A138E8F1B27239C4F55A954D5" scheme="method-entries">
 1	1	
 </samples>

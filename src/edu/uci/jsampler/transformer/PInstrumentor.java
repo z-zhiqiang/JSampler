@@ -2,11 +2,8 @@ package edu.uci.jsampler.transformer;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +15,6 @@ import edu.uci.jsampler.site.ScalarPairSite;
 import edu.uci.jsampler.util.Translator;
 import soot.Body;
 import soot.BodyTransformer;
-import soot.BooleanType;
 import soot.DoubleType;
 import soot.FloatType;
 import soot.IntType;
@@ -49,7 +45,6 @@ import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.toolkits.annotation.logic.Loop;
-import soot.jimple.toolkits.annotation.logic.LoopFinder;
 import soot.tagkit.*;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.LoopNestTree;
@@ -87,7 +82,7 @@ public class PInstrumentor extends BodyTransformer {
 		
 		checkMethodEntries = checkerReporterClass.getMethod("void checkMethodEntries(int)");
 
-		report = checkerReporterClass.getMethod("void exportReports(java.lang.String,java.lang.String)");
+		report = checkerReporterClass.getMethod("void exportReports(java.lang.String)");
 		
 		
 		//globalCountdownClass
@@ -95,7 +90,7 @@ public class PInstrumentor extends BodyTransformer {
 		
 		getCountdown = globalCountdownClass.getMethod("int getCountdown()");
 		setCountdown = globalCountdownClass.getMethod("void setCountdown(int)");
-		getNextCountdown = globalCountdownClass.getMethod("int getNextCountdown(int)");
+		getNextCountdown = globalCountdownClass.getMethod("int getNextCountdown()");
 		
 	}
 
@@ -111,13 +106,7 @@ public class PInstrumentor extends BodyTransformer {
 
 	private final boolean sample_flag;// sampling flag
 
-	private final int opportunities;// sampling opportunities
-
 	private final Set<String> methods_instrument;// methods instrumented
-
-	private final String output_file_sites;// output file name storing static sites info
-
-	private final String output_file_reports;// output file name for dynamic reports
 
 	
 	// static instrumentation site information
@@ -146,18 +135,14 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param output_file_reports
 	 */
 	public PInstrumentor(boolean branches_flag, boolean returns_flag, boolean scalarpairs_flag,
-			boolean methodentries_flag, boolean sample_flag, int opportunities, Set<String> methods_instrument,
-			String output_file_sites, String output_file_reports) {
+			boolean methodentries_flag, boolean sample_flag, Set<String> methods_instrument) {
 		// TODO Auto-generated constructor stub
 		this.branches_flag = branches_flag;
 		this.returns_flag = returns_flag;
 		this.scalarpairs_flag = scalarpairs_flag;
 		this.methodentries_flag = methodentries_flag;
 		this.sample_flag = sample_flag;
-		this.opportunities = opportunities;
 		this.methods_instrument = methods_instrument;
-		this.output_file_sites = output_file_sites;
-		this.output_file_reports = output_file_reports;
 	}
 
 	/** generate a unique compilation unit signature: a 128-bit as 32 hexadecimal digits
@@ -214,6 +199,10 @@ public class PInstrumentor extends BodyTransformer {
 			
 			//at loop back edge
 			insertSampleCheckingCodeAtLoopback(body, units, weight_loops, countdown, unitsMap);
+			
+			
+			//export local countdown back to global before function exit and remove nop statement
+			exportLocalCountdownToGlobal(units, countdown);
 		}
 		
 
@@ -278,8 +267,7 @@ public class PInstrumentor extends BodyTransformer {
 			// insert reporting code before system exit
 			if (stmt instanceof InvokeStmt) {
 				InvokeExpr iexpr = stmt.getInvokeExpr();
-				if (iexpr instanceof StaticInvokeExpr
-						&& iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
+				if (iexpr instanceof StaticInvokeExpr && iexpr.getMethod().getSignature().equals("<java.lang.System: void exit(int)>")) {
 					insertReportingCode(units, stmt);
 				}
 			}
@@ -289,13 +277,6 @@ public class PInstrumentor extends BodyTransformer {
 			}
 		}
 		
-		
-		/*---------------------------------------------- sampling -------------------------------------------------*/
-		
-		//export local countdown back to global before function exit and remove nop statement
-		if(this.sample_flag && under_analysis){
-			exportLocalCountdownToGlobal(units, countdown);
-		}
 		
 	}
 
@@ -542,9 +523,10 @@ public class PInstrumentor extends BodyTransformer {
 	 * 
 	 * @param units
 	 * @param stmt
+	 * @param output_file 
 	 */
 	private void insertReportingCode(Chain<Unit> units, Stmt stmt) {
-		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(output_file_reports), StringConstant.v(unit_signature));
+		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(unit_signature));
 		Stmt reportStmt = Jimple.v().newInvokeStmt(reportExpr);
 		units.insertBefore(reportStmt, stmt);
 	}
@@ -708,7 +690,7 @@ public class PInstrumentor extends BodyTransformer {
 			AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binopExpr);
 			units.insertBefore(decreaseStmt, checkStmt);
 			
-			InvokeExpr getNextCountdownExpr = Jimple.v().newStaticInvokeExpr(getNextCountdown.makeRef(), IntConstant.v(this.opportunities));
+			InvokeExpr getNextCountdownExpr = Jimple.v().newStaticInvokeExpr(getNextCountdown.makeRef());
 			AssignStmt assignNextCountdownStmt = Jimple.v().newAssignStmt(countdown, getNextCountdownExpr);
 			units.insertAfter(assignNextCountdownStmt, checkStmt);
 			
@@ -771,42 +753,5 @@ public class PInstrumentor extends BodyTransformer {
 	}
 
 	
-	
-//	public boolean isBranches_flag() {
-//		return branches_flag;
-//	}
-//
-//	public boolean isReturns_flag() {
-//		return returns_flag;
-//	}
-//
-//	public boolean isScalarpairs_flag() {
-//		return scalarpairs_flag;
-//	}
-//
-//	public boolean isMethodentries_flag() {
-//		return methodentries_flag;
-//	}
-//
-//	public boolean isSample_flag() {
-//		return sample_flag;
-//	}
-//
-//	public int getOpportunities() {
-//		return opportunities;
-//	}
-//
-//	public Set<String> getMethods_instrument() {
-//		return methods_instrument;
-//	}
-//
-//	public String getOutput_file_sites() {
-//		return output_file_sites;
-//	}
-//
-//	public String getOutput_file_reports() {
-//		return output_file_reports;
-//	}
-
 	
 }

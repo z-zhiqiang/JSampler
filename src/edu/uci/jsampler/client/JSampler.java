@@ -29,14 +29,10 @@ public class JSampler {
 	// sampling flag
 	private static boolean sample_flag;
 
-	private static int opportunities;
-
 	// methods instrumented
 	private static Set<String> methods_instrument;
 
 	private static String output_file_sites;
-
-	private static String output_file_reports;
 
 	
 	public static void main(String[] args) {
@@ -45,11 +41,11 @@ public class JSampler {
 		parseParameters(args, soot_parameters);
 
 		PInstrumentor instrumentor = new PInstrumentor(branches_flag, returns_flag, scalarpairs_flag, methodentries_flag,
-				sample_flag, opportunities, methods_instrument, output_file_sites, output_file_reports);
+				sample_flag, methods_instrument);
 		PackManager.v().getPack("jtp").add(new Transform("jtp.instrumenter", instrumentor));
 
 		Options.v().setPhaseOption("jb", "use-original-names:true");
-		Options.v().set_output_format(Options.output_format_jimple);
+//		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_keep_line_number(true);
 		Options.v().set_prepend_classpath(true);
 
@@ -74,11 +70,7 @@ public class JSampler {
 		//default values
 		output_file_sites = "./output.sites";
 		
-		output_file_reports = "./output.reports";
-		
 		methods_instrument = new HashSet<String>();
-		
-		opportunities = 1000;
 		
 		
 		// TODO Auto-generated method stub
@@ -100,17 +92,11 @@ public class JSampler {
 				else if (option.equals("-sampler")) {
 					sample_flag = true;
 				} 
-				else if (option.startsWith("-sampler-opportunities=")) {
-					 opportunities = Integer.parseInt(option.split("=")[1].trim());
-				} 
 				else if (option.startsWith("-sampler-include-method=")) {
 					methods_instrument.add(option.split("=")[1].trim());
 				} 
 				else if (option.startsWith("-sampler-out-sites=")) {
 					output_file_sites = option.split("=")[1].trim();
-				}
-				else if (option.startsWith("-sampler-out-reports=")) {
-					output_file_reports = option.split("=")[1].trim();
 				}
 				else{
 					System.err.println("wrong option!");

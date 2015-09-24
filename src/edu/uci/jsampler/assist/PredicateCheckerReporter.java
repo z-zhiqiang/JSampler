@@ -21,12 +21,19 @@ public class PredicateCheckerReporter {
 	private static Map<Integer, byte[]> methodEntry_reports = new TreeMap<Integer, byte[]>();
 	
 	
+	//filename of reports
+	private final static String output_file_reports = getReportFilename();
+	
 
-	public static synchronized void exportReports(String output_file, String unit_signature) {
-		File file = new File(output_file);
+	public static synchronized void exportReports(String unit_signature) {
+		File file = new File(output_file_reports);
 		PrintWriter out = null;
 
 		try {
+			if (!file.getParentFile().exists()) {
+				file.getParentFile().mkdirs();
+			}
+			
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
 			printDynamicReportsInfoForEachScheme(branch_reports, "branches", unit_signature, out);
@@ -251,6 +258,20 @@ public class PredicateCheckerReporter {
 		if (counts[i] != Byte.MAX_VALUE) {
 			counts[i]++;
 		}
+	}
+	
+	
+	/**
+	 * get the filename of reports via environment variable
+	 * 
+	 * @return
+	 */
+	private static String getReportFilename(){
+		String output_report = System.getenv("SAMPLER_FILE");
+		if(output_report == null){
+			output_report = "./output.reports";
+		}
+		return output_report;
 	}
 
 }

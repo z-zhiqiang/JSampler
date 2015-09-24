@@ -1,5 +1,6 @@
 package test;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import soot.toolkits.scalar.InitAnalysis;
@@ -54,6 +55,14 @@ public class test {
 			}
 			System.out.println();
 		}
+		
+		
+		Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+            System.out.format("%s=%s%n",
+                              envName,
+                              env.get(envName));
+        }
 	}
 	
 }
