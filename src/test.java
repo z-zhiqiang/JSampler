@@ -3,51 +3,63 @@ public class test {
 //	private int field;
 
 	public static void main(String[] args) {
-//		int i = Integer.parseInt(args[0]);
-		double i = 0.8;
-		double j = 10.9;
-		double two = -2;
-		
-		while (j > i ){
-			j = i - 1;
-//			if(i % 2 == 0){
-				double z1 =0.77;
-//				if(z1 < 0){
-//					two++;
-//				}
-//				else{
-//					two--;
-//				}
-				i=1;
-				j = i + two;
-//			}
+		while(true){
+			int i = 0;
+			i++;
 		}
-
-//		test t = new test();
-//		t.field = i + 4;
-//		j = t.field - two;
-	
-//		int[] array = new int[2];
-//		array[0] = t.field;
-//		array[1] = j;
-//		System.out.println(array);
-		
+////		int i = Integer.parseInt(args[0]);
+//		int i = 0;
+//		double j = 10.9;
+//		double two = -2;
+//		
+//		while (j > i ){
+//			j = i - 1;
+////			if(i % 2 == 0){
+//				double z1 =0.77;
+////				if(z1 < 0){
+////					two++;
+////				}
+////				else{
+////					two--;
+////				}
+//				i=1;
+//				j = i + two;
+////			}
+//		}
+//
+////		test t = new test();
+////		t.field = i + 4;
+////		j = t.field - two;
+//	
+////		int[] array = new int[2];
+////		array[0] = t.field;
+////		array[1] = j;
+////		System.out.println(array);
+//		
 //		switch (i){
 //		case 0: break;
 //		case 1: i = i+1; break;
-//		case 3: j = i+1; break;
-//		case 2: two = i+1; break;
+//		case 6: j = i+1; break;
+//		case 9: two = i+1; break;
 //		}
-		
-		boolean bb = true;
-		if(new test() instanceof test){
-			bb = false;
+//		
+//		boolean bb = true;
+//		if(new test() instanceof test){
+//			bb = false;
+//		}
+//		
+//		int aa = (int) Math.pow(4, 2);
+//		
+//		long ll = 5;
+//		long ll2 = (long) j;
+	}
+	
+	private static void a(){
+		while(true){
+			int i = 0;
+			int j = 3;
+			i = i + j;
 		}
-		
-		int aa = (int) Math.pow(4, 2);
-		
-		long ll = 5;
-		long ll2 = (long) j;
 	}
 
 }

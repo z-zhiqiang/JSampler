@@ -38,12 +38,14 @@ import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.Jimple;
+import soot.jimple.LookupSwitchStmt;
 import soot.jimple.NopStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
+import soot.jimple.TableSwitchStmt;
 import soot.jimple.toolkits.annotation.logic.Loop;
 import soot.tagkit.*;
 import soot.toolkits.graph.BriefUnitGraph;
@@ -293,7 +295,15 @@ public class PInstrumentor extends BodyTransformer {
 		
 		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
 		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
-		units.insertBefore(getCountdownStmt, getFirstNonIdentityStmt(units));
+//		Stmt point = getLastIdentityStmt(units);
+//		if(point == null){
+//			assert(units.getFirst() == getFirstNonIdentityStmt(units));
+//			units.addFirst(getCountdownStmt);
+//		}
+//		else{
+//			units.insertAfter(getCountdownStmt, point);
+//		}
+		insertEquivalentBefore(units, getCountdownStmt, getFirstNonIdentityStmt(units));
 		
 		return countdown;
 	}
@@ -316,10 +326,10 @@ public class PInstrumentor extends BodyTransformer {
 				units.insertBefore(invokeStmt, stmt);
 			}
 			
-			//remove nopstmt
-			if(stmt instanceof NopStmt){
-				units.remove(stmt);
-			}
+//			//remove nopstmt
+//			if(stmt instanceof NopStmt){
+//				units.remove(stmt);
+//			}
 		}
 	}
 
@@ -346,7 +356,7 @@ public class PInstrumentor extends BodyTransformer {
 				//decrease countdown at fast path
 				BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
 				AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
-				units.insertBefore(decreaseStmt_loop, fastLoopHead);	
+				insertEquivalentBefore(units, decreaseStmt_loop, fastLoopHead);
 				
 				//sample checking code at loop back
 				ConditionExpr condition_loop = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
@@ -358,6 +368,22 @@ public class PInstrumentor extends BodyTransformer {
 				GotoStmt fastGotoStmt = Jimple.v().newGotoStmt(ifStmt_loop);
 				units.insertAfter(fastGotoStmt, fastBackJumpStmt);
 			}
+		}
+	}
+
+	/**
+	 * insert before certain point by inserting after the stmt immediately preceding point
+	 * 
+	 * @param units
+	 * @param toInsert
+	 * @param point
+	 */
+	private void insertEquivalentBefore(Chain<Unit> units, Stmt toInsert, Stmt point) {
+		if(units.getFirst() == point){
+			units.addFirst(toInsert);
+		}
+		else{
+			units.insertAfter(toInsert, units.getPredOf(point));
 		}
 	}
 
@@ -380,14 +406,35 @@ public class PInstrumentor extends BodyTransformer {
 				units.insertAfter(newStmt, units.getLast());
 			}
 		}
+		
 		for(Unit oldStmt: unitsMap.keySet()){
 			if(oldStmt instanceof IfStmt){
 				IfStmt newIfStmt = (IfStmt) unitsMap.get(oldStmt);
-				newIfStmt.setTarget(unitsMap.get(newIfStmt.getTarget()));
+				newIfStmt.setTarget(unitsMap.get(((IfStmt) oldStmt).getTarget()));
 			}
 			else if(oldStmt instanceof GotoStmt){
 				GotoStmt newGotoStmt = (GotoStmt) unitsMap.get(oldStmt);
-				newGotoStmt.setTarget(unitsMap.get(newGotoStmt.getTarget()));
+				newGotoStmt.setTarget(unitsMap.get(((GotoStmt) oldStmt).getTarget()));
+			}
+			else if(oldStmt instanceof LookupSwitchStmt){
+				LookupSwitchStmt newSwitchStmt = (LookupSwitchStmt) unitsMap.get(oldStmt);
+				
+				newSwitchStmt.setDefaultTarget(unitsMap.get(((LookupSwitchStmt) oldStmt).getDefaultTarget()));
+				
+				List<Unit> targets = newSwitchStmt.getTargets();
+				for(int index = 0; index < targets.size(); index++){
+					newSwitchStmt.setTarget(index, unitsMap.get(((LookupSwitchStmt) oldStmt).getTarget(index)));
+				}
+			}
+			else if(oldStmt instanceof TableSwitchStmt){
+				TableSwitchStmt newSwitchStmt = (TableSwitchStmt) unitsMap.get(oldStmt);
+				
+				newSwitchStmt.setDefaultTarget(unitsMap.get(((TableSwitchStmt) oldStmt).getDefaultTarget()));
+				
+				List<Unit> targets = newSwitchStmt.getTargets();
+				for(int index = 0; index < targets.size(); index++){
+					newSwitchStmt.setTarget(index, unitsMap.get(((TableSwitchStmt) oldStmt).getTarget(index)));
+				}
 			}
 		}
 		return unitsMap;
@@ -413,6 +460,37 @@ public class PInstrumentor extends BodyTransformer {
 		IfStmt ifStmt_functionentry = Jimple.v().newIfStmt(condition, decreaseStmt);
 		units.insertAfter(ifStmt_functionentry, getFirstNonIdentityStmt(units));
 	}
+	
+	
+//	private Local importCountdownAndinsertSampleCheckingCodeAtFunctionentry(Body body, Chain<Unit> units, int weight_function) {
+//		Local countdown = Jimple.v().newLocal("_localCountdown", IntType.v());
+//		body.getLocals().add(countdown);
+//		
+//		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
+//		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
+////		Stmt point = getLastIdentityStmt(units);
+////		if(point == null){
+////			assert(units.getFirst() == getFirstNonIdentityStmt(units));
+////			units.addFirst(getCountdownStmt);
+////		}
+////		else{
+////			units.insertAfter(getCountdownStmt, point);
+////		}
+//		insertEquivalentBefore(units, getCountdownStmt, getFirstNonIdentityStmt(units));
+//		
+//		
+//		//decrease countdown at fast path
+//		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
+//		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
+//		units.insertAfter(decreaseStmt, units.getLast());
+//
+//		//add sample checking code at the very beginning
+//		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
+//		IfStmt ifStmt_functionentry = Jimple.v().newIfStmt(condition, decreaseStmt);
+//		units.insertAfter(ifStmt_functionentry, getCountdownStmt);
+//		
+//		return countdown;
+//	}
 	
 
 	/**
@@ -493,30 +571,51 @@ public class PInstrumentor extends BodyTransformer {
 			}
 			
 			weight_loops.put(loop.getHead(), counts);
+//			System.out.println(getSourceLineNumber(loop.getHead()) + "\t" + loop.getHead() + "\t" + counts);
+//			System.out.println(getSourceLineNumber(loop.getBackJumpStmt()) + "\t" + loop.getBackJumpStmt() + "\t");
 		}
 		
 		return weight_function;
 	}
 
 
-	/** get the first non-identity statement
+	/** return the first non-identity statement
 	 * @param units
 	 * @return
 	 */
 	private Stmt getFirstNonIdentityStmt(Chain<Unit> units) {
 		// TODO Auto-generated method stub
-		Stmt firstStmt = null;
+		Stmt firstNonIdentityStmt = null;
 		Iterator<Unit> stmtIt = units.snapshotIterator();
 		while(stmtIt.hasNext()){
 			Stmt stmt = (Stmt) stmtIt.next();
 			if(!(stmt instanceof IdentityStmt)){
-				firstStmt = stmt;
+				firstNonIdentityStmt = stmt;
 				break;
 			}
 		}
-		return firstStmt;
+		return firstNonIdentityStmt;
 	}
 
+	/** return the last non-identity statement
+	 * @param units
+	 * @return
+	 */
+	private Stmt getLastIdentityStmt(Chain<Unit> units){
+		Stmt lastIdentityStmt = null;
+		
+		Iterator<Unit> stmtIt = units.snapshotIterator();
+		while(stmtIt.hasNext()){
+			Stmt stmt = (Stmt) stmtIt.next();
+			if(stmt instanceof IdentityStmt){
+				lastIdentityStmt = stmt;
+			}
+			else{
+				break;
+			}
+		}
+		return lastIdentityStmt;
+	}
 
 	/**
 	 * insert reporting code before program exit
@@ -670,9 +769,10 @@ public class PInstrumentor extends BodyTransformer {
 		// insert checking code
 		InvokeExpr checkMethodEntry = Jimple.v().newStaticInvokeExpr(checkMethodEntries.makeRef(), IntConstant.v(methodEntry_staticInfo.size() - 1));
 		Stmt checkMethodEntryStmt = Jimple.v().newInvokeStmt(checkMethodEntry);
-		units.insertBefore(checkMethodEntryStmt, stmt);
+//		units.insertBefore(checkMethodEntryStmt, stmt);
+		insertEquivalentBefore(units, checkMethodEntryStmt, (Stmt) stmt);
 		
-		////insert checking code for sampling
+		//insert checking code for sampling
 		insertSampleCheckingCode(units, checkMethodEntryStmt, countdown);
 	}
 
