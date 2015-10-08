@@ -190,6 +190,11 @@ public class PInstrumentor extends BodyTransformer {
 			Map<Unit, Integer> weight_loops = new HashMap<Unit, Integer>();
 			int weight_function = computeWeights(body, units, weight_loops, analysis);
 			
+			//if no instrumentation site, skip it
+			if(weight_function <= 0){
+				return;
+			}
+			
 			//import current global countdown into a local countdown
 			countdown = importGlobalCountdownIntoLocal(body, units);
 			
@@ -349,24 +354,51 @@ public class PInstrumentor extends BodyTransformer {
 		LoopNestTree loopNestTree = new LoopNestTree(body);
 		for(Loop loop: loopNestTree){
 			//only consider the original code
-			if(unitsMap.keySet().contains(loop.getHead())){
-				Stmt backJumpStmt = loop.getBackJumpStmt();
-				Stmt fastLoopHead = (Stmt) unitsMap.get(loop.getHead());
-				
-				//decrease countdown at fast path
-				BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
-				AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
-				insertEquivalentBefore(units, decreaseStmt_loop, fastLoopHead);
+			Stmt slowLoopHead = loop.getHead();
+			int weight;
+			if(unitsMap.keySet().contains(slowLoopHead) && (weight = weight_loops.get(slowLoopHead)) != 0){
+				Stmt slowBackJumpStmt = loop.getBackJumpStmt();
+				Stmt fastBackJumpStmt = (Stmt) unitsMap.get(slowBackJumpStmt);
+				Stmt fastLoopHead = (Stmt) unitsMap.get(slowLoopHead);
 				
 				//sample checking code at loop back
-				ConditionExpr condition_loop = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_loops.get(loop.getHead())));
-				IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, decreaseStmt_loop);
-				units.insertAfter(ifStmt_loop, backJumpStmt);	
+				ConditionExpr condition_loop = Jimple.v().newLeExpr(countdown, IntConstant.v(weight));
+				IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, slowLoopHead);
+				units.insertAfter(ifStmt_loop, fastBackJumpStmt);	
 				
-				//go back to sample checking code from fast path 
-				Stmt fastBackJumpStmt = (Stmt) unitsMap.get(backJumpStmt);
-				GotoStmt fastGotoStmt = Jimple.v().newGotoStmt(ifStmt_loop);
-				units.insertAfter(fastGotoStmt, fastBackJumpStmt);
+				//decrease countdown at fast path
+				BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight));
+				AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
+				units.insertAfter(decreaseStmt_loop, ifStmt_loop);
+				
+				GotoStmt gotoFast = Jimple.v().newGotoStmt(fastLoopHead);
+				units.insertAfter(gotoFast, decreaseStmt_loop);
+				
+				
+				//deal with the special case with gotoStmt as backJumpStmt
+				if(slowBackJumpStmt instanceof GotoStmt){
+					((GotoStmt) slowBackJumpStmt).setTarget(ifStmt_loop);
+					((GotoStmt) fastBackJumpStmt).setTarget(ifStmt_loop);
+				}
+				else if(slowBackJumpStmt instanceof IfStmt){
+					((IfStmt) slowBackJumpStmt).setTarget(ifStmt_loop);
+					((IfStmt) fastBackJumpStmt).setTarget(ifStmt_loop);
+					
+					NopStmt nopStmt = Jimple.v().newNopStmt();
+					units.insertAfter(nopStmt, gotoFast);
+					
+					GotoStmt goAhead = Jimple.v().newGotoStmt(nopStmt);
+					units.insertAfter(goAhead, fastBackJumpStmt);
+				}
+				else{
+					//go back to sample checking code from slow path 
+					GotoStmt gotoChecking = Jimple.v().newGotoStmt(ifStmt_loop);
+					units.insertAfter(gotoChecking, slowBackJumpStmt);
+					
+					if(slowBackJumpStmt instanceof LookupSwitchStmt || slowBackJumpStmt instanceof TableSwitchStmt){
+						System.err.println("BackJumpStmt is SwitchStmt: " + slowBackJumpStmt);
+					}
+				}
 			}
 		}
 	}
@@ -450,15 +482,25 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param countdown
 	 */
 	private void insertSampleCheckingCodeAtFunctionentry(Body body, Chain<Unit> units, int weight_function, Local countdown) {
-		//decrease countdown at fast path
-		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
-		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
-		units.insertAfter(decreaseStmt, units.getLast());
-
-		//add sample checking code at the very beginning
-		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
-		IfStmt ifStmt_functionentry = Jimple.v().newIfStmt(condition, decreaseStmt);
-		units.insertAfter(ifStmt_functionentry, getFirstNonIdentityStmt(units));
+			NopStmt nopFast = Jimple.v().newNopStmt();
+			units.insertAfter(nopFast, units.getLast());
+			
+			NopStmt nopSlow = Jimple.v().newNopStmt();
+			
+			//add sample checking code at the very beginning
+			ConditionExpr condition = Jimple.v().newLeExpr(countdown, IntConstant.v(weight_function));
+			IfStmt ifStmt_functionentry = Jimple.v().newIfStmt(condition, nopSlow);
+			units.insertAfter(ifStmt_functionentry, getFirstNonIdentityStmt(units));
+			
+			//decrease countdown at fast path
+			BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
+			AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
+			units.insertAfter(decreaseStmt, ifStmt_functionentry);
+			
+			GotoStmt gotoStmt = Jimple.v().newGotoStmt(nopFast);
+			units.insertAfter(gotoStmt, decreaseStmt);
+			
+			units.insertAfter(nopSlow, gotoStmt);
 	}
 	
 	
@@ -571,8 +613,8 @@ public class PInstrumentor extends BodyTransformer {
 			}
 			
 			weight_loops.put(loop.getHead(), counts);
-//			System.out.println(getSourceLineNumber(loop.getHead()) + "\t" + loop.getHead() + "\t" + counts);
-//			System.out.println(getSourceLineNumber(loop.getBackJumpStmt()) + "\t" + loop.getBackJumpStmt() + "\t");
+			System.out.println(getSourceLineNumber(loop.getHead()) + "\t" + loop.getHead() + "\t" + counts);
+			System.out.println(getSourceLineNumber(loop.getBackJumpStmt()) + "\t" + loop.getBackJumpStmt() + "\t");
 		}
 		
 		return weight_function;

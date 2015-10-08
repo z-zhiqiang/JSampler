@@ -3,29 +3,29 @@ public class test {
 //	private int field;
 
 	public static void main(String[] args) {
-		while(true){
-			int i = 0;
-			i++;
-		}
-////		int i = Integer.parseInt(args[0]);
-//		int i = 0;
-//		double j = 10.9;
+//		while(true){
+//			int i = 0;
+//			i++;
+//		}
+//		int i = Integer.parseInt(args[0]);
+		int i = 0;
+		double j = 10.9;
 //		double two = -2;
-//		
-//		while (j > i ){
-//			j = i - 1;
-////			if(i % 2 == 0){
+		
+		while (j > i ){
+			j = i - 1;
+//			if(i % 2 == 0){
 //				double z1 =0.77;
-////				if(z1 < 0){
-////					two++;
-////				}
-////				else{
-////					two--;
-////				}
+//				if(z1 < 0){
+//					two++;
+//				}
+//				else{
+//					two--;
+//				}
 //				i=1;
 //				j = i + two;
-////			}
-//		}
+//			}
+		}
 //
 ////		test t = new test();
 ////		t.field = i + 4;
@@ -55,10 +55,20 @@ public class test {
 	}
 	
 	private static void a(){
+		int count = 1;
+        do {
+            System.out.println("Count is: " + count);
+            count++;
+        } while (count < 11);
+        
 		while(true){
 			int i = 0;
-			int j = 3;
-			i = i + j;
+//			int j = 3;
+			i ++;
+			
+			while(true){
+				System.out.println();
+			}
 		}
 	}
 
