@@ -1,0 +1,84 @@
+public class test extends java.lang.Object
+{
+
+    public void <init>()
+    {
+        test this;
+
+        this := @this: test;
+        specialinvoke this.<java.lang.Object: void <init>()>();
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] args;
+        byte i, $b1;
+        double j, $d0;
+        java.lang.String st, st1;
+        int $i0;
+        java.io.PrintStream $r0;
+
+        args := @parameter0: java.lang.String[];
+        i = 0;
+        j = 10.9;
+        goto label1;
+
+     label0:
+        $i0 = i - 1;
+        j = (double) $i0;
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(double,double,int)>(j, $d0, 0);
+
+     label1:
+        $d0 = (double) i;
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(double,double,int)>($d0, j, 1);
+        $b1 = j cmpl $d0;
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($b1, i, 2);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(int,int,java.lang.String,int)>($b1, 0, ">", 0);
+        if $b1 > 0 goto label0;
+
+        st = "";
+        st1 = "";
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(java.lang.Object,java.lang.Object,java.lang.String,int)>(st, st1, "!=", 1);
+        if st != st1 goto label2;
+
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r0.<java.io.PrintStream: void println()>();
+
+     label2:
+        staticinvoke <java.lang.Integer: java.lang.Integer valueOf(int)>(i);
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String)>("F904C6DAA3703FCF09A1430DA97CF82A");
+        return;
+    }
+
+    private static void a()
+    {
+        int count, i;
+        java.lang.StringBuilder $r0;
+        byte i;
+        java.io.PrintStream $r1;
+        java.lang.String $r2;
+
+        count = 1;
+
+     label0:
+        $r1 = <java.lang.System: java.io.PrintStream out>;
+        $r0 = new java.lang.StringBuilder;
+        specialinvoke $r0.<java.lang.StringBuilder: void <init>(java.lang.String)>("Count is: ");
+        $r0 = virtualinvoke $r0.<java.lang.StringBuilder: java.lang.StringBuilder append(int)>(count);
+        $r2 = virtualinvoke $r0.<java.lang.StringBuilder: java.lang.String toString()>();
+        virtualinvoke $r1.<java.io.PrintStream: void println(java.lang.String)>($r2);
+        count = count + 1;
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(count, 11, "<", 2);
+        if count < 11 goto label0;
+
+        i = 0;
+        i = i + 1;
+        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, count, 3);
+
+     label1:
+        $r1 = <java.lang.System: java.io.PrintStream out>;
+        virtualinvoke $r1.<java.io.PrintStream: void println()>();
+        goto label1;
+    }
+}

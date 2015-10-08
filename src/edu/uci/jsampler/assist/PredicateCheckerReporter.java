@@ -140,6 +140,34 @@ public class PredicateCheckerReporter {
 	}
 
 	
+	public static synchronized void checkBranches(Object left, Object right, String symbol, int index){
+		if (!branch_reports.containsKey(index)) {
+			branch_reports.put(index, new byte[2]);
+		}
+		// counts = {false, true}
+		byte[] counts = branch_reports.get(index);
+		
+		if(symbol.equals("==")){
+			if(left == right){
+				increaseCount(counts, 1);
+			}
+			else{
+				increaseCount(counts, 0);
+			}
+		}
+		else if(symbol.equals("!=")){
+			if(left != right){
+				increaseCount(counts, 1);
+			}
+			else{
+				increaseCount(counts, 0);
+			}
+		}
+		else{
+			System.err.println("wrong operator!");
+		}
+	}
+	
 	/** 
 	 * checking code for branches
 	 * 

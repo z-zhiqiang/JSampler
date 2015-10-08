@@ -52,6 +52,14 @@ public class test {
 //		
 //		long ll = 5;
 //		long ll2 = (long) j;
+		
+		String st = "";
+		String st1 = "";
+		if(st == st1){
+			System.out.println();
+		}
+		
+		Object object = i;
 	}
 	
 	private static void a(){

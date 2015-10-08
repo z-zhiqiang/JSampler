@@ -61,7 +61,7 @@ public class PInstrumentor extends BodyTransformer {
 	static SootMethod getCountdown, setCountdown, getNextCountdown;
 	static SootMethod toSample;
 	static SootMethod checkReturns_int, checkReturns_long, checkReturns_float, checkReturns_double, 
-			checkBranches,
+			checkBranches_int, checkBranches_object,
 			checkScalarPairs_int, checkScalarPairs_long, checkScalarPairs_float, checkScalarPairs_double, 
 			checkMethodEntries;
 	static SootMethod report;
@@ -75,7 +75,8 @@ public class PInstrumentor extends BodyTransformer {
 		checkReturns_float = checkerReporterClass.getMethod("void checkReturns(float,int)");
 		checkReturns_double = checkerReporterClass.getMethod("void checkReturns(double,int)");
 
-		checkBranches = checkerReporterClass.getMethod("void checkBranches(int,int,java.lang.String,int)");
+		checkBranches_int = checkerReporterClass.getMethod("void checkBranches(int,int,java.lang.String,int)");
+		checkBranches_object = checkerReporterClass.getMethod("void checkBranches(java.lang.Object,java.lang.Object,java.lang.String,int)");
 		
 		checkScalarPairs_int = checkerReporterClass.getMethod("void checkScalarPairs(int,int,int)");
 		checkScalarPairs_long = checkerReporterClass.getMethod("void checkScalarPairs(long,long,int)");
@@ -439,6 +440,7 @@ public class PInstrumentor extends BodyTransformer {
 			}
 		}
 		
+		//change the targets accordingly
 		for(Unit oldStmt: unitsMap.keySet()){
 			if(oldStmt instanceof IfStmt){
 				IfStmt newIfStmt = (IfStmt) unitsMap.get(oldStmt);
@@ -452,7 +454,6 @@ public class PInstrumentor extends BodyTransformer {
 				LookupSwitchStmt newSwitchStmt = (LookupSwitchStmt) unitsMap.get(oldStmt);
 				
 				newSwitchStmt.setDefaultTarget(unitsMap.get(((LookupSwitchStmt) oldStmt).getDefaultTarget()));
-				
 				List<Unit> targets = newSwitchStmt.getTargets();
 				for(int index = 0; index < targets.size(); index++){
 					newSwitchStmt.setTarget(index, unitsMap.get(((LookupSwitchStmt) oldStmt).getTarget(index)));
@@ -462,7 +463,6 @@ public class PInstrumentor extends BodyTransformer {
 				TableSwitchStmt newSwitchStmt = (TableSwitchStmt) unitsMap.get(oldStmt);
 				
 				newSwitchStmt.setDefaultTarget(unitsMap.get(((TableSwitchStmt) oldStmt).getDefaultTarget()));
-				
 				List<Unit> targets = newSwitchStmt.getTargets();
 				for(int index = 0; index < targets.size(); index++){
 					newSwitchStmt.setTarget(index, unitsMap.get(((TableSwitchStmt) oldStmt).getTarget(index)));
@@ -502,37 +502,6 @@ public class PInstrumentor extends BodyTransformer {
 			
 			units.insertAfter(nopSlow, gotoStmt);
 	}
-	
-	
-//	private Local importCountdownAndinsertSampleCheckingCodeAtFunctionentry(Body body, Chain<Unit> units, int weight_function) {
-//		Local countdown = Jimple.v().newLocal("_localCountdown", IntType.v());
-//		body.getLocals().add(countdown);
-//		
-//		InvokeExpr getCountdownExpr = Jimple.v().newStaticInvokeExpr(getCountdown.makeRef());
-//		AssignStmt getCountdownStmt = Jimple.v().newAssignStmt(countdown, getCountdownExpr);
-////		Stmt point = getLastIdentityStmt(units);
-////		if(point == null){
-////			assert(units.getFirst() == getFirstNonIdentityStmt(units));
-////			units.addFirst(getCountdownStmt);
-////		}
-////		else{
-////			units.insertAfter(getCountdownStmt, point);
-////		}
-//		insertEquivalentBefore(units, getCountdownStmt, getFirstNonIdentityStmt(units));
-//		
-//		
-//		//decrease countdown at fast path
-//		BinopExpr binoExpr = Jimple.v().newSubExpr(countdown, IntConstant.v(weight_function));
-//		AssignStmt decreaseStmt = Jimple.v().newAssignStmt(countdown, binoExpr);
-//		units.insertAfter(decreaseStmt, units.getLast());
-//
-//		//add sample checking code at the very beginning
-//		ConditionExpr condition = Jimple.v().newGtExpr(countdown, IntConstant.v(weight_function));
-//		IfStmt ifStmt_functionentry = Jimple.v().newIfStmt(condition, decreaseStmt);
-//		units.insertAfter(ifStmt_functionentry, getCountdownStmt);
-//		
-//		return countdown;
-//	}
 	
 
 	/**
@@ -613,8 +582,8 @@ public class PInstrumentor extends BodyTransformer {
 			}
 			
 			weight_loops.put(loop.getHead(), counts);
-			System.out.println(getSourceLineNumber(loop.getHead()) + "\t" + loop.getHead() + "\t" + counts);
-			System.out.println(getSourceLineNumber(loop.getBackJumpStmt()) + "\t" + loop.getBackJumpStmt() + "\t");
+//			System.out.println(getSourceLineNumber(loop.getHead()) + "\t" + loop.getHead() + "\t" + counts);
+//			System.out.println(getSourceLineNumber(loop.getBackJumpStmt()) + "\t" + loop.getBackJumpStmt() + "\t");
 		}
 		
 		return weight_function;
@@ -779,7 +748,14 @@ public class PInstrumentor extends BodyTransformer {
 		Value leftop = ((ConditionExpr) conditional).getOp1();
 		Value rightop = ((ConditionExpr) conditional).getOp2();
 		String symbol = ((ConditionExpr) conditional).getSymbol();
-		InvokeExpr checkBranch = Jimple.v().newStaticInvokeExpr(checkBranches.makeRef(), leftop, rightop, StringConstant.v(symbol.trim()), IntConstant.v(branch_staticInfo.size() - 1));
+		
+		InvokeExpr checkBranch = null;
+		if(leftop.getType() instanceof PrimType){
+			checkBranch = Jimple.v().newStaticInvokeExpr(checkBranches_int.makeRef(), leftop, rightop, StringConstant.v(symbol.trim()), IntConstant.v(branch_staticInfo.size() - 1));
+		}
+		else{
+			checkBranch = Jimple.v().newStaticInvokeExpr(checkBranches_object.makeRef(), leftop, rightop, StringConstant.v(symbol.trim()), IntConstant.v(branch_staticInfo.size() - 1));
+		}
 		Stmt checkBranchStmt = Jimple.v().newInvokeStmt(checkBranch);
 		units.insertBefore(checkBranchStmt, stmt);
 		
@@ -811,7 +787,6 @@ public class PInstrumentor extends BodyTransformer {
 		// insert checking code
 		InvokeExpr checkMethodEntry = Jimple.v().newStaticInvokeExpr(checkMethodEntries.makeRef(), IntConstant.v(methodEntry_staticInfo.size() - 1));
 		Stmt checkMethodEntryStmt = Jimple.v().newInvokeStmt(checkMethodEntry);
-//		units.insertBefore(checkMethodEntryStmt, stmt);
 		insertEquivalentBefore(units, checkMethodEntryStmt, (Stmt) stmt);
 		
 		//insert checking code for sampling
