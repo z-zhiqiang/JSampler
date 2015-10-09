@@ -27,19 +27,14 @@ public class test extends java.lang.Object
      label0:
         $i0 = i - 1;
         j = (double) $i0;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(double,double,int)>(j, $d0, 0);
 
      label1:
         $d0 = (double) i;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(double,double,int)>($d0, j, 1);
         $b1 = j cmpl $d0;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>($b1, i, 2);
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(int,int,java.lang.String,int)>($b1, 0, ">", 0);
         if $b1 > 0 goto label0;
 
         st = "";
         st1 = "";
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(java.lang.Object,java.lang.Object,java.lang.String,int)>(st, st1, "!=", 1);
         if st != st1 goto label2;
 
         $r0 = <java.lang.System: java.io.PrintStream out>;
@@ -47,7 +42,6 @@ public class test extends java.lang.Object
 
      label2:
         staticinvoke <java.lang.Integer: java.lang.Integer valueOf(int)>(i);
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void exportReports(java.lang.String)>("F904C6DAA3703FCF09A1430DA97CF82A");
         return;
     }
 
@@ -69,12 +63,10 @@ public class test extends java.lang.Object
         $r2 = virtualinvoke $r0.<java.lang.StringBuilder: java.lang.String toString()>();
         virtualinvoke $r1.<java.io.PrintStream: void println(java.lang.String)>($r2);
         count = count + 1;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkBranches(int,int,java.lang.String,int)>(count, 11, "<", 2);
         if count < 11 goto label0;
 
         i = 0;
         i = i + 1;
-        staticinvoke <edu.uci.jsampler.assist.PredicateCheckerReporter: void checkScalarPairs(int,int,int)>(i, count, 3);
 
      label1:
         $r1 = <java.lang.System: java.io.PrintStream out>;
