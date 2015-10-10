@@ -1,7 +1,10 @@
 package edu.uci.jsampler.client;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,17 +38,30 @@ public class JSampler {
 	private static String output_file_sites;
 
 	
+	// counts
+	public static int counts_branch;
+	
+	public static int counts_return;
+	
+	public static int counts_scalarPair;
+	
+	public static int counts_methodEntry;
+	
+	static{
+		importCounts();
+	}
+	
 	public static void main(String[] args) {
 		//parse arguments
 		List<String> soot_parameters = new ArrayList<String>();
 		parseParameters(args, soot_parameters);
 
 		PInstrumentor instrumentor = new PInstrumentor(branches_flag, returns_flag, scalarpairs_flag, methodentries_flag,
-				sample_flag, methods_instrument);
+				sample_flag, methods_instrument, counts_branch, counts_return, counts_scalarPair, counts_methodEntry);
 		PackManager.v().getPack("jtp").add(new Transform("jtp.instrumenter", instrumentor));
 
 		Options.v().setPhaseOption("jb", "use-original-names:true");
-		Options.v().set_output_format(Options.output_format_jimple);
+//		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_keep_line_number(true);
 		Options.v().set_prepend_classpath(true);
 
@@ -122,24 +138,28 @@ public class JSampler {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
 			/* branches */
-			if(branches_flag){
+//			if(branches_flag){
 				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.branch_staticInfo, unit_signature, "branches");
-			}
+				assert(PInstrumentor.branch_staticInfo.size() == counts_branch);
+//			}
 
 			/* returns */
-			if(returns_flag){
+//			if(returns_flag){
 				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.return_staticInfo, unit_signature, "returns");
-			}
+				assert(PInstrumentor.return_staticInfo.size() == counts_return);
+//			}
 
 			/* scalar-pairs */
-			if(scalarpairs_flag){
+//			if(scalarpairs_flag){
 				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.scalarPair_staticInfo, unit_signature, "scalar-pairs");
-			}
+				assert(PInstrumentor.scalarPair_staticInfo.size() == counts_scalarPair);
+//			}
 			
 			/* method-entries */
-			if(methodentries_flag){
+//			if(methodentries_flag){
 				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.methodEntry_staticInfo, unit_signature, "method-entries");
-			}
+				assert(PInstrumentor.methodEntry_staticInfo.size() == counts_methodEntry);
+//			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -193,5 +213,57 @@ public class JSampler {
 			out.close();
 		}
 	}
+	
+	
+	private static void importCounts(){
+		BufferedReader reader = null;
+		
+		try {
+			reader = new BufferedReader(new FileReader(new File(JCounter.counts_output)));
+			String line;
+			while((line = reader.readLine()) != null){
+				String[] entry = line.split("=");
+				assert(entry.length == 2);
+				String scheme = entry[0].trim();
+				int count = Integer.parseInt(entry[1].trim());
+				if(scheme.equals("Branches")){
+					counts_branch = count;
+				}
+				else if(scheme.equals("Returns")){
+					counts_return = count;
+				}
+				else if(scheme.equals("ScalarPairs")){
+					counts_scalarPair = count;
+				}
+				else if(scheme.equals("MethodEntries")){
+					counts_methodEntry = count;
+				}
+				else{
+					System.err.println("Wrong entry for counts!");
+				}
+			}
+			
+			reader.close();
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			if(reader != null){
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	
 
 }

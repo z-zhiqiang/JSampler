@@ -85,7 +85,7 @@ public class PInstrumentor extends BodyTransformer {
 		
 		checkMethodEntries = checkerReporterClass.getMethod("void checkMethodEntries(int)");
 
-		report = checkerReporterClass.getMethod("void exportReports(java.lang.String)");
+		report = checkerReporterClass.getMethod("void exportReports(java.lang.String,int,int,int,int)");
 		
 		
 		//globalCountdownClass
@@ -124,6 +124,15 @@ public class PInstrumentor extends BodyTransformer {
 	public static final String unit_signature = generateUnitSignature();// compilation unit signature: a 128-bit as 32 hexadecimal digits
 	
 
+	// counts
+	private final int counts_branch;
+	
+	private final int counts_return;
+	
+	private final int counts_scalarPair;
+	
+	private final int counts_methodEntry;	
+		
 	/**
 	 * constructor mainly for sampler options parsing
 	 * 
@@ -134,11 +143,16 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param sample_flag
 	 * @param opportunities
 	 * @param methods_instrument
+	 * @param counts_methodEntry 
+	 * @param counts_scalarPair 
+	 * @param counts_return 
+	 * @param counts_branch 
 	 * @param output_file_sites
 	 * @param output_file_reports
 	 */
 	public PInstrumentor(boolean branches_flag, boolean returns_flag, boolean scalarpairs_flag,
-			boolean methodentries_flag, boolean sample_flag, Set<String> methods_instrument) {
+			boolean methodentries_flag, boolean sample_flag, Set<String> methods_instrument, 
+			int counts_branch, int counts_return, int counts_scalarPair, int counts_methodEntry) {
 		// TODO Auto-generated constructor stub
 		this.branches_flag = branches_flag;
 		this.returns_flag = returns_flag;
@@ -146,6 +160,11 @@ public class PInstrumentor extends BodyTransformer {
 		this.methodentries_flag = methodentries_flag;
 		this.sample_flag = sample_flag;
 		this.methods_instrument = methods_instrument;
+		
+		this.counts_branch = counts_branch;
+		this.counts_return = counts_return;
+		this.counts_scalarPair = counts_scalarPair;
+		this.counts_methodEntry = counts_methodEntry;
 	}
 
 	/** generate a unique compilation unit signature: a 128-bit as 32 hexadecimal digits
@@ -636,7 +655,8 @@ public class PInstrumentor extends BodyTransformer {
 	 * @param output_file 
 	 */
 	private void insertReportingCode(Chain<Unit> units, Stmt stmt) {
-		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(unit_signature));
+		InvokeExpr reportExpr = Jimple.v().newStaticInvokeExpr(report.makeRef(), StringConstant.v(unit_signature), 
+				IntConstant.v(this.counts_branch), IntConstant.v(this.counts_return), IntConstant.v(this.counts_scalarPair), IntConstant.v(this.counts_methodEntry));
 		Stmt reportStmt = Jimple.v().newInvokeStmt(reportExpr);
 		units.insertBefore(reportStmt, stmt);
 	}

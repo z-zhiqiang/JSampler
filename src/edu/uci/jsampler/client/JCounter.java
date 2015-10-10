@@ -28,7 +28,6 @@ public class JCounter {
 
 	private static boolean methodentries_flag;
 
-
 	// methods instrumented
 	private static Set<String> methods_instrument;
 

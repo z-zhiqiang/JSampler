@@ -25,7 +25,7 @@ public class PredicateCheckerReporter {
 	private final static String output_file_reports = getReportFilename();
 	
 
-	public static synchronized void exportReports(String unit_signature) {
+	public static synchronized void exportReports(String unit_signature, int counts_branch, int counts_return, int counts_scalarPair, int counts_methodEntry) {
 		File file = new File(output_file_reports);
 		PrintWriter out = null;
 
@@ -36,13 +36,13 @@ public class PredicateCheckerReporter {
 			
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
-			printDynamicReportsInfoForEachScheme(branch_reports, "branches", unit_signature, out);
+			printDynamicReportsInfoForEachScheme(branch_reports, "branches", unit_signature, out, counts_branch);
 
-			printDynamicReportsInfoForEachScheme(return_reports, "returns", unit_signature, out);
+			printDynamicReportsInfoForEachScheme(return_reports, "returns", unit_signature, out, counts_return);
 
-			printDynamicReportsInfoForEachScheme(scalarPair_reports, "scalar-pairs", unit_signature, out);
+			printDynamicReportsInfoForEachScheme(scalarPair_reports, "scalar-pairs", unit_signature, out, counts_scalarPair);
 
-			printDynamicReportsInfoForEachScheme(methodEntry_reports, "method-entries", unit_signature, out);
+			printDynamicReportsInfoForEachScheme(methodEntry_reports, "method-entries", unit_signature, out, counts_methodEntry);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -53,13 +53,70 @@ public class PredicateCheckerReporter {
 	}
 
 	private static void printDynamicReportsInfoForEachScheme(Map<Integer, byte[]> reports, String scheme,
-			String unit_signature, PrintWriter out) {
+			String unit_signature, PrintWriter out, int count) {
+		// TODO Auto-generated method stub
 		out.printf("<samples unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
-		for(Entry<Integer, byte[]> entry: reports.entrySet()){
-			out.println(toString(entry));
+		int current = 0;
+		int next;
+		for(int index: reports.keySet()){
+			next = index;
+			while(current++ < next){
+				out.println(emptyArrays(scheme));
+			}
+			out.println(toString(reports.get(next)));
 		}
+		
+		while(current < count){
+			out.println(emptyArrays(scheme));
+			current++;
+		}
+		
 		out.println("</samples>");
 	}
+
+	private static String toString(byte[] bytes) {
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < bytes.length; i++){
+			builder.append(bytes[i]).append("\t");
+		}
+		return builder.toString();
+	}
+
+	private static String emptyArrays(String scheme) {
+		// TODO Auto-generated method stub
+		StringBuilder builder = new StringBuilder();
+		int length = -1;
+		if(scheme.equals("branches")){
+			length = 2;
+		}
+		else if(scheme.equals("returns")){
+			length = 3;
+		}
+		else if(scheme.equals("scalar-pairs")){
+			length = 3;
+		}
+		else if(scheme.equals("method-entries")){
+			length = 1;
+		}
+		else{
+			System.err.println("Wrong scheme!");
+		}
+		
+		for(int i = 0; i < length; i++){
+			builder.append(0).append("\t");
+		}
+		
+		return builder.toString();
+	}
+
+//	private static void printDynamicReportsInfoForEachScheme(Map<Integer, byte[]> reports, String scheme,
+//			String unit_signature, PrintWriter out, int count) {
+//		out.printf("<samples unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
+//		for(Entry<Integer, byte[]> entry: reports.entrySet()){
+//			out.println(toString(entry));
+//		}
+//		out.println("</samples>");
+//	}
 
 
 	private static String toString(Entry<Integer, byte[]> entry) {
@@ -299,6 +356,7 @@ public class PredicateCheckerReporter {
 		if(output_report == null){
 			output_report = "./output.reports";
 		}
+		System.out.println("file: " + output_report);
 		return output_report;
 	}
 
