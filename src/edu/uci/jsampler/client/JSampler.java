@@ -68,7 +68,6 @@ public class JSampler {
 		soot.Main.main(soot_parameters.toArray(new String[soot_parameters.size()]));
 
 		// export static instrumentation information into files
-		System.out.println(PInstrumentor.counts_scalarPair_inst);
 		writeOutStaticSitesInfo(output_file_sites);
 	}
 

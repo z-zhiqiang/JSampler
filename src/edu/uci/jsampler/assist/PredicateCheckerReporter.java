@@ -119,17 +119,16 @@ public class PredicateCheckerReporter {
 //		}
 //		out.println("</samples>");
 //	}
-
-
-	private static String toString(Entry<Integer, byte[]> entry) {
-		StringBuilder builder = new StringBuilder();
-		builder.append(entry.getKey()).append("\t");
-		byte[] bytes = entry.getValue();
-		for(int i = 0; i < bytes.length; i++){
-			builder.append(bytes[i]).append("\t");
-		}
-		return builder.toString();
-	}
+//
+//	private static String toString(Entry<Integer, byte[]> entry) {
+//		StringBuilder builder = new StringBuilder();
+//		builder.append(entry.getKey()).append("\t");
+//		byte[] bytes = entry.getValue();
+//		for(int i = 0; i < bytes.length; i++){
+//			builder.append(bytes[i]).append("\t");
+//		}
+//		return builder.toString();
+//	}
 
 	/**
 	 * checking code for returns

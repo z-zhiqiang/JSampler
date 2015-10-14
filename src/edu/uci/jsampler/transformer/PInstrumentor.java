@@ -788,6 +788,12 @@ public class PInstrumentor extends BodyTransformer {
 		insertSampleCheckingCode(units, checkBranchStmt, countdown);
 	}
 
+	/**
+	 * get the source line number
+	 * 
+	 * @param stmt
+	 * @return
+	 */
 	private int getSourceLineNumber(Stmt stmt) {
 		// TODO Auto-generated method stub
 		return ((LineNumberTag) stmt.getTag("LineNumberTag")).getLineNumber();
