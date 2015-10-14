@@ -68,6 +68,7 @@ public class JSampler {
 		soot.Main.main(soot_parameters.toArray(new String[soot_parameters.size()]));
 
 		// export static instrumentation information into files
+		System.out.println(PInstrumentor.counts_scalarPair_inst);
 		writeOutStaticSitesInfo(output_file_sites);
 	}
 
@@ -138,28 +139,20 @@ public class JSampler {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
 			/* branches */
-//			if(branches_flag){
-				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.branch_staticInfo, unit_signature, "branches");
-				assert(PInstrumentor.branch_staticInfo.size() == counts_branch);
-//			}
+			printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.branch_staticInfo, unit_signature, "branches");
+			assert(PInstrumentor.branch_staticInfo.size() == counts_branch);
 
 			/* returns */
-//			if(returns_flag){
-				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.return_staticInfo, unit_signature, "returns");
-				assert(PInstrumentor.return_staticInfo.size() == counts_return);
-//			}
+			printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.return_staticInfo, unit_signature, "returns");
+			assert(PInstrumentor.return_staticInfo.size() == counts_return);
 
 			/* scalar-pairs */
-//			if(scalarpairs_flag){
-				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.scalarPair_staticInfo, unit_signature, "scalar-pairs");
-				assert(PInstrumentor.scalarPair_staticInfo.size() == counts_scalarPair);
-//			}
-			
+			printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.scalarPair_staticInfo, unit_signature, "scalar-pairs");
+			assert(PInstrumentor.scalarPair_staticInfo.size() == counts_scalarPair);
+
 			/* method-entries */
-//			if(methodentries_flag){
-				printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.methodEntry_staticInfo, unit_signature, "method-entries");
-				assert(PInstrumentor.methodEntry_staticInfo.size() == counts_methodEntry);
-//			}
+			printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.methodEntry_staticInfo, unit_signature, "method-entries");
+			assert(PInstrumentor.methodEntry_staticInfo.size() == counts_methodEntry);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -169,15 +162,17 @@ public class JSampler {
 	}
 
 	private static void printStaticInstrumentationInfoForEachScheme(PrintWriter out, List sitesInfo, String unit_signature, String scheme){
-		// tag headers
-		out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
-		// content
-		for (int i = 0; i < sitesInfo.size(); i++) {
-			AbstractSite site = (AbstractSite) sitesInfo.get(i);
-			out.println(site.printToString());
+		if(sitesInfo.size() > 0){
+			// tag headers
+			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
+			// content
+			for (int i = 0; i < sitesInfo.size(); i++) {
+				AbstractSite site = (AbstractSite) sitesInfo.get(i);
+				out.println(site.printToString());
+			}
+			// tag close
+			out.println("</sites>");
 		}
-		// tag close
-		out.println("</sites>");
 	}
 	
 	

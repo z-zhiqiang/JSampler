@@ -55,23 +55,25 @@ public class PredicateCheckerReporter {
 	private static void printDynamicReportsInfoForEachScheme(Map<Integer, byte[]> reports, String scheme,
 			String unit_signature, PrintWriter out, int count) {
 		// TODO Auto-generated method stub
-		out.printf("<samples unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
-		int current = 0;
-		int next;
-		for(int index: reports.keySet()){
-			next = index;
-			while(current++ < next){
-				out.println(emptyArrays(scheme));
+		if(count > 0){
+			out.printf("<samples unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
+			int current = 0;
+			int next;
+			for(int index: reports.keySet()){
+				next = index;
+				while(current++ < next){
+					out.println(emptyArrays(scheme));
+				}
+				out.println(toString(reports.get(next)));
 			}
-			out.println(toString(reports.get(next)));
+			
+			while(current < count){
+				out.println(emptyArrays(scheme));
+				current++;
+			}
+			
+			out.println("</samples>");
 		}
-		
-		while(current < count){
-			out.println(emptyArrays(scheme));
-			current++;
-		}
-		
-		out.println("</samples>");
 	}
 
 	private static String toString(byte[] bytes) {
@@ -356,7 +358,7 @@ public class PredicateCheckerReporter {
 		if(output_report == null){
 			output_report = "./output.reports";
 		}
-		System.out.println("file: " + output_report);
+//		System.out.println("file: " + output_report);
 		return output_report;
 	}
 

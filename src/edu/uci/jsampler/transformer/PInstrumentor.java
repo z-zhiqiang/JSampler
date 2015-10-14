@@ -132,6 +132,9 @@ public class PInstrumentor extends BodyTransformer {
 	private final int counts_scalarPair;
 	
 	private final int counts_methodEntry;	
+	
+	
+	public static int counts_scalarPair_inst;
 		
 	/**
 	 * constructor mainly for sampler options parsing
@@ -274,7 +277,7 @@ public class PInstrumentor extends BodyTransformer {
 						instrumentReturns(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def, countdown);
 					}
 					// for scalar-pairs
-					else if(this.scalarpairs_flag){
+					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
 						instrumentScalarPairs(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def, analysis, countdown);
 					}
 					
@@ -712,6 +715,8 @@ public class PInstrumentor extends BodyTransformer {
 		while(it.hasNext()){
 			Local local = (Local) it.next();
 			if (local.getType() == def.getType() && local != def) {
+				counts_scalarPair_inst++;
+				
 				// create static instrumentation site for scalar-pairs
 				ScalarPairSite site = new ScalarPairSite(file_name, line_number, method_name, cfg_number, left, scope_type_assign, container_type, right, local.toString());
 				scalarPair_staticInfo.add(site);

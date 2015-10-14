@@ -13,6 +13,7 @@ import soot.Value;
 import soot.jimple.AssignStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.IfStmt;
+import soot.jimple.Jimple;
 import soot.jimple.Stmt;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.scalar.FlowSet;
@@ -88,7 +89,27 @@ public class PCounter extends BodyTransformer {
 						counts_return++;
 					}
 					// for scalar-pairs
-					else if(this.scalarpairs_flag){
+					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
+//						Iterator it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+//						
+//						if (!(def instanceof soot.Local)) {
+//							// insert checking code
+//							Local tmp = Jimple.v().newLocal("tmp", def.getType());
+//							body.getLocals().add(tmp);
+////							Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, def);
+////							units.insertAfter(inserted_assign, stmt);
+//
+//							def = tmp;
+////							stmt = inserted_assign;
+//						}
+//
+//						while(it.hasNext()){
+//							Local local = (Local) it.next();
+//							if (local.getType() == def.getType() && local != def) {
+//								counts_scalarPair++;
+//							}
+//							
+//						}
 						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 						while(it.hasNext()){
 							Local local = (Local) it.next();

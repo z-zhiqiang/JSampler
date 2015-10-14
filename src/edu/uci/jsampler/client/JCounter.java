@@ -41,7 +41,7 @@ public class JCounter {
 		PackManager.v().getPack("jtp").add(new Transform("jtp.counter", counter));
 
 		Options.v().setPhaseOption("jb", "use-original-names:true");
-		Options.v().set_output_format(Options.output_format_jimple);
+//		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_keep_line_number(true);
 		Options.v().set_prepend_classpath(true);
 
