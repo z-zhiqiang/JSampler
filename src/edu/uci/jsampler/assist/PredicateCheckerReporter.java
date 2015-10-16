@@ -25,6 +25,15 @@ public class PredicateCheckerReporter {
 	private final static String output_file_reports = getReportFilename();
 	
 
+	/**
+	 * export dynamic reports (i.e., traces)
+	 * 
+	 * @param unit_signature
+	 * @param counts_branch
+	 * @param counts_return
+	 * @param counts_scalarPair
+	 * @param counts_methodEntry
+	 */
 	public static synchronized void exportReports(String unit_signature, int counts_branch, int counts_return, int counts_scalarPair, int counts_methodEntry) {
 		File file = new File(output_file_reports);
 		PrintWriter out = null;
@@ -35,14 +44,18 @@ public class PredicateCheckerReporter {
 			}
 			
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+			
+			out.println("<report id=\"samples\">");
 
-			printDynamicReportsInfoForEachScheme(branch_reports, "branches", unit_signature, out, counts_branch);
+			printReportsForEachScheme(branch_reports, "branches", unit_signature, out, counts_branch);
 
-			printDynamicReportsInfoForEachScheme(return_reports, "returns", unit_signature, out, counts_return);
+			printReportsForEachScheme(return_reports, "returns", unit_signature, out, counts_return);
 
-			printDynamicReportsInfoForEachScheme(scalarPair_reports, "scalar-pairs", unit_signature, out, counts_scalarPair);
+			printReportsForEachScheme(scalarPair_reports, "scalar-pairs", unit_signature, out, counts_scalarPair);
 
-			printDynamicReportsInfoForEachScheme(methodEntry_reports, "method-entries", unit_signature, out, counts_methodEntry);
+			printReportsForEachScheme(methodEntry_reports, "method-entries", unit_signature, out, counts_methodEntry);
+			
+			out.println("</report>");
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -52,7 +65,16 @@ public class PredicateCheckerReporter {
 		}
 	}
 
-	private static void printDynamicReportsInfoForEachScheme(Map<Integer, byte[]> reports, String scheme,
+	/**
+	 * print out dynamic reports for each instrumentation scheme
+	 * 
+	 * @param reports
+	 * @param scheme
+	 * @param unit_signature
+	 * @param out
+	 * @param count
+	 */
+	private static void printReportsForEachScheme(Map<Integer, byte[]> reports, String scheme,
 			String unit_signature, PrintWriter out, int count) {
 		// TODO Auto-generated method stub
 		if(count > 0){
@@ -84,6 +106,10 @@ public class PredicateCheckerReporter {
 		return builder.toString();
 	}
 
+	/** all-zero values
+	 * @param scheme
+	 * @return
+	 */
 	private static String emptyArrays(String scheme) {
 		// TODO Auto-generated method stub
 		StringBuilder builder = new StringBuilder();
