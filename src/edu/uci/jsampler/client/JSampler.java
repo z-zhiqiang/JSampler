@@ -37,7 +37,6 @@ public class JSampler {
 
 	private static String output_file_sites;
 
-	
 	// counts
 	public static int counts_branch;
 	
@@ -138,19 +137,19 @@ public class JSampler {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
 			/* branches */
-			printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.branch_staticInfo, unit_signature, "branches");
+			printStaticInstInfoForEachScheme(out, PInstrumentor.branch_staticInfo, unit_signature, "branches");
 			assert(PInstrumentor.branch_staticInfo.size() == counts_branch);
 
 			/* returns */
-			printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.return_staticInfo, unit_signature, "returns");
+			printStaticInstInfoForEachScheme(out, PInstrumentor.return_staticInfo, unit_signature, "returns");
 			assert(PInstrumentor.return_staticInfo.size() == counts_return);
 
 			/* scalar-pairs */
-			printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.scalarPair_staticInfo, unit_signature, "scalar-pairs");
+			printStaticInstInfoForEachScheme(out, PInstrumentor.scalarPair_staticInfo, unit_signature, "scalar-pairs");
 			assert(PInstrumentor.scalarPair_staticInfo.size() == counts_scalarPair);
 
 			/* method-entries */
-			printStaticInstrumentationInfoForEachScheme(out, PInstrumentor.methodEntry_staticInfo, unit_signature, "method-entries");
+			printStaticInstInfoForEachScheme(out, PInstrumentor.methodEntry_staticInfo, unit_signature, "method-entries");
 			assert(PInstrumentor.methodEntry_staticInfo.size() == counts_methodEntry);
 
 		} catch (IOException e) {
@@ -160,7 +159,15 @@ public class JSampler {
 		}
 	}
 
-	private static void printStaticInstrumentationInfoForEachScheme(PrintWriter out, List sitesInfo, String unit_signature, String scheme){
+	/**
+	 * print out static instrumentation information for each instrumentation scheme
+	 * 
+	 * @param out
+	 * @param sitesInfo
+	 * @param unit_signature
+	 * @param scheme
+	 */
+	private static void printStaticInstInfoForEachScheme(PrintWriter out, List sitesInfo, String unit_signature, String scheme){
 		if(sitesInfo.size() > 0){
 			// tag headers
 			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature, scheme);
@@ -175,38 +182,38 @@ public class JSampler {
 	}
 	
 	
-	/**
-	 * print out the static instrumentation information in sitesInfo to a file
-	 * 
-	 * @param sitesInfo
-	 * @param unit_signature
-	 * @param file
-	 */
-	private static void writeOutStaticInstrumentationInfoForEachScheme(List sitesInfo, String unit_signature, File file) {
-		PrintWriter out = null;
-		try {
-			if (!file.getParentFile().exists()) {
-				file.getParentFile().mkdirs();
-			}
-			// write the passing inputs
-			out = new PrintWriter(new BufferedWriter(new FileWriter(file, true)));
-
-			// tag headers
-			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature,
-					((AbstractSite) sitesInfo.get(0)).getSchemeName());
-			// content
-			for (int i = 0; i < sitesInfo.size(); i++) {
-				AbstractSite site = (AbstractSite) sitesInfo.get(i);
-				out.println(site.printToString());
-			}
-			// tag close
-			out.println("</sites>");
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			out.close();
-		}
-	}
+//	/**
+//	 * print out the static instrumentation information in sitesInfo to a file
+//	 * 
+//	 * @param sitesInfo
+//	 * @param unit_signature
+//	 * @param file
+//	 */
+//	private static void writeOutStaticInstrumentationInfoForEachScheme(List sitesInfo, String unit_signature, File file) {
+//		PrintWriter out = null;
+//		try {
+//			if (!file.getParentFile().exists()) {
+//				file.getParentFile().mkdirs();
+//			}
+//			// write the passing inputs
+//			out = new PrintWriter(new BufferedWriter(new FileWriter(file, true)));
+//
+//			// tag headers
+//			out.printf("<sites unit=\"%s\" scheme=\"%s\">\n", unit_signature,
+//					((AbstractSite) sitesInfo.get(0)).getSchemeName());
+//			// content
+//			for (int i = 0; i < sitesInfo.size(); i++) {
+//				AbstractSite site = (AbstractSite) sitesInfo.get(i);
+//				out.println(site.printToString());
+//			}
+//			// tag close
+//			out.println("</sites>");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} finally {
+//			out.close();
+//		}
+//	}
 	
 	
 	private static void importCounts(){
