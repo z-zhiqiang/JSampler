@@ -203,7 +203,7 @@ public class PInstrumentor extends BodyTransformer {
 
 		Local countdown = null;
 		
-		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(body.getMethod().getSignature());
+		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(PCounter.transform(body.getMethod().getSignature()));
 		
 		
 		/*---------------------------------------------- sampling -------------------------------------------------*/

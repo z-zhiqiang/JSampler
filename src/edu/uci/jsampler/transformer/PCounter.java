@@ -20,6 +20,7 @@ import soot.toolkits.scalar.InitAnalysis;
 import soot.util.Chain;
 
 public class PCounter extends BodyTransformer {
+	public static final String Delimiter = "-";
 	
 	// instrumentation flag
 	private final boolean branches_flag;
@@ -60,7 +61,7 @@ public class PCounter extends BodyTransformer {
 		//initialized variables
 		InitAnalysis analysis = new InitAnalysis(new BriefUnitGraph(body));
 		
-		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(body.getMethod().getSignature());		
+		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(transform(body.getMethod().getSignature()));		
 		
 		//instrument the specified methods
 		if(under_analysis){
@@ -116,6 +117,13 @@ public class PCounter extends BodyTransformer {
 		}
 	}
 	
+	
+	public static String transform(String method_signature){
+		return method_signature.replaceAll(" ", Delimiter)
+				.replaceAll("\\(", Delimiter).replaceAll("\\)", Delimiter)
+				.replaceAll(":", Delimiter)
+				.replaceAll("<", Delimiter).replaceAll(">", Delimiter);
+	}
 	
 
 }
