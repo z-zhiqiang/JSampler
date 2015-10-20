@@ -63,10 +63,11 @@ public class JSampler {
 		// export static instrumentation information into files
 		exportCounts();
 		
-		
 		//clear all static state of Soot
 		soot.G.reset();
 		
+		//clear all the jimple files generated
+		removeJimpleFromDirectory(new File(sootClassPath));
 		
 		/*---------------------------------------------------------------------------------------------*/
 
@@ -268,5 +269,27 @@ public class JSampler {
 		}
 	}
 	
+	/**
+	 * remove all jimple files under directory
+	 * 
+	 * @param directory
+	 */
+	public static void removeJimpleFromDirectory(File directory) {
+		String[] list = directory.list();
+
+		// Some JVMs return null for File.list() when the directory is empty.
+		if (list != null) {
+			for (int i = 0; i < list.length; i++) {
+				File entry = new File(directory, list[i]);
+				
+				if (entry.isDirectory()) {
+					removeJimpleFromDirectory(entry);
+				} else if(entry.getName().endsWith(".jimple")){
+					entry.delete();
+				}
+			}
+		}
+
+	}
 	
 }
