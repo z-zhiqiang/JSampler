@@ -42,18 +42,21 @@ public class JSampler {
 	public static void main(String[] args) {
 		//parse arguments
 		List<String> soot_parameters = new ArrayList<String>();
-		parseParameters(args, soot_parameters);
+		String sootClassPath = parseParameters(args, soot_parameters);
+		System.out.println(sootClassPath);
+		System.out.println(soot_parameters);
 
 		
 		/*---------------------------------------------------------------------------------------------*/
 		
-		PCounter counter = new PCounter(branches_flag, returns_flag, scalarpairs_flag, methodentries_flag, methods_instrument);
-		PackManager.v().getPack("jtp").add(new Transform("jtp.counter", counter));
-
+		Options.v().set_soot_classpath(sootClassPath);
 		Options.v().setPhaseOption("jb", "use-original-names:true");
 		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_keep_line_number(true);
 		Options.v().set_prepend_classpath(true);
+
+		PCounter counter = new PCounter(branches_flag, returns_flag, scalarpairs_flag, methodentries_flag, methods_instrument);
+		PackManager.v().getPack("jtp").add(new Transform("jtp.counter", counter));
 
 		soot.Main.main(soot_parameters.toArray(new String[soot_parameters.size()]));
 
@@ -66,15 +69,16 @@ public class JSampler {
 		
 		
 		/*---------------------------------------------------------------------------------------------*/
-		
-		PInstrumentor instrumentor = new PInstrumentor(branches_flag, returns_flag, scalarpairs_flag, methodentries_flag,
-				sample_flag, methods_instrument, PCounter.counts_branch, PCounter.counts_return, PCounter.counts_scalarPair, PCounter.counts_methodEntry);
-		PackManager.v().getPack("jtp").add(new Transform("jtp.instrumenter", instrumentor));
 
+		Options.v().set_soot_classpath(sootClassPath);
 		Options.v().setPhaseOption("jb", "use-original-names:true");
 //		Options.v().set_output_format(Options.output_format_jimple);
 		Options.v().set_keep_line_number(true);
 		Options.v().set_prepend_classpath(true);
+
+		PInstrumentor instrumentor = new PInstrumentor(branches_flag, returns_flag, scalarpairs_flag, methodentries_flag,
+				sample_flag, methods_instrument, PCounter.counts_branch, PCounter.counts_return, PCounter.counts_scalarPair, PCounter.counts_methodEntry);
+		PackManager.v().getPack("jtp").add(new Transform("jtp.instrumenter", instrumentor));
 
 		soot.Main.main(soot_parameters.toArray(new String[soot_parameters.size()]));
 
@@ -88,7 +92,7 @@ public class JSampler {
 	 * @param args
 	 * @param soot_parameters
 	 */
-	private static void parseParameters(String[] args, List<String> soot_parameters) {
+	private static String parseParameters(String[] args, List<String> soot_parameters) {
 		if (args.length == 0) {
 			System.err.println("Usage: java JSampler sampler-options [soot-options] classname");
 			System.exit(0);
@@ -99,7 +103,8 @@ public class JSampler {
 		
 		methods_instrument = new HashSet<String>();
 		
-		
+		String classPath = null;
+		int index = -2;
 		// TODO Auto-generated method stub
 		for (int i = 0; i < args.length; i++) {
 			String option = args[i].trim();
@@ -129,9 +134,18 @@ public class JSampler {
 					System.err.println("wrong option!");
 				}
 			} else {
-				soot_parameters.add(option);
+				if(option.equals("-cp")|| option.equals("-soot-class-path")|| option.equals("-soot-classpath")){
+					classPath = args[i + 1];
+					index = i;
+				}
+				else if (i != (index + 1)){
+					soot_parameters.add(option);
+				}
+				
 			}
 		}
+		
+		return classPath;
 	}
 
 	/**

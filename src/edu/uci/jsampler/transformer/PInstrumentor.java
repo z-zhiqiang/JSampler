@@ -796,6 +796,7 @@ public class PInstrumentor extends BodyTransformer {
 	 */
 	private int getSourceLineNumber(Stmt stmt) {
 		// TODO Auto-generated method stub
+		if(stmt.getTag("LineNumberTag") == null) return -1;
 		return ((LineNumberTag) stmt.getTag("LineNumberTag")).getLineNumber();
 	}
 
