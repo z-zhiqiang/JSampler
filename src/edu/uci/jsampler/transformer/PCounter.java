@@ -105,6 +105,11 @@ public class PCounter extends BodyTransformer {
 //						}
 						
 						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+						
+						if (!(def instanceof soot.Local)) {
+							def = ((AssignStmt) stmt).getRightOp();
+						}
+						
 						while(it.hasNext()){
 							Local local = (Local) it.next();
 							if (local.getType() == def.getType() && local != def) {

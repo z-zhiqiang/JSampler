@@ -563,8 +563,11 @@ public class PInstrumentor extends BodyTransformer {
 					weight_function++;
 				}
 				// for scalar-pairs
-				else if(this.scalarpairs_flag){
+				else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
 					Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+					if (!(def instanceof soot.Local)) {
+						def = ((AssignStmt) stmt).getRightOp();
+					}
 					while(it.hasNext()){
 						Local local = (Local) it.next();
 						if (local.getType() == def.getType() && local != def) {
@@ -591,8 +594,11 @@ public class PInstrumentor extends BodyTransformer {
 						counts++;
 					}
 					// for scalar-pairs
-					else if(this.scalarpairs_flag){
+					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
 						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+						if (!(def instanceof soot.Local)) {
+							def = ((AssignStmt) stmt).getRightOp();
+						}
 						while(it.hasNext()){
 							Local local = (Local) it.next();
 							if (local.getType() == def.getType() && local != def) {
@@ -702,14 +708,15 @@ public class PInstrumentor extends BodyTransformer {
 		String right = ((AssignStmt) stmt).getRightOp().toString();
 
 		if (!(def instanceof soot.Local)) {
-			// insert checking code
-			Local tmp = Jimple.v().newLocal("tmp" + cfg_number, def.getType());
-			body.getLocals().add(tmp);
-			Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, def);
-			units.insertAfter(inserted_assign, stmt);
-
-			def = tmp;
-			stmt = inserted_assign;
+//			// insert checking code
+//			Local tmp = Jimple.v().newLocal("tmp" + cfg_number, def.getType());
+//			body.getLocals().add(tmp);
+//			Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, def);
+//			units.insertAfter(inserted_assign, stmt);
+//
+//			def = tmp;
+//			stmt = inserted_assign;
+			def = ((AssignStmt) stmt).getRightOp();
 		}
 
 		while(it.hasNext()){
