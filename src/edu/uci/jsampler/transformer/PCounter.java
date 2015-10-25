@@ -56,6 +56,11 @@ public class PCounter extends BodyTransformer {
 	protected void internalTransform(Body body, String phaseName, Map options) {
 		// get body's units
 		Chain<Unit> units = body.getUnits();
+		
+//		System.out.println("\n\n");
+//		System.out.println(units.toString());
+//		System.out.println(body.getTraps().toString());
+		
 		Iterator<Unit> original_stmtIt = units.snapshotIterator();
 		
 		//initialized variables
@@ -71,6 +76,8 @@ public class PCounter extends BodyTransformer {
 			while (original_stmtIt.hasNext()) {
 				// cast back to a statement
 				Stmt stmt = (Stmt) original_stmtIt.next();
+				
+//				System.out.println(stmt + ":\t" + stmt.getClass());
 				
 				// for method-entries
 				if (this.methodentries_flag && instrumentEntry_flag && !(stmt instanceof IdentityStmt)) {

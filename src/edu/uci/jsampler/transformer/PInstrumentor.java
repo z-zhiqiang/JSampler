@@ -25,11 +25,13 @@ import soot.PrimType;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Trap;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
+import soot.jimple.CaughtExceptionRef;
 import soot.jimple.ConditionExpr;
 import soot.jimple.GotoStmt;
 import soot.jimple.IdentityStmt;
@@ -193,18 +195,21 @@ public class PInstrumentor extends BodyTransformer {
 	 */
 	@Override
 	protected void internalTransform(Body body, String phase, Map options) {
-		// get body's units
+		//body's units
 		Chain<Unit> units = body.getUnits();
 		Iterator<Unit> original_stmtIt = units.snapshotIterator();
 		Iterator<Unit> stmtIt = units.snapshotIterator();
 		
+		//body's traps
+		Chain<Trap> traps = body.getTraps();
+		Iterator<Trap> trapIt = traps.snapshotIterator();
+
 		//initialized variables
 		InitAnalysis analysis = new InitAnalysis(new BriefUnitGraph(body));
 
 		Local countdown = null;
 		
 		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(PCounter.transform(body.getMethod().getSignature()));
-		
 		
 		/*---------------------------------------------- sampling -------------------------------------------------*/
 		
@@ -225,7 +230,7 @@ public class PInstrumentor extends BodyTransformer {
 			insertSampleCheckingCodeAtFunctionentry(body, units, weight_function, countdown);	
 			
 			//fast path
-			Map<Unit, Unit> unitsMap = addClonedCodeAsFastpath(units, stmtIt);		
+			Map<Unit, Unit> unitsMap = addClonedCodeAsFastpath(units, stmtIt, traps, trapIt);		
 			
 			//at loop back edge
 			insertSampleCheckingCodeAtLoopback(body, units, weight_loops, countdown, unitsMap);
@@ -261,7 +266,7 @@ public class PInstrumentor extends BodyTransformer {
 				
 				/* add checking code */
 				// for method-entries
-				if (this.methodentries_flag && instrumentEntry_flag && !(stmt instanceof IdentityStmt)) {
+				if (this.methodentries_flag && instrumentEntry_flag && !isNonCaughtExceptionIdentityStmt(stmt)) {
 					instrumentMethodEntries(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, countdown);
 					instrumentEntry_flag = false;
 				}
@@ -444,25 +449,27 @@ public class PInstrumentor extends BodyTransformer {
 
 	
 	/**
-	 * duplicate code to build fast path
+	 * duplicate code to build fast path, i.e., add cloned code at the end of the original code
 	 * 
 	 * @param units
 	 * @param stmtIt
+	 * @param trapIt 
+	 * @param traps 
 	 * @return
 	 */
-	private Map<Unit, Unit> addClonedCodeAsFastpath(Chain<Unit> units, Iterator<Unit> stmtIt) {
-		//add cloned code at the end of the original code
+	private Map<Unit, Unit> addClonedCodeAsFastpath(Chain<Unit> units, Iterator<Unit> stmtIt, Chain<Trap> traps, Iterator<Trap> trapIt) {
+		//duplicate units
 		Map<Unit, Unit> unitsMap = new HashMap<Unit, Unit>();
 		while(stmtIt.hasNext()){
 			Stmt stmt = (Stmt) stmtIt.next();
 			Stmt newStmt = (Stmt) stmt.clone();
-			if(!(stmt instanceof IdentityStmt)){
+			if(!isNonCaughtExceptionIdentityStmt(stmt)){
 				unitsMap.put(stmt, newStmt);
 				units.insertAfter(newStmt, units.getLast());
 			}
 		}
 		
-		//change the targets accordingly
+		//change targets accordingly
 		for(Unit oldStmt: unitsMap.keySet()){
 			if(oldStmt instanceof IfStmt){
 				IfStmt newIfStmt = (IfStmt) unitsMap.get(oldStmt);
@@ -491,9 +498,46 @@ public class PInstrumentor extends BodyTransformer {
 				}
 			}
 		}
+		
+		
+		//duplicate traps
+		while(trapIt.hasNext()){
+			Trap trap = trapIt.next();
+			Trap newTrap = (Trap) trap.clone();
+			//change trap accordingly
+			changeTrap(newTrap, unitsMap);
+			traps.insertAfter(newTrap, traps.getLast());
+		}
+		
 		return unitsMap;
 	}
 
+	
+	/** update trap accordingly: including beginUnit, endUnit, handlerUnit
+	 * @param newTrap
+	 * @param unitsMap
+	 */
+	private void changeTrap(Trap newTrap, Map<Unit, Unit> unitsMap) {
+		Unit begin = newTrap.getBeginUnit();
+		Unit end = newTrap.getEndUnit();
+		Unit handler = newTrap.getHandlerUnit();
+		
+		newTrap.setBeginUnit(unitsMap.get(begin));
+		newTrap.setEndUnit(unitsMap.get(end));
+		newTrap.setHandlerUnit(unitsMap.get(handler));
+	}
+
+	
+	/** determine if stmt is nonCaughtException IdentityStmt: ParameterIdentity or ThisIdentity
+	 * @param stmt
+	 * @return
+	 */
+	private boolean isNonCaughtExceptionIdentityStmt(Stmt stmt){
+		if(stmt instanceof IdentityStmt && !(((IdentityStmt) stmt).getRightOp() instanceof CaughtExceptionRef)){
+			return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * insert sample checking code at the function entry point
@@ -628,7 +672,7 @@ public class PInstrumentor extends BodyTransformer {
 		Iterator<Unit> stmtIt = units.snapshotIterator();
 		while(stmtIt.hasNext()){
 			Stmt stmt = (Stmt) stmtIt.next();
-			if(!(stmt instanceof IdentityStmt)){
+			if(!isNonCaughtExceptionIdentityStmt(stmt)){
 				firstNonIdentityStmt = stmt;
 				break;
 			}
@@ -636,25 +680,25 @@ public class PInstrumentor extends BodyTransformer {
 		return firstNonIdentityStmt;
 	}
 
-	/** return the last non-identity statement
-	 * @param units
-	 * @return
-	 */
-	private Stmt getLastIdentityStmt(Chain<Unit> units){
-		Stmt lastIdentityStmt = null;
-		
-		Iterator<Unit> stmtIt = units.snapshotIterator();
-		while(stmtIt.hasNext()){
-			Stmt stmt = (Stmt) stmtIt.next();
-			if(stmt instanceof IdentityStmt){
-				lastIdentityStmt = stmt;
-			}
-			else{
-				break;
-			}
-		}
-		return lastIdentityStmt;
-	}
+//	/** return the last non-identity statement
+//	 * @param units
+//	 * @return
+//	 */
+//	private Stmt getLastIdentityStmt(Chain<Unit> units){
+//		Stmt lastIdentityStmt = null;
+//		
+//		Iterator<Unit> stmtIt = units.snapshotIterator();
+//		while(stmtIt.hasNext()){
+//			Stmt stmt = (Stmt) stmtIt.next();
+//			if(stmt instanceof IdentityStmt){
+//				lastIdentityStmt = stmt;
+//			}
+//			else{
+//				break;
+//			}
+//		}
+//		return lastIdentityStmt;
+//	}
 
 	/**
 	 * insert reporting code before program exit

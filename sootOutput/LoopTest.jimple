@@ -1,0 +1,99 @@
+public class LoopTest extends java.lang.Object
+{
+
+    public void <init>()
+    {
+        LoopTest r0;
+
+        r0 := @this: LoopTest;
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+        return;
+    }
+
+    public static void main(java.lang.String[]) throws java.lang.Exception
+    {
+        java.lang.String[] r0;
+        int i0, i1, $i2;
+        java.io.PrintStream $r1;
+
+        r0 := @parameter0: java.lang.String[];
+        i0 = 0;
+        goto label3;
+
+     label0:
+        i1 = 0;
+        goto label2;
+
+     label1:
+        $r1 = <java.lang.System: java.io.PrintStream out>;
+        $i2 = i0 + i1;
+        virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i2);
+        i1 = i1 + 1;
+
+     label2:
+        if i1 < 10 goto label1;
+
+        i0 = i0 + 1;
+
+     label3:
+        if i0 < 10 goto label0;
+
+        return;
+    }
+
+    public static java.util.Collection readCollection(java.io.File) throws java.io.FileNotFoundException
+    {
+        java.io.File r0;
+        java.util.ArrayList $r1, r2;
+        null_type n0;
+        java.io.FileReader $r3;
+        java.lang.String r4, $r7;
+        java.io.BufferedReader $r5, r6;
+        java.io.FileNotFoundException $r8, r9;
+        java.io.IOException $r10, r11;
+
+        r0 := @parameter0: java.io.File;
+        $r1 = new java.util.ArrayList;
+        specialinvoke $r1.<java.util.ArrayList: void <init>()>();
+        r2 = $r1;
+        n0 = null;
+
+     label0:
+        $r5 = new java.io.BufferedReader;
+        $r3 = new java.io.FileReader;
+        specialinvoke $r3.<java.io.FileReader: void <init>(java.io.File)>(r0);
+        specialinvoke $r5.<java.io.BufferedReader: void <init>(java.io.Reader)>($r3);
+        r6 = $r5;
+        goto label2;
+
+     label1:
+        interfaceinvoke r2.<java.util.Collection: boolean add(java.lang.Object)>(r4);
+
+     label2:
+        $r7 = virtualinvoke r6.<java.io.BufferedReader: java.lang.String readLine()>();
+        r4 = $r7;
+        if $r7 != null goto label1;
+
+        virtualinvoke r6.<java.io.BufferedReader: void close()>();
+
+     label3:
+        goto label6;
+
+     label4:
+        $r8 := @caughtexception;
+        r9 = $r8;
+        virtualinvoke r9.<java.io.FileNotFoundException: void printStackTrace()>();
+        throw r9;
+
+     label5:
+        $r10 := @caughtexception;
+        r11 = $r10;
+        virtualinvoke r11.<java.io.IOException: void printStackTrace()>();
+
+     label6:
+        return r2;
+
+        catch java.io.FileNotFoundException from label0 to label3 with label4;
+        catch java.io.IOException from label0 to label3 with label5;
+    }
+}
