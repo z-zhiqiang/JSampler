@@ -57,16 +57,14 @@ public class PCounter extends BodyTransformer {
 		// get body's units
 		Chain<Unit> units = body.getUnits();
 		
-//		System.out.println("\n\n");
-//		System.out.println(units.toString());
-//		System.out.println(body.getTraps().toString());
-		
 		Iterator<Unit> original_stmtIt = units.snapshotIterator();
 		
 		//initialized variables
 		InitAnalysis analysis = new InitAnalysis(new BriefUnitGraph(body));
 		
 		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(transform(body.getMethod().getSignature()));		
+//		under_analysis = under_analysis && !body.getMethod().getSignature().equals("<org.apache.tools.bzip2.CBZip2OutputStream: void mainSort()>");
+		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.tools.bzip2.CBZip2OutputStream");
 		
 		//instrument the specified methods
 		if(under_analysis){
@@ -76,8 +74,6 @@ public class PCounter extends BodyTransformer {
 			while (original_stmtIt.hasNext()) {
 				// cast back to a statement
 				Stmt stmt = (Stmt) original_stmtIt.next();
-				
-//				System.out.println(stmt + ":\t" + stmt.getClass());
 				
 				// for method-entries
 				if (this.methodentries_flag && instrumentEntry_flag && !(stmt instanceof IdentityStmt)) {
@@ -97,26 +93,11 @@ public class PCounter extends BodyTransformer {
 					}
 					// for scalar-pairs
 					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
-//						Iterator it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
-//						if (!(def instanceof soot.Local)) {
-//							Local tmp = Jimple.v().newLocal("tmp", def.getType());
-//							body.getLocals().add(tmp);
-//							def = tmp;
-//						}
-//
-//						while(it.hasNext()){
-//							Local local = (Local) it.next();
-//							if (local.getType() == def.getType() && local != def) {
-//								counts_scalarPair++;
-//							}
-//						}
-						
-						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
-						
 						if (!(def instanceof soot.Local)) {
 							def = ((AssignStmt) stmt).getRightOp();
 						}
 						
+						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 						while(it.hasNext()){
 							Local local = (Local) it.next();
 							if (local.getType() == def.getType() && local != def) {

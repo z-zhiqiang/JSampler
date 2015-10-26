@@ -8,15 +8,21 @@ import java.util.Collection;
 
 public class LoopTest {
 	public static void main(String[] args) throws Exception{
-		for(int i = 0; i < 10; i++){
-			for(int j = 0; j < 10; j++){
-				System.out.println(i + j);
-			}
+//		for(int i = 0; i < 10; i++){
+//			for(int j = 0; j < 10; j++){
+//				System.out.println(i + j);
+//			}
+//		}
+		try{
+			readCollection(new File("a.file"));
+		}
+		catch (IOException e){
+			e.printStackTrace();
 		}
 	}
 	
 	
-	public static Collection<String> readCollection(File file) throws FileNotFoundException{ 
+	public static Collection<String> readCollection(File file) throws IOException{ 
 		Collection<String> lines = new ArrayList<String>();
 		BufferedReader reader = null;
 		try {
@@ -29,12 +35,13 @@ public class LoopTest {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw e;
+//			throw e;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+//			throw new IOException("IO");
 		} 
-//		finally{
+		finally{
 //			if(reader != null){
 //				try {
 //					reader.close();
@@ -43,8 +50,9 @@ public class LoopTest {
 //					e.printStackTrace();
 //				}
 //			}
-//		}
-		
+			System.out.println("finally");
+		}
+		System.out.println("return lines");
 		return lines;
 	}
 

@@ -48,6 +48,7 @@ import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.TableSwitchStmt;
+import soot.jimple.ThrowStmt;
 import soot.jimple.toolkits.annotation.logic.Loop;
 import soot.tagkit.*;
 import soot.toolkits.graph.BriefUnitGraph;
@@ -210,6 +211,8 @@ public class PInstrumentor extends BodyTransformer {
 		Local countdown = null;
 		
 		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(PCounter.transform(body.getMethod().getSignature()));
+//		under_analysis = under_analysis && !body.getMethod().getSignature().equals("<org.apache.tools.bzip2.CBZip2OutputStream: void mainSort()>");
+		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.tools.bzip2.CBZip2OutputStream");
 		
 		/*---------------------------------------------- sampling -------------------------------------------------*/
 		
@@ -306,8 +309,9 @@ public class PInstrumentor extends BodyTransformer {
 					insertReportingCode(units, stmt);
 				}
 			}
-			// insert reporting code before return of main
-			if (body.getMethod().getSubSignature().equals("void main(java.lang.String[])") && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt)) {
+			// insert reporting code before return or throwing an exception within main
+			if (body.getMethod().getSubSignature().equals("void main(java.lang.String[])") && (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt 
+					|| stmt instanceof ThrowStmt)) {
 				insertReportingCode(units, stmt);
 			}
 		}
@@ -353,7 +357,7 @@ public class PInstrumentor extends BodyTransformer {
 			Stmt stmt = (Stmt) stmtIterator.next();
 			
 			//export local countdown 
-			if (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt) {
+			if (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt || stmt instanceof ThrowStmt) {
 				InvokeExpr invokeExpr = Jimple.v().newStaticInvokeExpr(setCountdown.makeRef(), countdown);
 				InvokeStmt invokeStmt = Jimple.v().newInvokeStmt(invokeExpr);
 				units.insertBefore(invokeStmt, stmt);
@@ -608,10 +612,10 @@ public class PInstrumentor extends BodyTransformer {
 				}
 				// for scalar-pairs
 				else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
-					Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 					if (!(def instanceof soot.Local)) {
 						def = ((AssignStmt) stmt).getRightOp();
 					}
+					Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 					while(it.hasNext()){
 						Local local = (Local) it.next();
 						if (local.getType() == def.getType() && local != def) {
@@ -639,10 +643,10 @@ public class PInstrumentor extends BodyTransformer {
 					}
 					// for scalar-pairs
 					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
-						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 						if (!(def instanceof soot.Local)) {
 							def = ((AssignStmt) stmt).getRightOp();
 						}
+						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 						while(it.hasNext()){
 							Local local = (Local) it.next();
 							if (local.getType() == def.getType() && local != def) {
@@ -690,7 +694,7 @@ public class PInstrumentor extends BodyTransformer {
 //		Iterator<Unit> stmtIt = units.snapshotIterator();
 //		while(stmtIt.hasNext()){
 //			Stmt stmt = (Stmt) stmtIt.next();
-//			if(stmt instanceof IdentityStmt){
+//			if(isNonCaughtExceptionIdentityStmt(stmt)){
 //				lastIdentityStmt = stmt;
 //			}
 //			else{
@@ -746,23 +750,15 @@ public class PInstrumentor extends BodyTransformer {
 			container_type = "index";
 		}
 		
-		Iterator it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 		
 		// right and compared variable info
 		String right = ((AssignStmt) stmt).getRightOp().toString();
 
 		if (!(def instanceof soot.Local)) {
-//			// insert checking code
-//			Local tmp = Jimple.v().newLocal("tmp" + cfg_number, def.getType());
-//			body.getLocals().add(tmp);
-//			Stmt inserted_assign = Jimple.v().newAssignStmt(tmp, def);
-//			units.insertAfter(inserted_assign, stmt);
-//
-//			def = tmp;
-//			stmt = inserted_assign;
 			def = ((AssignStmt) stmt).getRightOp();
 		}
 
+		Iterator it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
 		while(it.hasNext()){
 			Local local = (Local) it.next();
 			if (local.getType() == def.getType() && local != def) {
