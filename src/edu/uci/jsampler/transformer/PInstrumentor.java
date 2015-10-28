@@ -211,8 +211,8 @@ public class PInstrumentor extends BodyTransformer {
 		Local countdown = null;
 		
 		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(PCounter.transform(body.getMethod().getSignature()));
-//		under_analysis = under_analysis && !body.getMethod().getSignature().equals("<org.apache.tools.bzip2.CBZip2OutputStream: void mainSort()>");
 		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.tools.bzip2.CBZip2OutputStream");
+		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.derbyTesting.functionTests.tests.lang.concateTests");
 		
 		/*---------------------------------------------- sampling -------------------------------------------------*/
 		
