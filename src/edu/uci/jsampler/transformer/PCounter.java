@@ -1,6 +1,8 @@
 package edu.uci.jsampler.transformer;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,13 +65,14 @@ public class PCounter extends BodyTransformer {
 		InitAnalysis analysis = new InitAnalysis(new BriefUnitGraph(body));
 		
 		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(transform(body.getMethod().getSignature()));		
-		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.tools.bzip2.CBZip2OutputStream");
-		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.derbyTesting.functionTests.tests.lang.concateTests");
 		
 		//instrument the specified methods
 		if(under_analysis){
 			boolean instrumentEntry_flag = true;
 			Value def = null;
+			
+			boolean flag = true;
+			int num = counts_scalarPair;
 			
 			while (original_stmtIt.hasNext()) {
 				// cast back to a statement
@@ -92,21 +95,35 @@ public class PCounter extends BodyTransformer {
 						counts_return++;
 					}
 					// for scalar-pairs
-					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
+					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr() && flag){
+						if(counts_scalarPair - num > PInstrumentor.Limit_ScalarPairs){
+							flag = false;
+						}
+						
 						if (!(def instanceof soot.Local)) {
 							def = ((AssignStmt) stmt).getRightOp();
+							continue;
 						}
 						
 						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+						List<Local> locals = new ArrayList<Local>();
 						while(it.hasNext()){
 							Local local = (Local) it.next();
 							if (local.getType() == def.getType() && local != def) {
-								counts_scalarPair++;
+								locals.add(local);
 							}
 						}
+						for(int i = 0; i < locals.size(); i++){
+							if(locals.size() > PInstrumentor.Threshold_Locals && i % (locals.size() / PInstrumentor.Limit_Site + 1) != 0){
+								continue;
+							}
+							counts_scalarPair++;
+						}	
+						
 					}
 				}
 			}
+			
 		}
 	}
 	

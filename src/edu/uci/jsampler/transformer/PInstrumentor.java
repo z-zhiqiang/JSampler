@@ -59,6 +59,12 @@ import soot.util.Chain;
 
 public class PInstrumentor extends BodyTransformer {
 
+	public static final int Limit_Site = 15;
+
+	public static final int Threshold_Locals = 35;
+
+	public static final int Limit_ScalarPairs = 600;
+	
 	// internal fields
 	static SootClass checkerReporterClass, globalCountdownClass;
 	static SootMethod getCountdown, setCountdown, getNextCountdown;
@@ -211,8 +217,10 @@ public class PInstrumentor extends BodyTransformer {
 		Local countdown = null;
 		
 		boolean under_analysis = this.methods_instrument.isEmpty() || this.methods_instrument.contains(PCounter.transform(body.getMethod().getSignature()));
-		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.tools.bzip2.CBZip2OutputStream");
-		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.derbyTesting.functionTests.tests.lang.concateTests");
+//		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.tools.bzip2.CBZip2OutputStream");
+//		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.derbyTesting.functionTests.tests.lang.concateTests");
+//		under_analysis = under_analysis && !body.getMethod().getDeclaringClass().toString().equals("org.apache.derby.impl.sql.compile.SQLParserTokenManager");
+		
 		
 		/*---------------------------------------------- sampling -------------------------------------------------*/
 		
@@ -223,6 +231,7 @@ public class PInstrumentor extends BodyTransformer {
 			
 			//if no instrumentation site, skip it
 			if(weight_function <= 0){
+				addReportingBeforeExit(body, units);
 				return;
 			}
 			
@@ -251,6 +260,9 @@ public class PInstrumentor extends BodyTransformer {
 			// source file name
 			String file_name = body.getMethod().getDeclaringClass().getName();
 			int file_name_translated = Translator.getInstance().getInteger(file_name);
+			
+			boolean flag = true;
+			int num = counts_scalarPair_inst;
 			
 			// body's method
 			String method_name = body.getMethod().getSignature();
@@ -285,12 +297,14 @@ public class PInstrumentor extends BodyTransformer {
 						instrumentReturns(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def, countdown);
 					}
 					// for scalar-pairs
-					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
+					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr() && flag){
+						if(counts_scalarPair_inst - num > Limit_ScalarPairs){
+							flag = false;
+						}
 						instrumentScalarPairs(file_name_translated, method_name_translated, line_number, cfg_number, body, units, stmt, def, analysis, countdown);
 					}
 					
 				}
-				
 				// trace cfg_number
 				cfg_number++;
 			}
@@ -298,6 +312,17 @@ public class PInstrumentor extends BodyTransformer {
 		
 		
 		// add reporting code before program exit 
+		addReportingBeforeExit(body, units);
+		
+		
+	}
+
+	
+	/** insert reporting code before program exit 
+	 * @param body
+	 * @param units
+	 */
+	private void addReportingBeforeExit(Body body, Chain<Unit> units) {
 		Iterator<Unit> sIt = units.snapshotIterator();
 		while(sIt.hasNext()){
 			Stmt stmt = (Stmt) sIt.next();
@@ -315,8 +340,6 @@ public class PInstrumentor extends BodyTransformer {
 				insertReportingCode(units, stmt);
 			}
 		}
-		
-		
 	}
 
 	/**
@@ -391,28 +414,40 @@ public class PInstrumentor extends BodyTransformer {
 			if(unitsMap.keySet().contains(slowLoopHead) && (weight = weight_loops.get(slowLoopHead)) != 0){
 				Stmt slowBackJumpStmt = loop.getBackJumpStmt();
 				Stmt fastBackJumpStmt = (Stmt) unitsMap.get(slowBackJumpStmt);
-				Stmt fastLoopHead = (Stmt) unitsMap.get(slowLoopHead);
-				
-				//sample checking code at loop back
-				ConditionExpr condition_loop = Jimple.v().newLeExpr(countdown, IntConstant.v(weight));
-				IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, slowLoopHead);
-				units.insertAfter(ifStmt_loop, fastBackJumpStmt);	
-				
-				//decrease countdown at fast path
-				BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight));
-				AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
-				units.insertAfter(decreaseStmt_loop, ifStmt_loop);
-				
-				GotoStmt gotoFast = Jimple.v().newGotoStmt(fastLoopHead);
-				units.insertAfter(gotoFast, decreaseStmt_loop);
-				
 				
 				//deal with the special case with gotoStmt as backJumpStmt
 				if(slowBackJumpStmt instanceof GotoStmt){
+					//sample checking code at loop back
+					ConditionExpr condition_loop = Jimple.v().newLeExpr(countdown, IntConstant.v(weight));
+					IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, ((GotoStmt) slowBackJumpStmt).getTarget());
+					units.insertAfter(ifStmt_loop, fastBackJumpStmt);	
+					
+					//decrease countdown at fast path
+					BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight));
+					AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
+					units.insertAfter(decreaseStmt_loop, ifStmt_loop);
+					
+					GotoStmt gotoFast = Jimple.v().newGotoStmt(((GotoStmt) fastBackJumpStmt).getTarget());
+					units.insertAfter(gotoFast, decreaseStmt_loop);
+					
 					((GotoStmt) slowBackJumpStmt).setTarget(ifStmt_loop);
 					((GotoStmt) fastBackJumpStmt).setTarget(ifStmt_loop);
 				}
 				else if(slowBackJumpStmt instanceof IfStmt){
+					//sample checking code at loop back
+					ConditionExpr condition_loop = Jimple.v().newLeExpr(countdown, IntConstant.v(weight));
+					IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, ((IfStmt) slowBackJumpStmt).getTarget());
+					units.insertAfter(ifStmt_loop, fastBackJumpStmt);	
+					
+					//decrease countdown at fast path
+					BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight));
+					AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
+					units.insertAfter(decreaseStmt_loop, ifStmt_loop);
+					
+					GotoStmt gotoFast = Jimple.v().newGotoStmt(((IfStmt) fastBackJumpStmt).getTarget());
+					units.insertAfter(gotoFast, decreaseStmt_loop);
+					
+					
 					((IfStmt) slowBackJumpStmt).setTarget(ifStmt_loop);
 					((IfStmt) fastBackJumpStmt).setTarget(ifStmt_loop);
 					
@@ -422,14 +457,34 @@ public class PInstrumentor extends BodyTransformer {
 					GotoStmt goAhead = Jimple.v().newGotoStmt(nopStmt);
 					units.insertAfter(goAhead, fastBackJumpStmt);
 				}
+				else if(slowBackJumpStmt instanceof LookupSwitchStmt || slowBackJumpStmt instanceof TableSwitchStmt){
+					System.err.println("BackJumpStmt is SwitchStmt: " + slowBackJumpStmt);
+				}
 				else{
+					//nop
+					NopStmt slowNop = Jimple.v().newNopStmt();
+					units.insertAfter(slowNop, slowBackJumpStmt);
+					
+					NopStmt fastNop = Jimple.v().newNopStmt();
+					units.insertAfter(fastNop, fastBackJumpStmt);
+					
+					//sample checking code at loop back
+					ConditionExpr condition_loop = Jimple.v().newLeExpr(countdown, IntConstant.v(weight));
+					IfStmt ifStmt_loop = Jimple.v().newIfStmt(condition_loop, slowNop);
+					units.insertAfter(ifStmt_loop, fastBackJumpStmt);	
+					
+					//decrease countdown at fast path
+					BinopExpr binoExpr_loop = Jimple.v().newSubExpr(countdown, IntConstant.v(weight));
+					AssignStmt decreaseStmt_loop = Jimple.v().newAssignStmt(countdown, binoExpr_loop);
+					units.insertAfter(decreaseStmt_loop, ifStmt_loop);
+					
+					GotoStmt gotoFast = Jimple.v().newGotoStmt(fastNop);
+					units.insertAfter(gotoFast, decreaseStmt_loop);
+					
+					
 					//go back to sample checking code from slow path 
 					GotoStmt gotoChecking = Jimple.v().newGotoStmt(ifStmt_loop);
 					units.insertAfter(gotoChecking, slowBackJumpStmt);
-					
-					if(slowBackJumpStmt instanceof LookupSwitchStmt || slowBackJumpStmt instanceof TableSwitchStmt){
-						System.err.println("BackJumpStmt is SwitchStmt: " + slowBackJumpStmt);
-					}
 				}
 			}
 		}
@@ -588,6 +643,9 @@ public class PInstrumentor extends BodyTransformer {
 		boolean instrumentEntry_flag = true;
 		Value def = null;
 		
+		boolean flag_function = true;
+		int num_function = 0;
+		
 		//compute function region weight
 		Iterator<Unit> stmtIt = units.snapshotIterator();
 		while (stmtIt.hasNext()) {
@@ -611,17 +669,31 @@ public class PInstrumentor extends BodyTransformer {
 					weight_function++;
 				}
 				// for scalar-pairs
-				else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
+				else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr() && flag_function){
+					if(num_function > Limit_ScalarPairs){
+						flag_function = false;
+					}
+					
 					if (!(def instanceof soot.Local)) {
 						def = ((AssignStmt) stmt).getRightOp();
+						continue;
 					}
+					
 					Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+					List<Local> locals = new ArrayList<Local>();
 					while(it.hasNext()){
 						Local local = (Local) it.next();
 						if (local.getType() == def.getType() && local != def) {
-							weight_function++;
+							locals.add(local);
 						}
 					}
+					for(int i = 0; i < locals.size(); i++){
+						if(locals.size() > Threshold_Locals && i % (locals.size() / Limit_Site + 1) != 0){
+							continue;
+						}
+						weight_function++;
+						num_function++;
+					}	
 				}
 			}
 		}
@@ -630,6 +702,10 @@ public class PInstrumentor extends BodyTransformer {
 		LoopNestTree loopNestTree = new LoopNestTree(body);
 		for(Loop loop: loopNestTree){
 			int counts = 0;
+			
+			boolean flag_loop = true;
+			int num_loop = 0;
+			
 			for(Stmt stmt: loop.getLoopStatements()){
 				// for branches
 				if (this.branches_flag && stmt instanceof IfStmt) {
@@ -642,24 +718,36 @@ public class PInstrumentor extends BodyTransformer {
 						counts++;
 					}
 					// for scalar-pairs
-					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr()){
+					else if(this.scalarpairs_flag && !((Stmt) stmt).containsInvokeExpr() && flag_loop){
+						if(num_loop > PInstrumentor.Limit_ScalarPairs){
+							flag_loop = false;
+						}
+						
 						if (!(def instanceof soot.Local)) {
 							def = ((AssignStmt) stmt).getRightOp();
+							continue;
 						}
+						
 						Iterator<Local> it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+						List<Local> locals = new ArrayList<Local>();
 						while(it.hasNext()){
 							Local local = (Local) it.next();
 							if (local.getType() == def.getType() && local != def) {
-								counts++;
+								locals.add(local);
 							}
+						}
+						for(int i = 0; i < locals.size(); i++){
+							if(locals.size() > Threshold_Locals && i % (locals.size() / Limit_Site + 1) != 0){
+								continue;
+							}
+							counts++;
+							num_loop++;
 						}
 					}
 				}
 			}
 			
 			weight_loops.put(loop.getHead(), counts);
-//			System.out.println(getSourceLineNumber(loop.getHead()) + "\t" + loop.getHead() + "\t" + counts);
-//			System.out.println(getSourceLineNumber(loop.getBackJumpStmt()) + "\t" + loop.getBackJumpStmt() + "\t");
 		}
 		
 		return weight_function;
@@ -756,44 +844,56 @@ public class PInstrumentor extends BodyTransformer {
 
 		if (!(def instanceof soot.Local)) {
 			def = ((AssignStmt) stmt).getRightOp();
+			return;
 		}
 
 		Iterator it = ((FlowSet) analysis.getFlowAfter(stmt)).iterator();
+		List<Local> locals = new ArrayList<Local>();
 		while(it.hasNext()){
 			Local local = (Local) it.next();
 			if (local.getType() == def.getType() && local != def) {
-				counts_scalarPair_inst++;
-				
-				// create static instrumentation site for scalar-pairs
-				ScalarPairSite site = new ScalarPairSite(file_name, line_number, method_name, cfg_number, left, scope_type_assign, container_type, right, local.toString());
-				scalarPair_staticInfo.add(site);
-
-				// insert checking code
-				InvokeExpr checkScalarPair = null;
-				if(def.getType() instanceof IntegerType){
-					//boolean, byte, char, short, int
-					checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_int.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
-				}
-				else if(def.getType() instanceof LongType){
-					checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_long.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
-				}
-				else if(def.getType() instanceof FloatType){
-					checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_float.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
-				}
-				else if(def.getType() instanceof DoubleType){
-					checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_double.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
-				}
-				else{
-					System.err.println("wrong prim type!");
-				}
-				
-				Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
-				units.insertAfter(checkScalarPairStmt, stmt);
-				
-				//insert checking code for sampling
-				insertSampleCheckingCode(units, checkScalarPairStmt, countdown);
+				locals.add(local);
 			}
 		}
+		for(int i = 0; i < locals.size(); i++){
+			if(locals.size() > Threshold_Locals && i % (locals.size() / Limit_Site + 1) != 0){
+				continue;
+			}
+			
+			Local local = locals.get(i);
+			
+			counts_scalarPair_inst++;
+			
+			// create static instrumentation site for scalar-pairs
+			ScalarPairSite site = new ScalarPairSite(file_name, line_number, method_name, cfg_number, left, scope_type_assign, container_type, right, local.toString());
+			scalarPair_staticInfo.add(site);
+			
+			// insert checking code
+			InvokeExpr checkScalarPair = null;
+			if(def.getType() instanceof IntegerType){
+				//boolean, byte, char, short, int
+				checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_int.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+			}
+			else if(def.getType() instanceof LongType){
+				checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_long.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+			}
+			else if(def.getType() instanceof FloatType){
+				checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_float.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+			}
+			else if(def.getType() instanceof DoubleType){
+				checkScalarPair = Jimple.v().newStaticInvokeExpr(checkScalarPairs_double.makeRef(), def, local, IntConstant.v(scalarPair_staticInfo.size() - 1));
+			}
+			else{
+				System.err.println("wrong prim type!");
+			}
+			
+			Stmt checkScalarPairStmt = Jimple.v().newInvokeStmt(checkScalarPair);
+			units.insertAfter(checkScalarPairStmt, stmt);
+			
+			//insert checking code for sampling
+			insertSampleCheckingCode(units, checkScalarPairStmt, countdown);
+		}
+		
 	}
 
 

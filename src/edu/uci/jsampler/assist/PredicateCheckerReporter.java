@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 public class PredicateCheckerReporter {
@@ -56,12 +55,16 @@ public class PredicateCheckerReporter {
 			printReportsForEachScheme(methodEntry_reports, "method-entries", unit_signature, out, counts_methodEntry);
 			
 			out.println("</report>");
+			
+			out.close();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			out.close();
+			if(out != null){
+				out.close();
+			}
 		}
 	}
 
@@ -383,7 +386,7 @@ public class PredicateCheckerReporter {
 		if(output_report == null){
 			output_report = "./output.reports";
 		}
-//		System.out.println("file: " + output_report);
+//		System.err.println("file: " + output_report);
 		return output_report;
 	}
 
