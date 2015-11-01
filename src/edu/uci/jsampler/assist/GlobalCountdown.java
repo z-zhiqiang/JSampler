@@ -7,7 +7,7 @@ public class GlobalCountdown {
 	private static int countdown = sparsity;
 	
 
-	public static int getCountdown() {
+	public static synchronized int getCountdown() {
 		return countdown;
 	}
 
@@ -26,11 +26,11 @@ public class GlobalCountdown {
 		return countdown;
 	}
 
-	public static void setCountdown(int countdown) {
+	public static synchronized void setCountdown(int countdown) {
 		GlobalCountdown.countdown = countdown;
 	}
 	
-	public static int getNextCountdown(){
+	public static synchronized int getNextCountdown(){
 		return sparsity;
 	}
 
