@@ -132,7 +132,8 @@ public class PCounter extends BodyTransformer {
 		return method_signature.replaceAll(" ", Delimiter)
 				.replaceAll("\\(", Delimiter).replaceAll("\\)", Delimiter)
 				.replaceAll(":", Delimiter)
-				.replaceAll("<", Delimiter).replaceAll(">", Delimiter);
+				.replaceAll("<", Delimiter).replaceAll(">", Delimiter)
+				.replaceAll("\\$", Delimiter);
 	}
 	
 
