@@ -1,6 +1,6 @@
-package subjects;
+package test;
 
-public class test {
+public class test2 {
 //	private int field;
 
 	public static void main(String[] args) {
@@ -41,7 +41,7 @@ public class test {
 //		}
 		
 		boolean bb = true;
-		if(new test() instanceof test){
+		if(new test2() instanceof test2){
 			bb = false;
 		}
 		
